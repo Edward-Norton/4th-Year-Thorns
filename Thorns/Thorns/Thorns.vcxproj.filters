@@ -28,6 +28,30 @@
     <Filter Include="Source Files\Entities">
       <UniqueIdentifier>{bfed8eb1-6edf-4d35-b3aa-bf83e0a92f0d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\InterFaces">
+      <UniqueIdentifier>{bf2ee2cd-f9dc-40e6-a9bc-0b68d0654213}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components">
+      <UniqueIdentifier>{31f17cb8-6ab8-4061-8a4b-8d8265549775}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components">
+      <UniqueIdentifier>{c6dc208b-2d8a-45aa-a52f-7cf7b0294a0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Screens">
+      <UniqueIdentifier>{eabbe409-5459-4d34-b7f6-86d0915f32f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Screens">
+      <UniqueIdentifier>{b22e4c29-a1c3-4fc9-97cb-9fd4a8f1426a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Managers">
+      <UniqueIdentifier>{fa3b787d-166e-4ec4-9cff-eb663ff5f75a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Managers">
+      <UniqueIdentifier>{8de31098-b182-4841-a9e0-bef1015e1ac7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Libaries">
+      <UniqueIdentifier>{f42977a1-49a0-4307-8a5b-4d490d241210}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="ASSETS\IMAGES\SFML-LOGO.png">
@@ -57,19 +81,40 @@
     <ClCompile Include="src\Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ButtonComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpriteComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
     <ClCompile Include="src\Enemy.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
     <ClCompile Include="src\Player.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="src\Entity.cpp">
-      <Filter>Source Files\Entities</Filter>
+    <ClCompile Include="src\Menu.cpp">
+      <Filter>Source Files\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SettingsMenu.cpp">
+      <Filter>Source Files\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\InputController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameStateManager.cpp">
+      <Filter>Source Files\Managers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Game.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ButtonComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SpriteComponent.h">
+      <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="include\Enemy.h">
       <Filter>Header Files\Entities</Filter>
@@ -77,8 +122,20 @@
     <ClInclude Include="include\Player.h">
       <Filter>Header Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="include\Entity.h">
-      <Filter>Header Files\Entities</Filter>
+    <ClInclude Include="include\Menu.h">
+      <Filter>Header Files\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SettingsMenu.h">
+      <Filter>Header Files\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="include\InputController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GameStateManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="MathUtilities.h">
+      <Filter>Header Files\Libaries</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

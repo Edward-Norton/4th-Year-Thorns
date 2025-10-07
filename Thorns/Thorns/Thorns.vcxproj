@@ -33,17 +33,28 @@
     <Media Include="ASSETS\AUDIO\beep.wav" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ButtonComponent.cpp" />
     <ClCompile Include="src\Enemy.cpp" />
-    <ClCompile Include="src\Entity.cpp" />
     <ClCompile Include="src\Game.cpp" />
+    <ClCompile Include="src\GameStateManager.cpp" />
+    <ClCompile Include="src\InputController.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Menu.cpp" />
     <ClCompile Include="src\Player.cpp" />
+    <ClCompile Include="src\SettingsMenu.cpp" />
+    <ClCompile Include="src\SpriteComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\ButtonComponent.h" />
     <ClInclude Include="include\Enemy.h" />
-    <ClInclude Include="include\Entity.h" />
     <ClInclude Include="include\Game.h" />
+    <ClInclude Include="include\GameStateManager.h" />
+    <ClInclude Include="include\InputController.h" />
+    <ClInclude Include="include\Menu.h" />
     <ClInclude Include="include\Player.h" />
+    <ClInclude Include="include\SettingsMenu.h" />
+    <ClInclude Include="include\SpriteComponent.h" />
+    <ClInclude Include="MathUtilities.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

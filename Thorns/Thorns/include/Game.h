@@ -1,36 +1,92 @@
+/*
+ * Game - Main game controller
+ *
+ * Responsibilities:
+ * - Game loop (update at fixed timestep, render as fast as possible)
+ * - State management (MainMenu, Playing, Paused, etc.)
+ * - Input coordination between menus and gameplay
+ * - Resource initialization
+ *
+ * Design Pattern: State Machine
+ * - Each game state has its own update/render logic
+ * - State transitions trigger callbacks for cleanup/setup
+ */
+
 #ifndef GAME_HPP
 #define GAME_HPP
 
 #include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
 #include "Player.h"
 #include "Enemy.h"
+#include "InputController.h"
+#include "Menu.h"
+#include "SettingsMenu.h"
+#include "GameStateManager.h"
 
 class Game
 {
 public:
     Game();
     ~Game();
+
+    // Main game loop - runs until window closes
     void run();
 
 private:
-    void processEvents();
-    void processKeys(const std::optional<sf::Event> t_event);
-    void checkKeyboardState();
-    void update(sf::Time t_deltaTime);
-    void render();
+    // ========== Core Loop ==========
+    void processEvents();              // Handle window events (close, mouse, keys)
+    void update(sf::Time deltaTime);   // Update game logic at fixed timestep
+    void render();                     // Render current game state
 
-    bool validateEntities(); // Check if all entities loaded successfully
+    // ========== Initialization ==========
+    bool initializeGame();    // Load all resources and setup game objects
+    void setupMenus();        // Configure menu items and callbacks
 
-    sf::RenderWindow window;
-    sf::Font font;
-    bool exitGame = false;
-    bool m_gameValid = false;
+    // ========== State Callbacks ==========
+    // Called automatically by GameStateManager when states change
+    void onStateEnter(GameState state);
+    void onStateExit(GameState state);
 
-    // Game Objects
+    // ========== State Update Methods ==========
+    // Each state has its own update logic
+    void updateMainMenu(sf::Time deltaTime);
+    void updateSettings(sf::Time deltaTime);
+    void updatePlaying(sf::Time deltaTime);
+    void updatePaused(sf::Time deltaTime);
+    void updateGameOver(sf::Time deltaTime);
+
+    // ========== Menu Action Callbacks ==========
+    // These are bound to menu buttons via lambdas
+    void onStartGame();
+    void onOpenSettings();
+    void onResumeGame();
+    void onQuitGame();
+    void onBackToMenu();
+    void onBackFromSettings();
+
+    // ========== Utility ==========
+    sf::Vector2f getMousePosition() const;
+
+    // ========== SFML Window ==========
+    sf::RenderWindow m_window;
+
+    // ========== Game State ==========
+    bool m_exitGame;      // Set to true to close window
+    bool m_gameValid;     // False if initialization failed
+    bool m_mousePressed;  // Track left mouse button state
+
+    // ========== Systems ==========
+    GameStateManager m_stateManager;  // Manages state transitions
+    InputController m_input;          // Handles keyboard/gamepad input
+
+    // ========== UI ==========
+    Menu m_mainMenu;
+    Menu m_pauseMenu;
+    SettingsMenu m_settingsMenu;
+
+    // ========== Game Objects ==========
     Player m_player;
     Enemy m_enemy;
 };
 
-#pragma warning( pop ) 
 #endif
