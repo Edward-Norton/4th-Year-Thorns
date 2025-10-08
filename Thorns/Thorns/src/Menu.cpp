@@ -1,4 +1,5 @@
 #include "Menu.h"
+#include "InputController.h"
 #include <iostream>
 
 Menu::Menu()
@@ -57,11 +58,25 @@ void Menu::clearButtons()
     m_buttons.clear();
 }
 
-void Menu::update(const sf::Vector2f& mousePos, bool mousePressed)
+void Menu::update(const InputController& input)
 {
-    // Skip if menu is hidden
+    /*
+     * Update all buttons using unified InputController
+     *
+     * Benefits of using InputController:
+     * - Consistent input handling across the game
+     * - Single source of truth for mouse state
+     * - Easy to add gamepad menu navigation later
+     * - No need to pass window reference around
+     */
+
+     // Skip if menu is hidden
     if (!m_visible)
         return;
+
+    // Get mouse state from InputController
+    sf::Vector2f mousePos = input.getMousePosition();
+    bool mousePressed = input.isMousePressed();
 
     // Update all buttons (hover detection, click handling)
     for (auto& button : m_buttons)
@@ -92,7 +107,7 @@ void Menu::render(sf::RenderTarget& target) const
 void Menu::updateLayout()
 {
     /*
-     * Layout Algorithm:
+     * Layout:
      * 1. Position title above buttons (centered)
      * 2. Stack buttons vertically starting at m_position
      * 3. Apply spacing between buttons

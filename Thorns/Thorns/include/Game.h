@@ -1,17 +1,3 @@
-/*
- * Game - Main game controller
- *
- * Responsibilities:
- * - Game loop (update at fixed timestep, render as fast as possible)
- * - State management (MainMenu, Playing, Paused, etc.)
- * - Input coordination between menus and gameplay
- * - Resource initialization
- *
- * Design Pattern: State Machine
- * - Each game state has its own update/render logic
- * - State transitions trigger callbacks for cleanup/setup
- */
-
 #ifndef GAME_HPP
 #define GAME_HPP
 

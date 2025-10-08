@@ -1,26 +1,15 @@
-/*
- * Menu - Simplified button-based menu system
- *
- * Removed dual-mode complexity (text vs buttons) - now only uses buttons
- *
- * Usage:
- *   Menu menu;
- *   menu.initialize("font.ttf");
- *   menu.setTitle("MAIN MENU");
- *   menu.addButton("Start", []() { startGame(); });
- *   menu.update(mousePos, mousePressed);
- *   menu.render(window);
- */
-
 #ifndef MENU_HPP
 #define MENU_HPP
 
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
-#include <functional>
-#include <memory>
 #include "ButtonComponent.h"
+
+// Personal Note:
+// Forward declaration - we only need a pointer/reference, not the full definition
+// This avoids circular dependencies and speeds up compilation
+class InputController;
 
 class Menu
 {
@@ -42,7 +31,7 @@ public:
     void clearButtons();
 
     // ========== Update & Render ==========
-    void update(const sf::Vector2f& mousePos, bool mousePressed);
+    void update(const InputController& input);
     void render(sf::RenderTarget& target) const;
 
     // ========== State Queries ==========

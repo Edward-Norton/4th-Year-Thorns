@@ -3,99 +3,98 @@
 #include <cstring>  // For memset and memcpy
 
 InputController::InputController()
+    : m_mousePosition(0.f, 0.f)
+    , m_mousePressed(false)
+    , m_previousMousePressed(false)
+    , m_mouseClicked(false)
+    , m_mouseReleased(false)
 {
-    /*
-     * memset - Sets a block of memory to a specific value (byte by byte)
-     *
-     * memset(pointer, value, size_in_bytes)
-     * - Sets all bytes in the array to 0 (false for bool)
-     * - Faster than looping through each element
-     * - Works because bool is typically 1 byte, and 0 represents false
-     *
-     * Alternative without memset:
-     * for (int i = 0; i < static_cast<int>(InputAction::COUNT); ++i) {
-     *     m_currentState[i] = false;
-     *     m_previousState[i] = false;
-     * }
-     */
-    std::memset(m_currentState, 0, sizeof(m_currentState));
-    std::memset(m_previousState, 0, sizeof(m_previousState));
-
     initializeDefaultBindings();
 }
 
 void InputController::initializeDefaultBindings()
 {
-    // Set up default WASD + common keys
-    // These can be changed at runtime via bindKey()
+    // Gameplay
     m_keyBindings[InputAction::MoveUp] = sf::Keyboard::Key::W;
     m_keyBindings[InputAction::MoveDown] = sf::Keyboard::Key::S;
     m_keyBindings[InputAction::MoveLeft] = sf::Keyboard::Key::A;
     m_keyBindings[InputAction::MoveRight] = sf::Keyboard::Key::D;
+
+    // Menu navigation
     m_keyBindings[InputAction::Pause] = sf::Keyboard::Key::P;
     m_keyBindings[InputAction::Menu] = sf::Keyboard::Key::Escape;
     m_keyBindings[InputAction::Confirm] = sf::Keyboard::Key::Enter;
     m_keyBindings[InputAction::Cancel] = sf::Keyboard::Key::Escape;
 }
 
-void InputController::update()
+void InputController::update(const sf::Window& window)
 {
     /*
-     * Three-step update process:
-     * 1. Save current state as previous (for transition detection)
-     * 2. Clear current state (prepare for new hardware reading)
-     * 3. Read hardware state into current
+     * Two-phase update:
+     * 1. Update keyboard/gamepad actions
+     * 2. Update mouse state
      */
 
-     // Step 1: Save current state to previous
-     /*
-      * memcpy - Copies a block of memory from source to destination
-      *
-      * memcpy(destination, source, size_in_bytes)
-      * - Copies the entire array in one operation
-      * - Much faster than element-by-element copying
-      * - Safe here because we're copying same-sized arrays
-      *
-      * Alternative without memcpy:
-      * for (int i = 0; i < static_cast<int>(InputAction::COUNT); ++i) {
-      *     m_previousState[i] = m_currentState[i];
-      * }
-      */
+     // Save previous states
     std::memcpy(m_previousState, m_currentState, sizeof(m_currentState));
+    m_previousMousePressed = m_mousePressed;
 
-    // Step 2: Clear current state (set all to false/unpressed)
+    // Update current states
+    updateKeyboardGamepad();
+    updateMouse(window);
+
+    // Calculate edge transitions for mouse
+    m_mouseClicked = m_mousePressed && !m_previousMousePressed;
+    m_mouseReleased = !m_mousePressed && m_previousMousePressed;
+}
+
+void InputController::updateKeyboardGamepad()
+{
+    // Clear action states
     std::memset(m_currentState, 0, sizeof(m_currentState));
 
-    // Step 3: Read hardware and set current state
-    // Check keyboard inputs
+    // Check keyboard
     for (const auto& [action, key] : m_keyBindings)
     {
         if (sf::Keyboard::isKeyPressed(key))
-        {
             m_currentState[static_cast<int>(action)] = true;
-        }
     }
 
-    // Check gamepad inputs (if connected)
+    // Check gamepad (if connected)
     if (sf::Joystick::isConnected(m_activeGamepad))
     {
-        // Read analog stick position (-100 to +100, normalize to -1.0 to +1.0)
+        // Analog stick to digital input
         float x = sf::Joystick::getAxisPosition(m_activeGamepad, sf::Joystick::Axis::X) / 100.0f;
         float y = sf::Joystick::getAxisPosition(m_activeGamepad, sf::Joystick::Axis::Y) / 100.0f;
 
-        // Apply deadzone to prevent drift from worn joysticks
         x = applyDeadzone(x);
         y = applyDeadzone(y);
 
-        // Convert analog values to digital inputs (threshold at 50%)
         if (x < -0.5f) m_currentState[static_cast<int>(InputAction::MoveLeft)] = true;
         if (x > 0.5f) m_currentState[static_cast<int>(InputAction::MoveRight)] = true;
         if (y < -0.5f) m_currentState[static_cast<int>(InputAction::MoveUp)] = true;
         if (y > 0.5f) m_currentState[static_cast<int>(InputAction::MoveDown)] = true;
 
+        // Gamepad buttons
+        if (sf::Joystick::isButtonPressed(m_activeGamepad, 0)) // A button
+            m_currentState[static_cast<int>(InputAction::Confirm)] = true;
+        if (sf::Joystick::isButtonPressed(m_activeGamepad, 1)) // B button
+            m_currentState[static_cast<int>(InputAction::Cancel)] = true;
         if (sf::Joystick::isButtonPressed(m_activeGamepad, 7)) // Start button
             m_currentState[static_cast<int>(InputAction::Pause)] = true;
     }
+}
+
+
+void InputController::updateMouse(const sf::Window& window)
+{
+    // Get mouse position relative to window
+    sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+    m_mousePosition = sf::Vector2f(static_cast<float>(pixelPos.x),
+        static_cast<float>(pixelPos.y));
+
+    // Check left mouse button
+    m_mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 }
 
 float InputController::getHorizontalAxis() const
@@ -132,22 +131,9 @@ float InputController::getVerticalAxis() const
 
 float InputController::applyDeadzone(float value) const
 {
-    /*
-     * Deadzone prevents joystick drift
-     *
-     * Problem: Worn joysticks may report small values (0.05) when centered
-     * Solution: Ignore values below threshold and rescale the rest
-     *
-     * Example with 0.15 deadzone:
-     * - Input 0.10 -> Output 0.0 (ignored)
-     * - Input 0.15 -> Output 0.0 (edge of deadzone)
-     * - Input 0.50 -> Output ~0.41 (rescaled)
-     * - Input 1.00 -> Output 1.0 (full input preserved)
-     */
     if (std::abs(value) < m_deadzone)
         return 0.0f;
 
-    // Rescale so deadzone edge maps to 0.0 and max input stays at 1.0
     float sign = (value > 0) ? 1.0f : -1.0f;
     return sign * ((std::abs(value) - m_deadzone) / (1.0f - m_deadzone));
 }

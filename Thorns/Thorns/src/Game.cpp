@@ -22,6 +22,12 @@ Game::~Game()
 
 bool Game::initializeGame()
 {
+    std::string assetsPaths[4] = {
+        "ASSETS\\IMAGES\\PlayerShip.png",
+        "ASSETS\\IMAGES\\EnemyShip.png",
+        "ASSETS\\FONTS\\Jersey20-Regular.ttf"
+    };
+
     // Initialize player entity
     if (!m_player.initialize("ASSETS\\IMAGES\\PlayerShip.png"))
     {
@@ -116,7 +122,7 @@ void Game::run()
         while (timeSinceLastUpdate > timePerFrame)
         {
             timeSinceLastUpdate -= timePerFrame;
-            m_input.update();              // Update input state
+            m_input.update(m_window);              // Update input state
             update(timePerFrame);          // Update game logic
         }
 
@@ -197,7 +203,7 @@ void Game::update(sf::Time deltaTime)
 void Game::updateMainMenu(sf::Time deltaTime)
 {
     // Main menu only needs mouse input for button interaction
-    m_mainMenu.update(getMousePosition(), m_mousePressed);
+    m_mainMenu.update(m_input);
 }
 
 void Game::updateSettings(sf::Time deltaTime)
@@ -230,7 +236,7 @@ void Game::updatePlaying(sf::Time deltaTime)
 void Game::updatePaused(sf::Time deltaTime)
 {
     // Pause menu only needs mouse input for button interaction
-    m_pauseMenu.update(getMousePosition(), m_mousePressed);
+    m_pauseMenu.update(m_input);
 }
 
 void Game::updateGameOver(sf::Time deltaTime)
