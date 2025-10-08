@@ -3,6 +3,10 @@
 #include <iostream>
 
 Menu::Menu()
+    : m_position(800.f, 300.f)
+    , m_buttonSpacing(60.f)
+    , m_visible(true)
+    , m_selectedIndex(0)
 {
 }
 
@@ -60,28 +64,83 @@ void Menu::clearButtons()
 
 void Menu::update(const InputController& input)
 {
-    /*
-     * Update all buttons using unified InputController
-     *
-     * Benefits of using InputController:
-     * - Consistent input handling across the game
-     * - Single source of truth for mouse state
-     * - Easy to add gamepad menu navigation later
-     * - No need to pass window reference around
-     */
-
-     // Skip if menu is hidden
-    if (!m_visible)
+    // Skip if menu is hidden or has no buttons
+    if (!m_visible || m_buttons.empty())
         return;
 
-    // Get mouse state from InputController
-    sf::Vector2f mousePos = input.getMousePosition();
-    bool mousePressed = input.isMousePressed();
+    // Get active device for context
+    InputDevice device = input.getActiveDevice();
 
-    // Update all buttons (hover detection, click handling)
+    // Handle keyboard/gamepad navigation (directional + confirm)
+    if (device == InputDevice::Keyboard || device == InputDevice::Gamepad)
+    {
+        handleKeyboardGamepadInput(input);
+    }
+
+    // Mouse always works
+    handleMouseInput(input);
+
+    // Update button visual states (selection highlights)
+    updateButtonVisuals(input);
+}
+
+void Menu::handleKeyboardGamepadInput(const InputController& input)
+{
+    // Navigate up (W key or gamepad stick up)
+    if (input.wasJustPressed(InputAction::MoveUp))
+    {
+        m_selectedIndex--;
+        if (m_selectedIndex < 0)
+            m_selectedIndex = static_cast<int>(m_buttons.size()) - 1;  // Wrap to bottom
+    }
+
+    // Navigate down (S key or gamepad stick down)
+    if (input.wasJustPressed(InputAction::MoveDown))
+    {
+        m_selectedIndex++;
+        if (m_selectedIndex >= static_cast<int>(m_buttons.size()))
+            m_selectedIndex = 0;  // Wrap to top
+    }
+
+    // Activate selected button (Enter key or A button on gamepad)
+    if (input.wasJustPressed(InputAction::Confirm))
+    {
+        if (m_selectedIndex >= 0 && m_selectedIndex < static_cast<int>(m_buttons.size()))
+        {
+            m_buttons[m_selectedIndex]->activate();
+        }
+    }
+}
+
+void Menu::handleMouseInput(const InputController& input)
+{
+    sf::Vector2f mousePos = input.getMousePosition();
+
+    // Check if mouse is over any button (updates selection)
+    for (size_t i = 0; i < m_buttons.size(); ++i)
+    {
+        if (m_buttons[i]->getBounds().contains(mousePos))
+        {
+            m_selectedIndex = static_cast<int>(i);
+            break;
+        }
+    }
+
+    // Update buttons with mouse state (for click detection)
+    bool mousePressed = input.isMousePressed();
     for (auto& button : m_buttons)
     {
         button->update(mousePos, mousePressed);
+    }
+}
+
+void Menu::updateButtonVisuals(const InputController& input)
+{
+    // Update selection state for all buttons
+    for (size_t i = 0; i < m_buttons.size(); ++i)
+    {
+        bool isSelected = (static_cast<int>(i) == m_selectedIndex);
+        m_buttons[i]->setSelected(isSelected);
     }
 }
 

@@ -1,15 +1,18 @@
 #include "InputController.h"
 #include <cmath>
 #include <cstring>  // For memset and memcpy
+#include "iostream"
 
 InputController::InputController()
     : m_mousePosition(0.f, 0.f)
     , m_mousePressed(false)
     , m_previousMousePressed(false)
-    , m_mouseClicked(false)
-    , m_mouseReleased(false)
+    , m_activeDevice(InputDevice::Keyboard)
 {
     initializeDefaultBindings();
+
+    // Check if gamepad is already connected at startup
+    detectActiveDevice();
 }
 
 void InputController::initializeDefaultBindings()
@@ -27,62 +30,124 @@ void InputController::initializeDefaultBindings()
     m_keyBindings[InputAction::Cancel] = sf::Keyboard::Key::Escape;
 }
 
+// Check is a gamepad or keyboard is connected
+void InputController::detectActiveDevice()
+{
+    // Check if gamepad 0 is connected
+    if (sf::Joystick::isConnected(m_activeGamepad))
+    {
+        m_activeDevice = InputDevice::Gamepad;
+    }
+    else
+    {
+        m_activeDevice = InputDevice::Keyboard;
+    }
+}
+
+/// <summary>
+/// Updating the input states and events
+/// 
+/// Flow: 
+/// 1: Save current state to previous state (for comparisons)
+/// 2: Clear Current state
+/// 3: Check if a gamepad was connected
+/// 4: Update only what device is connected
+/// </summary>
 void InputController::update(const sf::Window& window)
 {
-    /*
-     * Two-phase update:
-     * 1. Update keyboard/gamepad actions
-     * 2. Update mouse state
-     */
-
-     // Save previous states
+    // ===== STEP 1: SAVE PREVIOUS STATE =====
+    // Copy current -> previous
+    // Example: If W was pressed last frame and this frame,
+    //          wasJustPressed() returns false
     std::memcpy(m_previousState, m_currentState, sizeof(m_currentState));
     m_previousMousePressed = m_mousePressed;
 
-    // Update current states
-    updateKeyboardGamepad();
-    updateMouse(window);
-
-    // Calculate edge transitions for mouse
-    m_mouseClicked = m_mousePressed && !m_previousMousePressed;
-    m_mouseReleased = !m_mousePressed && m_previousMousePressed;
-}
-
-void InputController::updateKeyboardGamepad()
-{
-    // Clear action states
+    // ===== STEP 2: CLEAR CURRENT STATE =====
+    // Reset all actions to false
     std::memset(m_currentState, 0, sizeof(m_currentState));
 
-    // Check keyboard
+    // ===== STEP 3: DETECT DEVICE CHANGES =====
+    // Check if gamepad was plugged in or unplugged
+    detectActiveDevice();
+
+    // ===== STEP 4: POLL ACTIVE INPUT DEVICE =====
+    // Only check the device that's currently active
+    switch (m_activeDevice)
+    {
+    case InputDevice::Gamepad:
+        updateGamepad();
+        break;
+    case InputDevice::Keyboard:
+        updateKeyboard();
+        break;
+    default: std::cout << "Unkown Input Device\n";
+    }
+
+    // Always update mouse (used in both modes, just in case as a fallback)
+    updateMouse(window);
+}
+
+/*
+*UPDATE KEYBOARD
+*
+* Polls keyboard input and updates m_currentState array.
+* Only called when InputDevice::Keyboard is active.
+*
+* Iterates through all key bindings and checks if each key is pressed.
+* Example: If W is bound to MoveUp and W is pressed,
+* m_currentState[MoveUp] = true
+*/
+void InputController::updateKeyboard()
+{
+    // Check all key bindings
     for (const auto& [action, key] : m_keyBindings)
     {
         if (sf::Keyboard::isKeyPressed(key))
+        {
             m_currentState[static_cast<int>(action)] = true;
+        }
     }
+}
 
-    // Check gamepad (if connected)
-    if (sf::Joystick::isConnected(m_activeGamepad))
-    {
-        // Analog stick to digital input
-        float x = sf::Joystick::getAxisPosition(m_activeGamepad, sf::Joystick::Axis::X) / 100.0f;
-        float y = sf::Joystick::getAxisPosition(m_activeGamepad, sf::Joystick::Axis::Y) / 100.0f;
+/*
+ * UPDATE GAMEPAD
+ *
+ * Polls gamepad input (analog sticks + buttons) and updates m_currentState.
+ * Only called when InputDevice::Gamepad is active.
+ *
+ * Note: Analog stick values are converted to digital (on/off) actions.
+ */
+void InputController::updateGamepad()
+{
+    // ===== ANALOG STICK -> DIGITAL ACTIONS =====
+    // Get stick position (-100 to +100, SFML's range)
+    float range = 100.0f;
+    float x = sf::Joystick::getAxisPosition(m_activeGamepad, sf::Joystick::Axis::X) / range;
+    float y = sf::Joystick::getAxisPosition(m_activeGamepad, sf::Joystick::Axis::Y) / range;
 
-        x = applyDeadzone(x);
-        y = applyDeadzone(y);
+    // Apply deadzone (ignore small movements from stick drift)
+    x = applyDeadzone(x);
+    y = applyDeadzone(y);
 
-        if (x < -0.5f) m_currentState[static_cast<int>(InputAction::MoveLeft)] = true;
-        if (x > 0.5f) m_currentState[static_cast<int>(InputAction::MoveRight)] = true;
-        if (y < -0.5f) m_currentState[static_cast<int>(InputAction::MoveUp)] = true;
-        if (y > 0.5f) m_currentState[static_cast<int>(InputAction::MoveDown)] = true;
+    // Convert analog to digital (threshold = 0.5)
+    // Example: If stick is pushed 60% left, x = -0.6, MoveLeft = true
+    float threeshold = 0.5f;
+    if (x < -threeshold) m_currentState[static_cast<int>(InputAction::MoveLeft)] = true;
+    if (x > threeshold)  m_currentState[static_cast<int>(InputAction::MoveRight)] = true;
+    if (y < -threeshold) m_currentState[static_cast<int>(InputAction::MoveUp)] = true;
+    if (y > threeshold)  m_currentState[static_cast<int>(InputAction::MoveDown)] = true;
 
-        // Gamepad buttons
-        if (sf::Joystick::isButtonPressed(m_activeGamepad, 0)) // A button
-            m_currentState[static_cast<int>(InputAction::Confirm)] = true;
-        if (sf::Joystick::isButtonPressed(m_activeGamepad, 1)) // B button
-            m_currentState[static_cast<int>(InputAction::Cancel)] = true;
-        if (sf::Joystick::isButtonPressed(m_activeGamepad, 7)) // Start button
-            m_currentState[static_cast<int>(InputAction::Pause)] = true;
-    }
+    // ===== GAMEPAD BUTTONS =====
+    // Button mapping (Xbox):
+    // 0 = A/Cross (Confirm)
+    // 1 = B/Circle (Cancel)
+    // 7 = Start (Pause)
+    if (sf::Joystick::isButtonPressed(m_activeGamepad, 0))
+        m_currentState[static_cast<int>(InputAction::Confirm)] = true;
+    if (sf::Joystick::isButtonPressed(m_activeGamepad, 1))
+        m_currentState[static_cast<int>(InputAction::Cancel)] = true;
+    if (sf::Joystick::isButtonPressed(m_activeGamepad, 7))
+        m_currentState[static_cast<int>(InputAction::Pause)] = true;
 }
 
 
@@ -95,38 +160,6 @@ void InputController::updateMouse(const sf::Window& window)
 
     // Check left mouse button
     m_mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
-}
-
-float InputController::getHorizontalAxis() const
-{
-    // Prefer analog stick if gamepad is connected
-    if (sf::Joystick::isConnected(m_activeGamepad))
-    {
-        float x = sf::Joystick::getAxisPosition(m_activeGamepad, sf::Joystick::Axis::X) / 100.0f;
-        return applyDeadzone(x);
-    }
-
-    // Fall back to keyboard (digital input: -1, 0, or +1)
-    float value = 0.0f;
-    if (isPressed(InputAction::MoveLeft)) value -= 1.0f;
-    if (isPressed(InputAction::MoveRight)) value += 1.0f;
-    return value;
-}
-
-float InputController::getVerticalAxis() const
-{
-    // Prefer analog stick if gamepad is connected
-    if (sf::Joystick::isConnected(m_activeGamepad))
-    {
-        float y = sf::Joystick::getAxisPosition(m_activeGamepad, sf::Joystick::Axis::Y) / 100.0f;
-        return applyDeadzone(y);
-    }
-
-    // Fall back to keyboard (digital input: -1, 0, or +1)
-    float value = 0.0f;
-    if (isPressed(InputAction::MoveUp)) value -= 1.0f;
-    if (isPressed(InputAction::MoveDown)) value += 1.0f;
-    return value;
 }
 
 float InputController::applyDeadzone(float value) const

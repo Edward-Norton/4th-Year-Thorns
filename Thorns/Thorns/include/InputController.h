@@ -54,11 +54,21 @@ Map revision Cherno: https://youtu.be/KiB0vRi2wlc?si=c__NeniIIIjXwTsD
 /// 
 /// </summary>
 
+// ========== INPUT ACTIONS ==========
+// Abstract actions that can be bound to different keys
 enum class InputAction
 {
     MoveUp, MoveDown, MoveLeft, MoveRight,
     Pause, Menu, Confirm, Cancel,
     COUNT // For enum size
+};
+
+// ========== INPUT DEVICE TYPE ==========
+// Tracks which input device is currently active
+enum class InputDevice
+{
+    Keyboard,   // Keyboard + Mouse only
+    Gamepad     // Gamepad is connected and active
 };
 
 class InputController
@@ -76,13 +86,9 @@ public:
 
     // ========== Analog Input ==========
     // Get combined input as normalized axis (-1.0 to 1.0)
-    float getHorizontalAxis() const;
-    float getVerticalAxis() const;
 
     // ========== Mouse Input ==========
     bool isMousePressed() const { return m_mousePressed; }
-    bool wasMouseClicked() const { return m_mouseClicked; }      // Just pressed this frame
-    bool wasMouseReleased() const { return m_mouseReleased; }    // Just released this frame
     sf::Vector2f getMousePosition() const { return m_mousePosition; }  // Get current mouse position
 
     // ========== Configuration ==========
@@ -91,27 +97,34 @@ public:
     sf::Keyboard::Key getKeyBinding(InputAction action) const;
     void setGamepadDeadzone(float deadzone) { m_deadzone = deadzone; }
 
+    // ========== Device Management ==========
+    InputDevice getActiveDevice() const { return m_activeDevice; }
+    bool isGamepadConnected() const { return m_activeDevice == InputDevice::Gamepad; }
+
 private:
     void initializeDefaultBindings();
-    void updateKeyboardGamepad();
+    void detectActiveDevice();        // Check if gamepad was connected/disconnected
+    void updateKeyboard();
+    void updateGamepad();
     void updateMouse(const sf::Window& window);
     float applyDeadzone(float value) const;
 
+    // ========== Input State Arrays ==========
     // Array look ups for state
     bool m_currentState[static_cast<int>(InputAction::COUNT)];
     bool m_previousState[static_cast<int>(InputAction::COUNT)];
 
+    // ========== Key Bindings ==========
     // Hash map for rebindable keys
     std::unordered_map<InputAction, sf::Keyboard::Key> m_keyBindings;
 
-    // Mouse state
+    // ========== Mouse State ==========
     sf::Vector2f m_mousePosition;
     bool m_mousePressed;
     bool m_previousMousePressed;
-    bool m_mouseClicked;    // Transitioned from unpressed to pressed
-    bool m_mouseReleased;   // Transitioned from pressed to unpressed
 
-    // Gamepad settings
+    // ========== Device State ==========
+    InputDevice m_activeDevice = InputDevice::Keyboard;  // Current input method
     unsigned int m_activeGamepad = 0;
     float m_deadzone = 0.15f;  // Ignore joystick values below this threshold
 };
@@ -139,5 +152,6 @@ inline bool InputController::wasJustReleased(InputAction action) const
     int inputIndex = static_cast<int>(action);
     return !m_currentState[inputIndex] && m_previousState[inputIndex];
 }
+
 
 #endif

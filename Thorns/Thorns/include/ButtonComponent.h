@@ -16,7 +16,8 @@ enum class ButtonState
     Normal,
     Hovered,
     Pressed,
-    Disabled
+    Disabled,
+    Selected
 };
 
 class ButtonComponent
@@ -41,11 +42,17 @@ public:
     void setCallback(std::function<void()> callback);
     void setEnabled(bool enabled);
 
+    void activate();
+
+    void setSelected(bool selected);
+    bool isSelected() const { return m_selected; }
+
     // Colors
     void setNormalColor(const sf::Color& color) { m_normalColor = color; }
     void setHoverColor(const sf::Color& color) { m_hoverColor = color; }
     void setPressedColor(const sf::Color& color) { m_pressedColor = color; }
     void setDisabledColor(const sf::Color& color) { m_disabledColor = color; }
+    void setSelectedColor(const sf::Color& color) { m_selectedColor = color; }
     void setTextColor(const sf::Color& color);
     void setOutlineColor(const sf::Color& color);
     void setOutlineThickness(float thickness);
@@ -68,12 +75,14 @@ private:
     bool m_enabled;
     bool m_wasClicked;
     bool m_previousMousePressed;
+    bool m_selected;
 
     // Colors for different states
     sf::Color m_normalColor;
     sf::Color m_hoverColor;
     sf::Color m_pressedColor;
     sf::Color m_disabledColor;
+    sf::Color m_selectedColor;
     sf::Color m_textColor;
 };
 

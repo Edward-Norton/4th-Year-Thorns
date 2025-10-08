@@ -40,13 +40,18 @@ public:
 private:
     void updateLayout();  // Recalculate button positions
 
+    void handleKeyboardGamepadInput(const InputController& input);
+    void handleMouseInput(const InputController& input);
+    void updateButtonVisuals(const InputController& input);
+
     sf::Font m_font;
     std::unique_ptr<sf::Text> m_titleText;
     std::vector<std::unique_ptr<ButtonComponent>> m_buttons;
 
-    sf::Vector2f m_position{ 800.f, 300.f };  // Top-left corner of menu
-    float m_buttonSpacing = 60.f;           // Vertical space between buttons
+    sf::Vector2f m_position;  // Top-left corner of menu
+    float m_buttonSpacing;           // Vertical space between buttons
     bool m_visible = true;
+    int m_selectedIndex = 0;
 };
 
 #endif

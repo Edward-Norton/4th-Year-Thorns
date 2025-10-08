@@ -5,10 +5,12 @@ ButtonComponent::ButtonComponent()
     , m_enabled(true)
     , m_wasClicked(false)
     , m_previousMousePressed(false)
+    , m_selected(false)
     , m_normalColor(sf::Color(70, 70, 70))
     , m_hoverColor(sf::Color(100, 100, 100))
     , m_pressedColor(sf::Color(50, 50, 50))
     , m_disabledColor(sf::Color(40, 40, 40))
+    , m_selectedColor(sf::Color(120, 120, 50))
     , m_textColor(sf::Color::White)
 {
     m_shape.setSize(sf::Vector2f(200.f, 50.f));
@@ -77,12 +79,33 @@ void ButtonComponent::update(const sf::Vector2f& mousePos, bool mousePressed)
     }
     else
     {
-        m_state = ButtonState::Normal;
+        if (m_selected)
+            m_state = ButtonState::Selected;
+        else
+            m_state = ButtonState::Normal;
     }
 
     // Remember mouse state for next frame
     m_previousMousePressed = mousePressed;
     updateColors();
+}
+
+void ButtonComponent::activate()
+{
+    if (m_enabled && m_callback)
+    {
+        m_callback();
+    }
+}
+
+void ButtonComponent::setSelected(bool selected)
+{
+    m_selected = selected;
+    if (selected && m_enabled)
+    {
+        m_state = ButtonState::Selected;
+        updateColors();
+    }
 }
 
 void ButtonComponent::render(sf::RenderTarget& target) const
@@ -170,15 +193,27 @@ void ButtonComponent::updateColors()
     {
     case ButtonState::Normal:
         m_shape.setFillColor(m_normalColor);
+        m_shape.setOutlineColor(sf::Color::White);
+        m_shape.setOutlineThickness(2.f);
         break;
     case ButtonState::Hovered:
         m_shape.setFillColor(m_hoverColor);
+        m_shape.setOutlineColor(sf::Color::White);
+        m_shape.setOutlineThickness(2.f);
         break;
     case ButtonState::Pressed:
         m_shape.setFillColor(m_pressedColor);
+        m_shape.setOutlineColor(sf::Color::White);
+        m_shape.setOutlineThickness(2.f);
         break;
     case ButtonState::Disabled:
         m_shape.setFillColor(m_disabledColor);
+        m_shape.setOutlineColor(sf::Color(100, 100, 100));
+        m_shape.setOutlineThickness(2.f);
         break;
+    case ButtonState::Selected:
+        m_shape.setFillColor(m_selectedColor);
+        m_shape.setOutlineColor(sf::Color::Yellow);  // Bright outline for selected
+        m_shape.setOutlineThickness(4.f);
     }
 }
