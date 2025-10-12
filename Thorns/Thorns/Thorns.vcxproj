@@ -21,6 +21,7 @@
   <ItemGroup>
     <Image Include="ASSETS\IMAGES\EnemyShip.png" />
     <Image Include="ASSETS\IMAGES\PlayerShip.png" />
+    <Image Include="ASSETS\IMAGES\player_atlas.png" />
     <Image Include="ASSETS\IMAGES\SFML-LOGO.png">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
@@ -34,6 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ButtonComponent.cpp" />
+    <ClCompile Include="src\CursorComponent.cpp" />
     <ClCompile Include="src\Enemy.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\GameStateManager.cpp" />
@@ -41,20 +43,29 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Menu.cpp" />
     <ClCompile Include="src\Player.cpp" />
+    <ClCompile Include="src\ScreenSettings.cpp" />
     <ClCompile Include="src\SettingsMenu.cpp" />
     <ClCompile Include="src\SpriteComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\AssetPaths.h" />
     <ClInclude Include="include\ButtonComponent.h" />
+    <ClInclude Include="include\CursorComponent.h" />
     <ClInclude Include="include\Enemy.h" />
     <ClInclude Include="include\Game.h" />
     <ClInclude Include="include\GameStateManager.h" />
+    <ClInclude Include="include\ICollidable.h" />
+    <ClInclude Include="include\IGameEntity.h" />
     <ClInclude Include="include\InputController.h" />
+    <ClInclude Include="include\IPositionable.h" />
+    <ClInclude Include="include\IRenderable.h" />
+    <ClInclude Include="include\IUpdatable.h" />
+    <ClInclude Include="include\MathUtilities.h" />
     <ClInclude Include="include\Menu.h" />
     <ClInclude Include="include\Player.h" />
+    <ClInclude Include="include\ScreenSettings.h" />
     <ClInclude Include="include\SettingsMenu.h" />
     <ClInclude Include="include\SpriteComponent.h" />
-    <ClInclude Include="MathUtilities.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

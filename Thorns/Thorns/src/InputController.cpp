@@ -22,6 +22,7 @@ void InputController::initializeDefaultBindings()
     m_keyBindings[InputAction::MoveDown] = sf::Keyboard::Key::S;
     m_keyBindings[InputAction::MoveLeft] = sf::Keyboard::Key::A;
     m_keyBindings[InputAction::MoveRight] = sf::Keyboard::Key::D;
+    m_keyBindings[InputAction::Sprint] = sf::Keyboard::Key::LShift;
 
     // Menu navigation
     m_keyBindings[InputAction::Pause] = sf::Keyboard::Key::P;

@@ -4,44 +4,59 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
-// Component that manages sprite and texture
+/// <summary>
+/// Component that manages sprite rendering and texture management
+/// Supports both full textures and texture atlas regions
+/// </summary>
 class SpriteComponent
 {
 public:
     SpriteComponent();
     ~SpriteComponent() = default;
 
+    // ========== Texture Loading ==========
+
+    /// Load full texture and scale to desired size
     bool loadTexture(const std::string& texturePath, float width = 64.f, float height = 64.f);
 
+    // Load texture region from atlas (for sprite sheets)
+    bool loadTexture(const std::string& texturePath, float width, float height, const sf::IntRect& textureRect);
+
+    // ========== Rendering ==========
     void render(sf::RenderTarget& target) const;
 
-    // Position
+    // ========== Position ==========
     void setPosition(const sf::Vector2f& pos);
     sf::Vector2f getPosition() const;
 
-    // Rotation
+    // ========== Rotation ==========
     void setRotation(sf::Angle angle);
     sf::Angle getRotation() const;
 
-    // Origin
+    // ========== Origin ==========
     void setOrigin(const sf::Vector2f& origin);
     void centerOrigin();
 
-    // Size/Scale
+    // ========== Size/Scale ==========
     void setSize(float width, float height);
     sf::Vector2f getSize() const;
     void setScale(const sf::Vector2f& scale);
 
-    // Movement
+    // ========== Movement ==========
     void move(const sf::Vector2f& offset);
 
-    // Collision
+    // ========== Texture Rect (for animation) ==========
+    void setTextureRect(const sf::IntRect& rect);
+    sf::IntRect getTextureRect() const;
+
+    // ========== Collision ==========
     sf::FloatRect getBounds() const;
     sf::FloatRect getLocalBounds() const;
 
+    // ========== Validation ==========
     bool isValid() const { return m_isValid; }
 
-    // Direct sprite access if needed
+    // ========== Direct Access ==========
     sf::Sprite& getSprite() { return m_sprite; }
     const sf::Sprite& getSprite() const { return m_sprite; }
 
@@ -49,6 +64,7 @@ private:
     sf::Texture m_texture;
     sf::Sprite m_sprite;
     bool m_isValid;
+    sf::IntRect m_textureRect;  // Store for animation switching
 };
 
 #endif

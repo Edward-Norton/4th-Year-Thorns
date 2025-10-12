@@ -8,6 +8,7 @@
 #include "Menu.h"
 #include "SettingsMenu.h"
 #include "GameStateManager.h"
+#include "ScreenSettings.h"
 
 class Game
 {
@@ -49,6 +50,7 @@ private:
     void onQuitGame();
     void onBackToMenu();
     void onBackFromSettings();
+    void onApplySettings();  // New: Apply resolution/fullscreen changes
 
     // ========== Utility ==========
     sf::Vector2f getMousePosition() const;
@@ -64,6 +66,7 @@ private:
     // ========== Systems ==========
     GameStateManager m_stateManager;  // Manages state transitions
     InputController m_input;          // Handles keyboard/gamepad input
+    ScreenSettings m_screenSettings;  // Manages resolution and fullscreen
 
     // ========== UI ==========
     Menu m_mainMenu;

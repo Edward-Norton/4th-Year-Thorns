@@ -37,19 +37,61 @@
     <Filter Include="Source Files\Components">
       <UniqueIdentifier>{c6dc208b-2d8a-45aa-a52f-7cf7b0294a0d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Screens">
-      <UniqueIdentifier>{eabbe409-5459-4d34-b7f6-86d0915f32f1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Screens">
-      <UniqueIdentifier>{b22e4c29-a1c3-4fc9-97cb-9fd4a8f1426a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Managers">
       <UniqueIdentifier>{fa3b787d-166e-4ec4-9cff-eb663ff5f75a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Managers">
       <UniqueIdentifier>{8de31098-b182-4841-a9e0-bef1015e1ac7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Libaries">
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{8d4e0117-ce91-4262-8847-51bdfe0825e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{0fc91e38-aa98-4d48-9b06-9a966aecc1f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Input">
+      <UniqueIdentifier>{5217fa8d-5d6d-4d02-be6d-02d3fd4f632e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Input">
+      <UniqueIdentifier>{7cb451d5-403f-4f53-9e4f-5cfdb386fd19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components\Core">
+      <UniqueIdentifier>{25059044-8261-403d-904f-29360369b44a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\Core">
+      <UniqueIdentifier>{1051a286-f1ad-4c9b-b86a-fee5e677bad8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\UI">
+      <UniqueIdentifier>{6f8bb34b-353a-4e19-90e9-8ea00116aa6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components\UI">
+      <UniqueIdentifier>{4684b586-4753-4120-9d65-f201ed6aa45e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components\Gameplay">
+      <UniqueIdentifier>{c02bf9f7-f992-42b7-8190-e1e3a4e47f6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\Gameplay">
+      <UniqueIdentifier>{ecf99991-ef17-4465-89ea-8616cf02f0c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UI">
+      <UniqueIdentifier>{eabbe409-5459-4d34-b7f6-86d0915f32f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{b22e4c29-a1c3-4fc9-97cb-9fd4a8f1426a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UI\Screens">
+      <UniqueIdentifier>{935ef840-6efe-4ec8-9bef-429d48db414b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI\Screens">
+      <UniqueIdentifier>{25643592-8bc2-4698-b7cd-0f7accdad4bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UI\HUD">
+      <UniqueIdentifier>{720cc29e-b265-4f31-b296-d1a1be2b83dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI\HUD">
+      <UniqueIdentifier>{96165b19-aea2-4b0e-9dc0-3c1c691152a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utilities">
       <UniqueIdentifier>{f42977a1-49a0-4307-8a5b-4d490d241210}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -61,6 +103,9 @@
       <Filter>Resource Files\IMAGES</Filter>
     </Image>
     <Image Include="ASSETS\IMAGES\PlayerShip.png">
+      <Filter>Resource Files\IMAGES</Filter>
+    </Image>
+    <Image Include="ASSETS\IMAGES\player_atlas.png">
       <Filter>Resource Files\IMAGES</Filter>
     </Image>
   </ItemGroup>
@@ -78,64 +123,94 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Game.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ButtonComponent.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SpriteComponent.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
     <ClCompile Include="src\Enemy.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
     <ClCompile Include="src\Player.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="src\Menu.cpp">
-      <Filter>Source Files\Screens</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SettingsMenu.cpp">
-      <Filter>Source Files\Screens</Filter>
-    </ClCompile>
-    <ClCompile Include="src\InputController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\GameStateManager.cpp">
       <Filter>Source Files\Managers</Filter>
     </ClCompile>
+    <ClCompile Include="src\Game.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\InputController.cpp">
+      <Filter>Source Files\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpriteComponent.cpp">
+      <Filter>Source Files\Components\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ButtonComponent.cpp">
+      <Filter>Source Files\Components\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menu.cpp">
+      <Filter>Source Files\UI\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SettingsMenu.cpp">
+      <Filter>Source Files\UI\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CursorComponent.cpp">
+      <Filter>Source Files\Components\Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ScreenSettings.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ButtonComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="include\SpriteComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
     <ClInclude Include="include\Enemy.h">
       <Filter>Header Files\Entities</Filter>
     </ClInclude>
     <ClInclude Include="include\Player.h">
       <Filter>Header Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="include\Menu.h">
-      <Filter>Header Files\Screens</Filter>
-    </ClInclude>
-    <ClInclude Include="include\SettingsMenu.h">
-      <Filter>Header Files\Screens</Filter>
-    </ClInclude>
-    <ClInclude Include="include\InputController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\GameStateManager.h">
       <Filter>Header Files\Managers</Filter>
     </ClInclude>
-    <ClInclude Include="MathUtilities.h">
-      <Filter>Header Files\Libaries</Filter>
+    <ClInclude Include="include\Game.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\InputController.h">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SpriteComponent.h">
+      <Filter>Header Files\Components\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ButtonComponent.h">
+      <Filter>Header Files\Components\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menu.h">
+      <Filter>Header Files\UI\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SettingsMenu.h">
+      <Filter>Header Files\UI\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IRenderable.h">
+      <Filter>Header Files\InterFaces</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IUpdatable.h">
+      <Filter>Header Files\InterFaces</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IPositionable.h">
+      <Filter>Header Files\InterFaces</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ICollidable.h">
+      <Filter>Header Files\InterFaces</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IGameEntity.h">
+      <Filter>Header Files\InterFaces</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MathUtilities.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CursorComponent.h">
+      <Filter>Header Files\Components\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ScreenSettings.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AssetPaths.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,58 +1,102 @@
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
-
 #include "SpriteComponent.h"
+#include "CursorComponent.h"
+#include "IGameEntity.h"
 #include <SFML/System/Time.hpp>
+#include <SFML/System/Vector2.hpp>
 
 class InputController;
 
-class Player
+// ========== PLAYER MOVEMENT STATES ==========
+enum class PlayerState
+{
+    Idle,   // Not moving
+    Walk,   // Normal movement
+    Sprint  // Fast movement
+};
+
+/// <summary>
+/// - Faces cursor/mouse position
+/// - WASD for movement
+/// - Shift for sprinting
+/// - State machine for Idle/Walk/Sprint
+/// </summary>
+class Player : public IGameEntity
 {
 public:
     Player();
     ~Player() = default;
 
-    // Initialization
+    // ========== Initialization ==========
     bool initialize(const std::string& texturePath);
 
-    // Updatable interface
-    void update(sf::Time deltaTime);
+    // ========== IUpdatable ==========
+    void update(sf::Time deltaTime) override;
 
-    // Renderable interface
-    void render(sf::RenderTarget& target) const;
+    // ========== Input Updates ==========
+    // Updates input state AND game logic in one call
+    void updateWithInput(sf::Time deltaTime, const InputController& input, const sf::Vector2f& mousePosition);
 
-    // Handle input
-    void handleInput(const InputController& input);
+    // ========== IRenderable ==========
+    void render(sf::RenderTarget& target) const override;
 
-    // Position
-    void setPosition(const sf::Vector2f& pos);
-    sf::Vector2f getPosition() const;
+    // ========== IPositionable ==========
+    void setPosition(const sf::Vector2f& pos) override;
+    sf::Vector2f getPosition() const override;
 
-    // Collision
-    sf::FloatRect getBounds() const;
+    // ========== ICollidable ==========
+    sf::FloatRect getBounds() const override;
 
-    // State
+    // ========== IGameEntity ==========
+    bool isActive() const override { return m_active; }
+    void setActive(bool active) override { m_active = active; }
+
+    // ========== State ==========
     bool isValid() const { return m_sprite.isValid(); }
-    float getSpeed() const { return m_speed; }
-    sf::Angle getRotation() const { return m_rotation; }
+    PlayerState getCurrentState() const { return m_currentState; }
+
+    // ========== Cursor ==========
+    CursorComponent& getCursor() { return m_cursor; }
+    const CursorComponent& getCursor() const { return m_cursor; }
 
 private:
-    void handleSpeed(double deltaTime);
-    void increaseSpeed();
-    void decreaseSpeed();
-    void increaseRotation();
-    void decreaseRotation();
+    // ========== State Machine ==========
+    void updateState();
+    void changeState(PlayerState newState);
 
-    // Components
+    // ========== Movement ==========
+    void updateMovement(sf::Time deltaTime);
+    void updateRotation();
+    void updateCursor();
+    sf::Vector2f calculateMovementInput() const;
+    float getCurrentSpeed() const;
+
+    // ========== Components ==========
     SpriteComponent m_sprite;
+    CursorComponent m_cursor;
 
-    // Player state
-    float m_speed;
-    sf::Angle m_rotation;
+    // ========== State ==========
+    PlayerState m_currentState;
+    bool m_active;
 
-    static constexpr float MAX_FORWARD_SPEED = 200.0f;
-    static constexpr float MAX_REVERSE_SPEED = -100.0f;
+    // ========== Input References ==========
+    const InputController* m_inputController;  // Non-owning pointer
+    sf::Vector2f m_mousePosition;
+
+    // ========== Physics ==========
+    sf::Vector2f m_velocity;
+    sf::Angle m_targetRotation;
+    sf::Angle m_currentRotation;
+
+    // ========== Movement Parameters ==========
+    static constexpr float WALK_SPEED = 150.0f;
+    static constexpr float SPRINT_SPEED = 225.0f;
+    static constexpr float ROTATION_SPEED = 360.0f;  // Degrees per second
+    static constexpr float ACCELERATION = 1200.0f;   // How fast we reach target speed
+    static constexpr float DECELERATION = 1800.0f;   // How fast we stop (faster than acceleration)
+    static constexpr float FRICTION = 0.85f;         // Velocity dampening each frame (0-1)
 };
 
 #endif

@@ -1,11 +1,13 @@
 #include "Game.h"
+#include "AssetPaths.h"
 #include <iostream>
 
 Game::Game()
-    : m_window(sf::VideoMode{ sf::Vector2u{1920U, 1080U}, 32U }, "SFML Game 3.0")
+    : m_window(sf::VideoMode{ sf::Vector2u{1920U, 1080U}, 32U }, "THORNS")
     , m_exitGame(false)
     , m_gameValid(false)
     , m_mousePressed(false)
+    , m_screenSettings()  // Initialize screen settings
 {
     // Register state change callbacks with the state manager
     // These lambdas capture 'this' to call our member functions
@@ -22,41 +24,35 @@ Game::~Game()
 
 bool Game::initializeGame()
 {
-    std::string assetsPaths[4] = {
-        "ASSETS\\IMAGES\\PlayerShip.png",
-        "ASSETS\\IMAGES\\EnemyShip.png",
-        "ASSETS\\FONTS\\Jersey20-Regular.ttf"
-    };
-
     // Initialize player entity
-    if (!m_player.initialize("ASSETS\\IMAGES\\PlayerShip.png"))
+    if (!m_player.initialize(Assets::Textures::PLAYER_ATLAS))
     {
         std::cout << "Failed to load player!" << std::endl;
         return false;
     }
 
     // Initialize enemy entity
-    if (!m_enemy.initialize("ASSETS\\IMAGES\\EnemyShip.png"))
+    if (!m_enemy.initialize(Assets::Textures::ENEMY_SHIP))
     {
         std::cout << "Failed to load enemy!" << std::endl;
         return false;
     }
 
     // Initialize UI (menus load fonts but don't create buttons yet)
-    if (!m_mainMenu.initialize("ASSETS\\FONTS\\Jersey20-Regular.ttf"))
+    if (!m_mainMenu.initialize(Assets::Fonts::JERSEY_20))
     {
         std::cout << "Failed to initialize main menu!" << std::endl;
         return false;
     }
 
-    if (!m_pauseMenu.initialize("ASSETS\\FONTS\\Jersey20-Regular.ttf"))
+    if (!m_pauseMenu.initialize(Assets::Fonts::JERSEY_20))
     {
         std::cout << "Failed to initialize pause menu!" << std::endl;
         return false;
     }
 
-    // Settings menu needs access to input controller for rebinding
-    if (!m_settingsMenu.initialize("ASSETS\\FONTS\\Jersey20-Regular.ttf", &m_input))
+    // Settings menu needs access to input controller and screen settings
+    if (!m_settingsMenu.initialize(Assets::Fonts::JERSEY_20, &m_input, &m_screenSettings))
     {
         std::cout << "Failed to initialize settings menu!" << std::endl;
         return false;
@@ -89,6 +85,7 @@ void Game::setupMenus()
 
     // ===== Settings Menu =====
     m_settingsMenu.setBackCallback([this]() { onBackFromSettings(); });
+    m_settingsMenu.setApplyCallback([this]() { onApplySettings(); });
     m_settingsMenu.setVisible(false);
 }
 
@@ -227,9 +224,10 @@ void Game::updatePlaying(sf::Time deltaTime)
         return;
     }
 
-    // Update gameplay
-    m_player.handleInput(m_input);
-    m_player.update(deltaTime);
+    // Update player with input and mouse position
+    m_player.updateWithInput(deltaTime, m_input, m_input.getMousePosition());
+
+    // Update other entities
     m_enemy.update(deltaTime);
 }
 
@@ -302,12 +300,16 @@ void Game::onStateEnter(GameState state)
         m_mainMenu.setVisible(true);
         m_pauseMenu.setVisible(false);
         m_settingsMenu.setVisible(false);
+        m_window.setMouseCursorVisible(true);  // Show OS cursor in menus
+        m_player.getCursor().setVisible(false); // Hide custom cursor
         break;
 
     case GameState::Settings:
         m_settingsMenu.setVisible(true);
         m_mainMenu.setVisible(false);
         m_pauseMenu.setVisible(false);
+        m_window.setMouseCursorVisible(true);
+        m_player.getCursor().setVisible(false);
         break;
 
     case GameState::Playing:
@@ -315,11 +317,15 @@ void Game::onStateEnter(GameState state)
         m_mainMenu.setVisible(false);
         m_pauseMenu.setVisible(false);
         m_settingsMenu.setVisible(false);
+        m_window.setMouseCursorVisible(false); // Hide OS cursor
+        m_player.getCursor().setVisible(true);  // Show custom cursor
         break;
 
     case GameState::Paused:
         m_pauseMenu.setVisible(true);
         m_settingsMenu.setVisible(false);
+        m_window.setMouseCursorVisible(true);
+        m_player.getCursor().setVisible(false);
         break;
 
     case GameState::GameOver:
@@ -367,6 +373,21 @@ void Game::onBackFromSettings()
 {
     // Pop back to previous state (pause or main menu)
     m_stateManager.popState();
+}
+
+void Game::onApplySettings()
+{
+    // Apply screen settings (this will recreate the window)
+    m_screenSettings.applySettings(m_window);
+
+    // Update UI layouts for new resolution
+    const auto& res = m_screenSettings.getCurrentResolution();
+    m_settingsMenu.updateLayout(res.width, res.height);
+
+    // Note: You may want to update menu positions here too
+    // For now, menus will keep their absolute positions
+
+    std::cout << "Settings applied!" << std::endl;
 }
 
 // ========== Utility ==========

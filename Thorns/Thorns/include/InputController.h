@@ -58,9 +58,15 @@ Map revision Cherno: https://youtu.be/KiB0vRi2wlc?si=c__NeniIIIjXwTsD
 // Abstract actions that can be bound to different keys
 enum class InputAction
 {
+    // Movement (player and menus)
     MoveUp, MoveDown, MoveLeft, MoveRight,
+    Sprint,
+
+    // Menu Nav
     Pause, Menu, Confirm, Cancel,
-    COUNT // For enum size
+
+    // For enum size
+    COUNT
 };
 
 // ========== INPUT DEVICE TYPE ==========
@@ -84,11 +90,10 @@ public:
     bool wasJustPressed(InputAction action) const;   // Transitioned from X to Y this frame
     bool wasJustReleased(InputAction action) const;  // Transitioned from Y to Z this frame
 
-    // ========== Analog Input ==========
-    // Get combined input as normalized axis (-1.0 to 1.0)
-
     // ========== Mouse Input ==========
     bool isMousePressed() const { return m_mousePressed; }
+    bool wasMouseJustPressed() const;
+    bool wasMouseJustReleased() const;
     sf::Vector2f getMousePosition() const { return m_mousePosition; }  // Get current mouse position
 
     // ========== Configuration ==========
@@ -123,6 +128,9 @@ private:
     bool m_mousePressed;
     bool m_previousMousePressed;
 
+    // ========= Controller State ========
+    sf::Vector2f m_rightStickAxis;
+
     // ========== Device State ==========
     InputDevice m_activeDevice = InputDevice::Keyboard;  // Current input method
     unsigned int m_activeGamepad = 0;
@@ -153,5 +161,14 @@ inline bool InputController::wasJustReleased(InputAction action) const
     return !m_currentState[inputIndex] && m_previousState[inputIndex];
 }
 
+inline bool InputController::wasMouseJustPressed() const
+{
+    return m_mousePressed && !m_previousMousePressed;
+}
+
+inline bool InputController::wasMouseJustReleased() const
+{
+    return !m_mousePressed && m_previousMousePressed;
+}
 
 #endif
