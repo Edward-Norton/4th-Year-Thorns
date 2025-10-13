@@ -17,12 +17,7 @@ enum class PlayerState
     Sprint  // Fast movement
 };
 
-/// <summary>
-/// - Faces cursor/mouse position
-/// - WASD for movement
-/// - Shift for sprinting
-/// - State machine for Idle/Walk/Sprint
-/// </summary>
+
 class Player : public IGameEntity
 {
 public:

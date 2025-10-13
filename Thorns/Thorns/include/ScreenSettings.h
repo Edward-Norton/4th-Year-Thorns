@@ -12,6 +12,7 @@
 class ScreenSettings
 {
 public:
+    // ========== Structure ==========
     struct Resolution
     {
         unsigned int width;

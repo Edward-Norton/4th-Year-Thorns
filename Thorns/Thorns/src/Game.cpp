@@ -10,7 +10,6 @@ Game::Game()
     , m_screenSettings()  // Initialize screen settings
 {
     // Register state change callbacks with the state manager
-    // These lambdas capture 'this' to call our member functions
     m_stateManager.setOnStateEnter([this](GameState state) { onStateEnter(state); });
     m_stateManager.setOnStateExit([this](GameState state) { onStateExit(state); });
 

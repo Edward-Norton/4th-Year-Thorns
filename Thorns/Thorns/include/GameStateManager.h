@@ -56,7 +56,7 @@ public:
     GameState getPreviousState() const { return m_previousState; }
     bool hasPreviousState() const { return !m_stateStack.empty(); }
 
-    // ========== Optional Callbacks ==========
+    // ========== Callbacks ==========
     // Register callbacks to be notified of state changes
     // Used for showing/hiding UI, cleanup, etc.
     void setOnStateEnter(std::function<void(GameState)> callback) { m_onStateEnter = callback; }
@@ -64,10 +64,10 @@ public:
 
 private:
     GameState m_currentState;              // Active state
-    GameState m_previousState;             // For rendering context (e.g., show game under settings)
+    GameState m_previousState;             // Last State
     std::stack<GameState> m_stateStack;    // Stack of paused states
 
-    // Optional callbacks for external code to react to state changes
+    // Callbacks for external code to react to state changes
     std::function<void(GameState)> m_onStateEnter;
     std::function<void(GameState)> m_onStateExit;
 };

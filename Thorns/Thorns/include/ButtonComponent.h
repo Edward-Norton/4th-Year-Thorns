@@ -4,7 +4,8 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <functional>
-#include <memory>
+#include "IRenderable.h"
+#include "IPositionable.h"
 
 
 /// <summary>
@@ -19,35 +20,35 @@ enum class ButtonState
     Disabled,
     Selected
 };
-
-class ButtonComponent
+ 
+class ButtonComponent : public IRenderable, public IPositionable
 {
 public:
     ButtonComponent();
     ~ButtonComponent() = default;
 
-    // Initialize button
+    // ========== Initialize button ==========
     bool initialize(const sf::Font& font, const std::string& text);
 
-    // Update button state with mouse position
+    // ========== Update ==========
     void update(const sf::Vector2f& mousePos, bool mousePressed);
 
-    // Render button
-    void render(sf::RenderTarget& target) const;
+    // ========== IRenderable ==========
+    void render(sf::RenderTarget& target) const override;
 
-    // Configuration
-    void setPosition(const sf::Vector2f& pos);
+    // ========== Configuration ==========
+    // IPositionable
+    void setPosition(const sf::Vector2f& pos) override;
+    sf::Vector2f getPosition() const override;
     void setSize(const sf::Vector2f& size);
     void setText(const std::string& text);
     void setCallback(std::function<void()> callback);
     void setEnabled(bool enabled);
-
     void activate();
-
     void setSelected(bool selected);
     bool isSelected() const { return m_selected; }
 
-    // Colors
+    // ========== Colors ==========
     void setNormalColor(const sf::Color& color) { m_normalColor = color; }
     void setHoverColor(const sf::Color& color) { m_hoverColor = color; }
     void setPressedColor(const sf::Color& color) { m_pressedColor = color; }
@@ -57,7 +58,7 @@ public:
     void setOutlineColor(const sf::Color& color);
     void setOutlineThickness(float thickness);
 
-    // States
+    // ========== States ==========
     bool isHovered() const { return m_state == ButtonState::Hovered; }
     bool isPressed() const { return m_wasClicked; }
     bool isEnabled() const { return m_enabled; }

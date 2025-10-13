@@ -121,6 +121,11 @@ void ButtonComponent::setPosition(const sf::Vector2f& pos)
     updateTextPosition();
 }
 
+sf::Vector2f ButtonComponent::getPosition() const
+{
+    return m_shape.getPosition();
+}
+
 void ButtonComponent::setSize(const sf::Vector2f& size)
 {
     m_shape.setSize(size);

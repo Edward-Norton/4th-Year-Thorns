@@ -9,8 +9,9 @@
 #include "SettingsMenu.h"
 #include "GameStateManager.h"
 #include "ScreenSettings.h"
+#include "IUpdatable.h"
 
-class Game
+class Game : IUpdatable
 {
 public:
     Game();
@@ -22,7 +23,7 @@ public:
 private:
     // ========== Core Loop ==========
     void processEvents();              // Handle window events (close, mouse, keys)
-    void update(sf::Time deltaTime);   // Update game logic at fixed timestep
+    void update(sf::Time deltaTime) override;   // Update game logic at fixed timestep
     void render();                     // Render current game state
 
     // ========== Initialization ==========
@@ -50,7 +51,7 @@ private:
     void onQuitGame();
     void onBackToMenu();
     void onBackFromSettings();
-    void onApplySettings();  // New: Apply resolution/fullscreen changes
+    void onApplySettings();
 
     // ========== Utility ==========
     sf::Vector2f getMousePosition() const;
