@@ -83,8 +83,8 @@ void Game::setupMenus()
     m_pauseMenu.setVisible(false);  // Hide until paused
 
     // ===== Settings Menu =====
-    m_settingsMenu.setBackCallback([this]() { onBackFromSettings(); });
     m_settingsMenu.setApplyCallback([this]() { onApplySettings(); });
+    m_settingsMenu.setBackCallback([this]() {onBackFromSettings(); });
     m_settingsMenu.setVisible(false);
 }
 
@@ -382,9 +382,6 @@ void Game::onApplySettings()
     // Update UI layouts for new resolution
     const auto& res = m_screenSettings.getCurrentResolution();
     m_settingsMenu.updateLayout(res.width, res.height);
-
-    // Note: You may want to update menu positions here too
-    // For now, menus will keep their absolute positions
 
     std::cout << "Settings applied!" << std::endl;
 }

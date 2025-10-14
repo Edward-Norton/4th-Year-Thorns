@@ -68,6 +68,7 @@ private:
     void onResolutionNext();
     void onFullscreenToggle();
     void onApply();
+    void onBack();
 
     // ========== Data ==========
     sf::Font m_font;

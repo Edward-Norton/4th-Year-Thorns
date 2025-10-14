@@ -136,9 +136,7 @@ void SettingsMenu::createVideoSection()
     m_backButton->setSize(sf::Vector2f(BUTTON_WIDTH, BUTTON_HEIGHT));
     m_backButton->setNormalColor(sf::Color(100, 50, 50));
     m_backButton->setHoverColor(sf::Color(150, 70, 70));
-    m_backButton->setCallback([this]() {
-        if (m_backCallback) m_backCallback();
-        });
+    m_backButton->setCallback([this]() { onBack(); });
 
     updateVideoLabels();
 }
@@ -349,6 +347,12 @@ void SettingsMenu::onApply()
 {
     if (m_applyCallback)
         m_applyCallback();
+}
+
+void SettingsMenu::onBack()
+{
+    if (m_backCallback)
+        m_backCallback();
 }
 
 std::string SettingsMenu::getKeyName(sf::Keyboard::Key key) const
