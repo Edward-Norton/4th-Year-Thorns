@@ -2,7 +2,7 @@
 
 ### High-Level Overview
 
-THORNS is built on a state-machine architecture using SFML for rendering. The game manages distinct states (MainMenu, Playing, Paused, Settings, GameOver) with a dedicated state manager that handles transitions.
+Thorns is built on a state-machine architecture using SFML for rendering. The game manages distinct states (MainMenu, Playing, Paused, Settings, GameOver) with a dedicated state manager that handles transitions.
 ### Core Architecture Components
 
   
@@ -25,13 +25,13 @@ graph TB
 
     Game -->|manages| StateManager
 
-    Game -->|owns| Player
+    Game -->|has a| Player
 
-    Game -->|owns| Enemy
+    Game -->|has a| Enemy
 
-    Game -->|owns| InputCtrl
+    Game -->|has a| InputCtrl
 
-    Game -->|owns| Menus
+    Game -->|has a| Menus
 
     StateManager -->|notifies| Game
 

@@ -27,13 +27,6 @@ Example: [Playing, Paused] → pop
 Stack: [Playing]
 Current: Playing (resume game)
 ```
-#### Change Transition
-Replaces state entirely, clears stack.
-```
-Example: MainMenu → change to Playing
-Stack: []
-Current: Playing (fresh start, can't pop back)
-```
 ### State Flow Diagram
 
 ```mermaid
@@ -50,8 +43,6 @@ stateDiagram-v2
 
     Playing --> Paused: Pause/Menu key (push)
 
-    Playing --> GameOver: Collision detected (change)
-
     Paused --> Playing: onResumeGame (pop)
 
     Paused --> Settings: onOpenSettings (push)
@@ -63,8 +54,6 @@ stateDiagram-v2
     Settings --> Paused: Back from Paused (pop)
 
     Settings --> Playing: Back from Playing (pop)
-
-    GameOver --> MainMenu: onBackToMenu (change)
 
 ```
 ### State Callbacks
