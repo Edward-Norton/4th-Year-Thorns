@@ -31,6 +31,8 @@ bool Player::initialize(const std::string& texturePath)
     if (!m_cursor.initialize(8.f))
         return false;
 
+    m_inventory.initialize();
+
     m_cursor.setColor(sf::Color::Yellow);
 
     return true;
@@ -61,6 +63,28 @@ void Player::updateWithInput(sf::Time deltaTime, const InputController& input, c
     m_inputController = &input;
     m_mousePosition = mousePosition;
 
+    if (input.wasJustPressed(InputAction::Inventory))
+    {
+        m_inventory.toggle();
+
+        // Immediately transition to/from InventoryOpen state
+        if (m_inventory.isVisible())
+        {
+            changeState(PlayerState::InventoryOpen);
+        }
+        else
+        {
+            // Return to Idle when closing inventory
+            changeState(PlayerState::Idle);
+        }
+    }
+
+    // Update inventory slot interaction
+    if (m_inventory.isVisible())
+    {
+        m_inventory.updateSlotInteraction(input);
+    }
+
     // Delegate to standard update
     update(deltaTime);
 }
@@ -70,12 +94,19 @@ void Player::render(sf::RenderTarget& target) const
     if (!m_active) return;
 
     m_sprite.render(target);
+    m_inventory.render(target);
     m_cursor.render(target);
 }
 
 void Player::updateState()
 {
     if (!m_inputController) return;
+
+    // Since not moving Idle becomes default on next frame, need this safe guard
+    if (m_currentState == PlayerState::InventoryOpen)
+    {
+        return; 
+    }
 
     // Get raw movement input
     sf::Vector2f moveInput = calculateMovementInput();
@@ -107,7 +138,7 @@ void Player::updateState()
 
 void Player::changeState(PlayerState newState)
 {
-    // Exit current state (optional cleanup)
+    // Exit current state
     switch (m_currentState)
     {
     case PlayerState::Idle:
@@ -115,6 +146,8 @@ void Player::changeState(PlayerState newState)
     case PlayerState::Walk:
         break;
     case PlayerState::Sprint:
+        break;
+    case PlayerState::InventoryOpen:
         break;
     }
 
@@ -133,12 +166,21 @@ void Player::changeState(PlayerState newState)
     case PlayerState::Sprint:
         std::cout << "State: SPRINT\n";
         break;
+    case PlayerState::InventoryOpen:
+        std::cout << "State: INVENTORY OPEN\n";
     }
 }
 
 void Player::updateMovement(sf::Time deltaTime)
 {
     if (!m_inputController) return;
+
+    if (m_currentState == PlayerState::InventoryOpen)
+    {
+        // Zero out velocity immediately when inventory opens
+        m_velocity = sf::Vector2f(0.f, 0.f);
+        return;
+    }
 
     float dt = deltaTime.asSeconds();
 
@@ -176,6 +218,12 @@ void Player::updateMovement(sf::Time deltaTime)
 
 void Player::updateRotation()
 {
+    if (m_currentState == PlayerState::InventoryOpen)
+    {
+        // Return early so player doesnt rotate when inventory is open
+        return;
+    }
+
     // Calculate direction from player to mouse
     sf::Vector2f playerPos = m_sprite.getPosition();
     sf::Vector2f direction = m_mousePosition - playerPos;
@@ -185,9 +233,6 @@ void Player::updateRotation()
 
     // Set target rotation
     m_targetRotation = sf::degrees(angleDeg);
-
-    // For Darkwood-style, use instant rotation
-    // (You can add smooth interpolation here if desired)
     m_currentRotation = m_targetRotation;
     m_sprite.setRotation(m_currentRotation);
 }
@@ -216,6 +261,8 @@ float Player::getCurrentSpeed() const
     switch (m_currentState)
     {
     case PlayerState::Idle:
+        return 0.f;
+    case PlayerState::InventoryOpen:
         return 0.f;
     case PlayerState::Walk:
         return WALK_SPEED;

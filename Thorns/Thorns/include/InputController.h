@@ -58,9 +58,9 @@ Map revision Cherno: https://youtu.be/KiB0vRi2wlc?si=c__NeniIIIjXwTsD
 // Abstract actions that can be bound to different keys
 enum class InputAction
 {
-    // Movement (player and menus)
-    MoveUp, MoveDown, MoveLeft, MoveRight,
-    Sprint,
+    // Gameplay
+    MoveUp, MoveDown, MoveLeft, MoveRight, Sprint,  // Movement (player and menus)
+    Inventory,
 
     // Menu Nav
     Pause, Menu, Confirm, Cancel,

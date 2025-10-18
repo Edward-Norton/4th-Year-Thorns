@@ -11,7 +11,6 @@ Game::Game()
 {
     // Register state change callbacks with the state manager
     m_stateManager.setOnStateEnter([this](GameState state) { onStateEnter(state); });
-    m_stateManager.setOnStateExit([this](GameState state) { onStateExit(state); });
 
     // Load all resources and setup game
     m_gameValid = initializeGame();
@@ -179,30 +178,29 @@ void Game::update(sf::Time deltaTime)
     switch (m_stateManager.getCurrentState())
     {
     case GameState::MainMenu:
-        updateMainMenu(deltaTime);
+        updateMainMenu();
         break;
     case GameState::Settings:
-        updateSettings(deltaTime);
+        updateSettings();
         break;
     case GameState::Playing:
         updatePlaying(deltaTime);
         break;
     case GameState::Paused:
-        updatePaused(deltaTime);
+        updatePaused();
         break;
     case GameState::GameOver:
-        updateGameOver(deltaTime);
         break;
     }
 }
 
-void Game::updateMainMenu(sf::Time deltaTime)
+void Game::updateMainMenu()
 {
     // Main menu only needs mouse input for button interaction
     m_mainMenu.update(m_input);
 }
 
-void Game::updateSettings(sf::Time deltaTime)
+void Game::updateSettings()
 {
     // Settings menu handles button clicks and key rebinding
     m_settingsMenu.update(getMousePosition(), m_mousePressed);
@@ -230,16 +228,13 @@ void Game::updatePlaying(sf::Time deltaTime)
     m_enemy.update(deltaTime);
 }
 
-void Game::updatePaused(sf::Time deltaTime)
+void Game::updatePaused()
 {
     // Pause menu only needs mouse input for button interaction
     m_pauseMenu.update(m_input);
 }
 
-void Game::updateGameOver(sf::Time deltaTime)
-{
-    // TODO: Implement game over logic
-}
+
 
 void Game::render()
 {
@@ -281,7 +276,7 @@ void Game::render()
         break;
 
     case GameState::GameOver:
-        // TODO: Render game over screen
+
         break;
     }
 
@@ -332,13 +327,7 @@ void Game::onStateEnter(GameState state)
     }
 }
 
-void Game::onStateExit(GameState state)
-{
-    // Optional: Add cleanup logic when exiting states
-}
-
 // ========== Menu Action Callbacks ==========
-
 void Game::onStartGame()
 {
     // Direct state change (clears state stack)

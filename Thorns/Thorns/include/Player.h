@@ -6,6 +6,7 @@
 #include "IGameEntity.h"
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
+#include "Inventory.h"
 
 class InputController;
 
@@ -14,7 +15,8 @@ enum class PlayerState
 {
     Idle,   // Not moving
     Walk,   // Normal movement
-    Sprint  // Fast movement
+    Sprint,  // Fast movement
+    InventoryOpen // Seperate state since I want player not move when its open
 };
 
 
@@ -56,6 +58,10 @@ public:
     CursorComponent& getCursor() { return m_cursor; }
     const CursorComponent& getCursor() const { return m_cursor; }
 
+    // ========== Inventory ==========
+    Inventory& getInventory() { return m_inventory; }
+    const Inventory& getInventory() const { return m_inventory; }
+
 private:
     // ========== State Machine ==========
     void updateState();
@@ -71,6 +77,7 @@ private:
     // ========== Components ==========
     SpriteComponent m_sprite;
     CursorComponent m_cursor;
+    Inventory m_inventory;
 
     // ========== State ==========
     PlayerState m_currentState;

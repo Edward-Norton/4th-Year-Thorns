@@ -33,15 +33,13 @@ private:
     // ========== State Callbacks ==========
     // Called automatically by GameStateManager when states change
     void onStateEnter(GameState state);
-    void onStateExit(GameState state);
 
     // ========== State Update Methods ==========
     // Each state has its own update logic
-    void updateMainMenu(sf::Time deltaTime);
-    void updateSettings(sf::Time deltaTime);
+    void updateMainMenu();
+    void updateSettings();
     void updatePlaying(sf::Time deltaTime);
-    void updatePaused(sf::Time deltaTime);
-    void updateGameOver(sf::Time deltaTime);
+    void updatePaused();
 
     // ========== Menu Action Callbacks ==========
     // These are bound to menu buttons via lambdas

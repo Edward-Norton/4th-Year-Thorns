@@ -62,6 +62,7 @@ void SettingsMenu::createKeyBindingSection()
         {"Move Left", InputAction::MoveLeft},
         {"Move Right", InputAction::MoveRight},
         {"Sprint", InputAction::Sprint},
+        {"Inventory", InputAction::Inventory},
         {"Pause", InputAction::Pause}
     };
 

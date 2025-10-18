@@ -156,6 +156,9 @@
     <ClCompile Include="src\ScreenSettings.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Inventory.cpp">
+      <Filter>Source Files\UI\HUD</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Enemy.h">
@@ -211,6 +214,9 @@
     </ClInclude>
     <ClInclude Include="include\AssetPaths.h">
       <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Inventory.h">
+      <Filter>Header Files\UI\HUD</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
