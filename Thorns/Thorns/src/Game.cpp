@@ -4,6 +4,8 @@
 
 Game::Game()
     : m_window(sf::VideoMode{ sf::Vector2u{1920U, 1080U}, 32U }, "THORNS")
+    , m_gameView(sf::FloatRect(sf::Vector2f(0.f, 0.f), sf::Vector2f(1920.f, 1080.f)))
+    , m_uiView(sf::FloatRect(sf::Vector2f(0.f, 0.f), sf::Vector2f(1920.f, 1080.f)))
     , m_exitGame(false)
     , m_gameValid(false)
     , m_mousePressed(false)
@@ -11,6 +13,7 @@ Game::Game()
 {
     // Register state change callbacks with the state manager
     m_stateManager.setOnStateEnter([this](GameState state) { onStateEnter(state); });
+    m_stateManager.setOnStateExit([this](GameState state) { onStateExit(state); });
 
     // Load all resources and setup game
     m_gameValid = initializeGame();
@@ -59,6 +62,9 @@ bool Game::initializeGame()
     // Now that resources are loaded, configure the menus
     setupMenus();
 
+    // Generate the starting map
+    generateMap();
+
     std::cout << "Game initialized successfully!" << std::endl;
     return true;
 }
@@ -85,6 +91,28 @@ void Game::setupMenus()
     m_settingsMenu.setApplyCallback([this]() { onApplySettings(); });
     m_settingsMenu.setBackCallback([this]() {onBackFromSettings(); });
     m_settingsMenu.setVisible(false);
+}
+
+void Game::generateMap()
+{
+    MapGenerator::GenerationSettings settings; // Simple config struct for settings in game instead
+    settings.mapWidth = 128;
+    settings.mapHeight = 128;
+    settings.tileSize = 64.f;
+    settings.voronoiSites = 25;
+    settings.seed = 12345;  // Fixed seed for testing
+
+    // Generate only Phase 1 for now (Voronoi)
+    m_map = m_mapGenerator.generate(settings);
+
+    // Position player at map center (where hideout is)
+    sf::Vector2f mapCenter = m_map->getWorldSize();
+    mapCenter.x /= 2.f;
+    mapCenter.y /= 2.f;
+    m_player.setPosition(mapCenter);
+
+    std::cout << "Map generated! World size: "
+        << m_map->getWorldSize().x << "x" << m_map->getWorldSize().y << " pixels\n";
 }
 
 void Game::run()
@@ -222,10 +250,12 @@ void Game::updatePlaying(sf::Time deltaTime)
     }
 
     // Update player with input and mouse position
-    m_player.updateWithInput(deltaTime, m_input, m_input.getMousePosition());
+    m_player.updateWithInput(deltaTime, m_input, getMouseWorldPosition());
 
     // Update other entities
     m_enemy.update(deltaTime);
+
+    updateCamera();
 }
 
 void Game::updatePaused()
@@ -234,8 +264,8 @@ void Game::updatePaused()
     m_pauseMenu.update(m_input);
 }
 
-
-
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// ======================== PN REMOVE THE SITES USED FOR RENDERING WHEN NEAR DONE IN TESTING ========================================
 void Game::render()
 {
     m_window.clear(sf::Color::Black);
@@ -256,22 +286,38 @@ void Game::render()
         // Show game in background if coming from pause/playing
         if (previousState == GameState::Paused || previousState == GameState::Playing)
         {
+            m_window.setView(m_gameView);
+            if (m_map)
+                m_map->render(m_window);
+            m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
             m_player.render(m_window);
             m_enemy.render(m_window);
         }
+        m_window.setView(m_uiView);
         m_settingsMenu.render(m_window);  // Draw settings over game
         break;
 
     case GameState::Playing:
         // Normal gameplay rendering
+        m_window.setView(m_gameView);
+
+        if (m_map)
+            m_map->render(m_window);
+        m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
         m_player.render(m_window);
         m_enemy.render(m_window);
         break;
 
     case GameState::Paused:
         // Show frozen game in background with pause menu overlay
+        m_window.setView(m_gameView);
+        if (m_map)
+            m_map->render(m_window);
+        m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
         m_player.render(m_window);
         m_enemy.render(m_window);
+
+        m_window.setView(m_uiView);
         m_pauseMenu.render(m_window);
         break;
 
@@ -327,6 +373,10 @@ void Game::onStateEnter(GameState state)
     }
 }
 
+void Game::onStateExit(GameState state)
+{
+}
+
 // ========== Menu Action Callbacks ==========
 void Game::onStartGame()
 {
@@ -375,10 +425,46 @@ void Game::onApplySettings()
     std::cout << "Settings applied!" << std::endl;
 }
 
+void Game::updateCamera()
+{
+    // Center camera on player
+    sf::Vector2f playerPos = m_player.getPosition();
+
+    // Clamp camera to map bounds so we don't see outside the map
+    sf::Vector2f clampedPos = clampCameraToMapBounds(playerPos);
+
+    m_gameView.setCenter(clampedPos);
+}
+
+sf::Vector2f Game::clampCameraToMapBounds(const sf::Vector2f& targetPos)
+{
+    if (!m_map)
+        return targetPos;
+
+    sf::Vector2f viewSize = m_gameView.getSize();
+    sf::Vector2f mapSize = m_map->getWorldSize();
+
+    // Calculate half view size
+    float halfWidth = viewSize.x / 2.f;
+    float halfHeight = viewSize.y / 2.f;
+
+    // Clamp camera center so view edges don't go outside map
+    float clampedX = std::max(halfWidth, std::min(targetPos.x, mapSize.x - halfWidth));
+    float clampedY = std::max(halfHeight, std::min(targetPos.y, mapSize.y - halfHeight));
+
+    return sf::Vector2f(clampedX, clampedY);
+}
 // ========== Utility ==========
 
 sf::Vector2f Game::getMousePosition() const
 {
     // Convert window-relative mouse position to Vector2f for button checks
     return sf::Vector2f(sf::Mouse::getPosition(m_window));
+}
+
+sf::Vector2f Game::getMouseWorldPosition() const
+{
+    // Convert screen coordinates to world coordinates using game view
+    sf::Vector2i mousePixel = sf::Mouse::getPosition(m_window);
+    return m_window.mapPixelToCoords(mousePixel, m_gameView);
 }

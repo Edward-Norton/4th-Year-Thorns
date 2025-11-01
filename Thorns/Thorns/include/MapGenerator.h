@@ -1,0 +1,55 @@
+#ifndef MAP_GENERATOR_HPP
+#define MAP_GENERATOR_HPP
+
+#include <memory>
+#include "Map.h"
+#include "VoronoiDiagram.h"
+
+/// <summary>
+/// Orchestrates procedural map generation pipeline
+/// Phase 1: Voronoi diagram for regionalization
+/// Phase 2: (TODO) Perlin noise for terrain density
+/// Phase 3: (TODO) Cellular automata for refinement
+/// Phase 4: (TODO) Dijkstra map for connectivity validation
+/// </summary>
+class MapGenerator
+{
+public:
+    struct GenerationSettings
+    {
+        // ========== Map Layout ==========
+        int mapWidth = 128;          // Map width in tiles
+        int mapHeight = 128;         // Map height in tiles
+        float tileSize = 64.f;       // Tile size in pixels
+
+        // ========== Voronoi Diagram ==========
+        int voronoiSites = 20;       // Number of Voronoi regions
+        unsigned int seed = 0;       // Random seed (0 = random)
+    };
+
+    MapGenerator();
+    ~MapGenerator() = default;
+
+    // ========== Generation ==========
+    // Generate complete map with all phases
+    std::unique_ptr<Map> generate(const GenerationSettings& settings);
+
+    // Generate only Phase 1 (Voronoi)
+    std::unique_ptr<Map> generatePhase1Only(const GenerationSettings& settings);
+
+    // ========== Phase Access (for debugging) ==========
+    VoronoiDiagram* getVoronoiDiagram() { return m_voronoi.get(); }
+
+private:
+    // ========== Generation Phases ==========
+    void phase1_Voronoi(Map* map, const GenerationSettings& settings);
+
+    // ========== POI Setup ==========
+    // Add default POIs to map (hideout)
+    void setupStaticPOIs(Map* map);
+
+    // ========== Algorithm Instances ==========
+    std::unique_ptr<VoronoiDiagram> m_voronoi;
+};
+
+#endif

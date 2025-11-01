@@ -10,6 +10,8 @@
 #include "GameStateManager.h"
 #include "ScreenSettings.h"
 #include "IUpdatable.h"
+#include "Map.h"
+#include "MapGenerator.h"
 
 class Game : IUpdatable
 {
@@ -29,10 +31,12 @@ private:
     // ========== Initialization ==========
     bool initializeGame();    // Load all resources and setup game objects
     void setupMenus();        // Configure menu items and callbacks
+    void generateMap();
 
     // ========== State Callbacks ==========
     // Called automatically by GameStateManager when states change
     void onStateEnter(GameState state);
+    void onStateExit(GameState state);
 
     // ========== State Update Methods ==========
     // Each state has its own update logic
@@ -51,11 +55,18 @@ private:
     void onBackFromSettings();
     void onApplySettings();
 
+    // ========== Camera ========== (might make class later PN)
+    void updateCamera();
+    sf::Vector2f clampCameraToMapBounds(const sf::Vector2f& targetPos);
+
     // ========== Utility ==========
     sf::Vector2f getMousePosition() const;
+    sf::Vector2f getMouseWorldPosition() const;
 
     // ========== SFML Window ==========
     sf::RenderWindow m_window;
+    sf::View m_gameView;        // Game play camera
+    sf::View m_uiView;          // Ui set to different view 
 
     // ========== Game State ==========
     bool m_exitGame;      // Set to true to close window
@@ -75,6 +86,11 @@ private:
     // ========== Game Objects ==========
     Player m_player;
     Enemy m_enemy;
+
+    // ========== World ==========
+    std::unique_ptr<Map> m_map;
+    MapGenerator m_mapGenerator;
+
 };
 
 #endif

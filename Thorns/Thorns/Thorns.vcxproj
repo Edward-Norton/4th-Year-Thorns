@@ -42,11 +42,16 @@
     <ClCompile Include="src\InputController.cpp" />
     <ClCompile Include="src\Inventory.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Map.cpp" />
+    <ClCompile Include="src\MapGenerator.cpp" />
+    <ClCompile Include="src\MapTile.cpp" />
     <ClCompile Include="src\Menu.cpp" />
     <ClCompile Include="src\Player.cpp" />
+    <ClCompile Include="src\PointOfInterest.cpp" />
     <ClCompile Include="src\ScreenSettings.cpp" />
     <ClCompile Include="src\SettingsMenu.cpp" />
     <ClCompile Include="src\SpriteComponent.cpp" />
+    <ClCompile Include="src\VoronoiDiagram.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\AssetPaths.h" />
@@ -62,12 +67,17 @@
     <ClInclude Include="include\IPositionable.h" />
     <ClInclude Include="include\IRenderable.h" />
     <ClInclude Include="include\IUpdatable.h" />
+    <ClInclude Include="include\Map.h" />
+    <ClInclude Include="include\MapGenerator.h" />
+    <ClInclude Include="include\MapTile.h" />
     <ClInclude Include="include\MathUtilities.h" />
     <ClInclude Include="include\Menu.h" />
     <ClInclude Include="include\Player.h" />
+    <ClInclude Include="include\PointOfInterest.h" />
     <ClInclude Include="include\ScreenSettings.h" />
     <ClInclude Include="include\SettingsMenu.h" />
     <ClInclude Include="include\SpriteComponent.h" />
+    <ClInclude Include="include\VoronoiDiagram.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

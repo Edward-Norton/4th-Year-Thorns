@@ -94,6 +94,18 @@
     <Filter Include="Header Files\Utilities">
       <UniqueIdentifier>{f42977a1-49a0-4307-8a5b-4d490d241210}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\World">
+      <UniqueIdentifier>{442fe6d0-aef8-4463-a7db-52d9c60173f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\World">
+      <UniqueIdentifier>{e5df3533-91f2-4ea9-82ee-cee8377b141f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Algorithms">
+      <UniqueIdentifier>{1b763007-2156-4f5e-a2f1-db9afb9e1f4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Algorithms">
+      <UniqueIdentifier>{b7583ab3-079b-40ef-9f98-ccd4c8b831d3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="ASSETS\IMAGES\SFML-LOGO.png">
@@ -159,6 +171,21 @@
     <ClCompile Include="src\Inventory.cpp">
       <Filter>Source Files\UI\HUD</Filter>
     </ClCompile>
+    <ClCompile Include="src\PointOfInterest.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Map.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MapTile.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VoronoiDiagram.cpp">
+      <Filter>Source Files\Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MapGenerator.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Enemy.h">
@@ -217,6 +244,21 @@
     </ClInclude>
     <ClInclude Include="include\Inventory.h">
       <Filter>Header Files\UI\HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PointOfInterest.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Map.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VoronoiDiagram.h">
+      <Filter>Header Files\Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MapTile.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MapGenerator.h">
+      <Filter>Header Files\World</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
