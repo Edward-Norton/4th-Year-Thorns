@@ -60,7 +60,7 @@ private:
     // Helper to pick random POI type
     PointOfInterest::Type getRandomPOIType(int& villagesLeft, int& farmsLeft,std::mt19937& rng);
 
-    // ========== Algorithm Instances ==========
+    // ========== Algorithm Instances ========== (Only pointers incase pointer to phase later is needed)
     std::unique_ptr<VoronoiDiagram> m_voronoi;
 
     // Store hideout position for Voronoi generation

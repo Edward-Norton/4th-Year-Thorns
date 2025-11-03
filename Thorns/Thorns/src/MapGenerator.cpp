@@ -9,19 +9,22 @@ MapGenerator::MapGenerator()
 
 std::unique_ptr<Map> MapGenerator::generate(const GenerationSettings& settings)
 {
+    // Step 2: Generate the base map (pn step 1 in game.cpp)
     std::cout << "\n=== Starting Map Generation ===\n";
 
-    // Create map
+    // Step 2.1: All tiles are UNKNOWN initally and use the default params while also alocating memory for map
     auto map = std::make_unique<Map>();
     map->initialize(settings.mapWidth, settings.mapHeight, settings.tileSize);
 
     // Setup static POIs (hideout at the center)
+    // Step 2.3: Where the hideout needs to be based on map size
     setupHideoutPOI(map.get());
     map->markPOITiles();
     
 
     // Run generation phases
     // ========== VORONOI DIAGRAMS ==========
+    //Step 3: Seeds Voronoi
     std::cout << "\n--- Phase 1: Voronoi Diagram ---\n";
     phase1_Voronoi(map.get(), settings);
 

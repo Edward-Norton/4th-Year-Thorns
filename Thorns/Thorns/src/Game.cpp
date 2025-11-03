@@ -93,6 +93,8 @@ void Game::setupMenus()
     m_settingsMenu.setVisible(false);
 }
 
+// Step 1 for map generation
+// Use settings, initalise the map
 void Game::generateMap()
 {
     // Configure generation settings (Defaults in base class, change here for testing)
@@ -108,7 +110,7 @@ void Game::generateMap()
     m_mapSettings.numVillages = 1;
     m_mapSettings.numFarms = 2;
 
-    // Generating only Voronoi for now
+    // Generating map
     m_map = m_mapGenerator.generate(m_mapSettings);
 
     // Position player at map center (where hideout is)
@@ -281,6 +283,7 @@ void Game::updatePlaying(sf::Time deltaTime)
     // Update player with input and mouse position
     m_player.updateWithInput(deltaTime, m_input, getMouseWorldPosition());
 
+    //==============================================================================================<<<<< REMOVE THE BELOW WHEN DONT HAVE TO DEBUG
     // Check for map regeneration (R key)
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R))
     {
