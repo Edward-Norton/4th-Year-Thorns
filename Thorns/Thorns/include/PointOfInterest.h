@@ -56,9 +56,6 @@ public:
     Type getType() const { return m_type; }
     bool isBlocking() const { return m_blocking; } // Needed for the algorithim to skip the tiles
 
-    // ========== Debug Rendering ==========
-    void renderDebug(sf::RenderTarget& target, const sf::Color& color = sf::Color::Red) const;
-
 private:
     std::string m_name;
     Type m_type;

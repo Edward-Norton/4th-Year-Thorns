@@ -15,14 +15,22 @@ std::unique_ptr<Map> MapGenerator::generate(const GenerationSettings& settings)
     auto map = std::make_unique<Map>();
     map->initialize(settings.mapWidth, settings.mapHeight, settings.tileSize);
 
-    // Setup POIs first (they block generation)
-    setupStaticPOIs(map.get());
+    // Setup static POIs (hideout at the center)
+    setupHideoutPOI(map.get());
     map->markPOITiles();
+    
 
     // Run generation phases
+    // ========== VORONOI DIAGRAMS ==========
     std::cout << "\n--- Phase 1: Voronoi Diagram ---\n";
     phase1_Voronoi(map.get(), settings);
 
+    // Spawn POIs at Voronoi sites
+    std::cout << "\n--- Spawning POIs at Voronoi sites ---\n";
+    spawnPOIsAtSites(map.get(), settings);
+    map->markPOITiles();
+
+    // ========== PERLIN NOISE ==========
     std::cout << "\n--- Phase 2: Perlin Noise ---\n";
 
     std::cout << "\n--- Phase 3: Cellular Automata ---\n";
@@ -34,26 +42,11 @@ std::unique_ptr<Map> MapGenerator::generate(const GenerationSettings& settings)
     return map;
 }
 
-std::unique_ptr<Map> MapGenerator::generatePhase1Only(const GenerationSettings& settings)
-{
-    std::cout << "\n=== Generating Phase 1 Only (Voronoi) ===\n";
-
-    auto map = std::make_unique<Map>();
-    map->initialize(settings.mapWidth, settings.mapHeight, settings.tileSize);
-
-    setupStaticPOIs(map.get());
-    map->markPOITiles();
-
-    phase1_Voronoi(map.get(), settings);
-
-    std::cout << "=== Phase 1 Complete ===\n\n";
-
-    return map;
-}
-
 void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
 {
-    m_voronoi->generate(map, settings.voronoiSites, settings.seed);
+    // Generate Voronoi with hideout awareness
+    m_voronoi->generate(map, settings.voronoiSites, m_hideoutPosition,
+        settings.minSiteDistance, settings.seed);
 
     // Color tiles based on their Voronoi region for visualization
     for (int y = 0; y < map->getHeight(); ++y)
@@ -75,38 +68,153 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
     }
 }
 
-void MapGenerator::setupStaticPOIs(Map* map)
+void MapGenerator::setupHideoutPOI(Map* map)
 {
     sf::Vector2f worldSize = map->getWorldSize();
-    sf::Vector2f center(worldSize.x / 2.f, worldSize.y / 2.f);
+    m_hideoutPosition = sf::Vector2f(worldSize.x / 2.f, worldSize.y / 2.f);
 
     // Player Hideout at center
     auto hideout = std::make_unique<PointOfInterest>(
         "Player Hideout",
         PointOfInterest::Type::PlayerHideout,
-        center,
+        m_hideoutPosition,
         sf::Vector2f(200.f, 200.f)  // 200x200 pixel area
     );
+
+    std::cout << "Placed hideout at map center: (" 
+              << m_hideoutPosition.x << ", " << m_hideoutPosition.y << ")\n";
+
     map->addPOI(std::move(hideout));
+}
+
+void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings)
+{
+    const auto& sites = m_voronoi->getSites();
+
+    if (sites.empty())
+    {
+        std::cerr << "No Voronoi sites available for POI placement!\n";
+        return;
+    }
+
+    // Calculate total POIs to spawn
+    int totalPOIs = settings.numVillages + settings.numFarms;
+
+    if (totalPOIs > static_cast<int>(sites.size()))
+    {
+        std::cerr << "Warning: Requested " << totalPOIs << " POIs but only "
+            << sites.size() << " sites available!\n";
+        totalPOIs = static_cast<int>(sites.size());
+    }
+
+    // Setup RNG for random site selection
+    std::mt19937 rng(settings.seed == 0 ? std::random_device{}() : settings.seed + 999);
+    std::uniform_int_distribution<int> siteDist(0, static_cast<int>(sites.size()) - 1);
+
+    // Track remaining POIs to spawn
+    int villagesLeft = settings.numVillages;
+    int farmsLeft = settings.numFarms;
+
+    // Track used site indices
+    std::vector<bool> usedSites(sites.size(), false);
+
+    // Spawn POIs
+    int poisSpawned = 0;
+    int attempts = 0;
+    const int maxAttempts = totalPOIs * 10;
+
+    while (poisSpawned < totalPOIs && attempts < maxAttempts)
+    {
+        // Pick random site
+        int siteIndex = siteDist(rng);
+
+        // Skip if already used
+        if (usedSites[siteIndex])
+        {
+            ++attempts;
+            continue;
+        }
+
+        const VoronoiSite& site = sites[siteIndex];
+
+        // Determine POI type
+        PointOfInterest::Type poiType = getRandomPOIType(villagesLeft, farmsLeft, rng);
+
+        // Get name and size based on type
+        std::string name;
+        sf::Vector2f size;
+
+        switch (poiType)
+        {
+        case PointOfInterest::Type::Village:
+            name = "Village " + std::to_string(settings.numVillages - villagesLeft + 1);
+            size = sf::Vector2f(300.f, 250.f);
+            break;
+        case PointOfInterest::Type::Farm:
+            name = "Farm " + std::to_string(settings.numFarms - farmsLeft + 1);
+            size = sf::Vector2f(110.f, 100.f);
+            break;
+        default:
+            name = "Unknown POI";
+            size = sf::Vector2f(150.f, 150.f);
+            break;
+        }
+
+        // Create POI at site position
+        auto poi = std::make_unique<PointOfInterest>(name, poiType, site.position, size);
+
+        std::cout << "Spawned " << name << " at Voronoi site " << siteIndex
+            << " (pos: " << site.position.x << ", " << site.position.y << ")\n";
+
+        map->addPOI(std::move(poi));
+
+        // Mark site as used and having POI
+        usedSites[siteIndex] = true;
+        m_voronoi->markSiteWithPOI(site.regionId);
+
+        ++poisSpawned;
+        ++attempts;
+    }
+
+    if (poisSpawned < totalPOIs)
+    {
+        std::cerr << "Warning: Only spawned " << poisSpawned << " out of "
+            << totalPOIs << " requested POIs\n";
+    }
+
+    std::cout << "POI spawning complete: " << poisSpawned << " POIs placed\n";
+}
 
 
-    ////////// REMOVE WAS USED FOR TESTING
+PointOfInterest::Type MapGenerator::getRandomPOIType(int& villagesLeft, int& farmsLeft, std::mt19937& rng)
+{
+    // Count remaining POI types
+    std::vector<PointOfInterest::Type> availableTypes;
 
-    //Add a village in upper-right quadrant
-    auto village = std::make_unique<PointOfInterest>(
-        "Village",
-        PointOfInterest::Type::Village,
-        sf::Vector2f(worldSize.x * 0.75f, worldSize.y * 0.25f),
-        sf::Vector2f(300.f, 250.f)
-    );
-    map->addPOI(std::move(village));
+    if (villagesLeft > 0)
+        availableTypes.push_back(PointOfInterest::Type::Village);
+    if (farmsLeft > 0)
+        availableTypes.push_back(PointOfInterest::Type::Farm);
 
-    //Add a landmark in lower-left quadrant
-    auto landmark = std::make_unique<PointOfInterest>(
-        "Farm",
-        PointOfInterest::Type::Farm,
-        sf::Vector2f(worldSize.x * 0.25f, worldSize.y * 0.75f),
-        sf::Vector2f(150.f, 150.f)
-    );
-    map->addPOI(std::move(landmark));
+    if (availableTypes.empty())
+        return PointOfInterest::Type::Landmark; // Fallback
+
+    // Pick random type from available
+    std::uniform_int_distribution<size_t> typeDist(0, availableTypes.size() - 1);
+    PointOfInterest::Type selectedType = availableTypes[typeDist(rng)];
+
+    // Decrement counter
+    switch (selectedType)
+    {
+    case PointOfInterest::Type::Village:
+        --villagesLeft;
+        break;
+    case PointOfInterest::Type::Farm:
+        --farmsLeft;
+        break;
+    default:
+        break;
+    }
+
+    return selectedType;
 }

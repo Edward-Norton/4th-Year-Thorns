@@ -95,15 +95,21 @@ void Game::setupMenus()
 
 void Game::generateMap()
 {
-    MapGenerator::GenerationSettings settings; // Simple config struct for settings in game instead
-    settings.mapWidth = 128;
-    settings.mapHeight = 128;
-    settings.tileSize = 64.f;
-    settings.voronoiSites = 25;
-    settings.seed = 12345;  // Fixed seed for testing
+    // Configure generation settings (Defaults in base class, change here for testing)
+    m_mapSettings.mapWidth = 40;
+    m_mapSettings.mapHeight = 40;
+    m_mapSettings.tileSize = 64.f;
+    m_mapSettings.voronoiSites = 4;
+    m_mapSettings.minSiteDistance = 400.0f;  // Minimum 400 pixels between sites
+    m_currentSeed = 12345; // Needs to be random when game is done!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    m_mapSettings.seed = m_currentSeed;
 
-    // Generate only Phase 1 for now (Voronoi)
-    m_map = m_mapGenerator.generate(settings);
+    // POI spawning configuration
+    m_mapSettings.numVillages = 1;
+    m_mapSettings.numFarms = 2;
+
+    // Generating only Voronoi for now
+    m_map = m_mapGenerator.generate(m_mapSettings);
 
     // Position player at map center (where hideout is)
     sf::Vector2f mapCenter = m_map->getWorldSize();
@@ -113,6 +119,29 @@ void Game::generateMap()
 
     std::cout << "Map generated! World size: "
         << m_map->getWorldSize().x << "x" << m_map->getWorldSize().y << " pixels\n";
+    std::cout << "TO BE REMOVED: Press 'R' during gameplay to regenerate map with new seed\n";
+
+}
+
+void Game::regenerateMap()
+{
+    std::cout << "\n========== REGENERATING MAP ==========\n";
+
+    // Increment seed for new generation
+    ++m_currentSeed;
+    m_mapSettings.seed = m_currentSeed;
+
+    // Generate new map
+    m_map = m_mapGenerator.generate(m_mapSettings);
+
+    // Reset player position to center (for when night time is added and over need "flash" screen with day also)
+    sf::Vector2f mapCenter = m_map->getWorldSize();
+    mapCenter.x /= 2.f;
+    mapCenter.y /= 2.f;
+    m_player.setPosition(mapCenter);
+
+    std::cout << "Map regenerated with seed " << m_currentSeed << "!\n";
+    std::cout << "======================================\n\n";
 }
 
 void Game::run()
@@ -251,6 +280,12 @@ void Game::updatePlaying(sf::Time deltaTime)
 
     // Update player with input and mouse position
     m_player.updateWithInput(deltaTime, m_input, getMouseWorldPosition());
+
+    // Check for map regeneration (R key)
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R))
+    {
+        regenerateMap();
+    }
 
     // Update other entities
     m_enemy.update(deltaTime);

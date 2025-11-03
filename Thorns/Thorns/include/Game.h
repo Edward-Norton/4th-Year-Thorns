@@ -31,7 +31,7 @@ private:
     // ========== Initialization ==========
     bool initializeGame();    // Load all resources and setup game objects
     void setupMenus();        // Configure menu items and callbacks
-    void generateMap();
+
 
     // ========== State Callbacks ==========
     // Called automatically by GameStateManager when states change
@@ -54,6 +54,10 @@ private:
     void onBackToMenu();
     void onBackFromSettings();
     void onApplySettings();
+
+    // ========== Map ==========
+    void generateMap();         // Called during game init also
+    void regenerateMap();     // Regenerate map with new seed during runtime
 
     // ========== Camera ========== (might make class later PN)
     void updateCamera();
@@ -90,7 +94,8 @@ private:
     // ========== World ==========
     std::unique_ptr<Map> m_map;
     MapGenerator m_mapGenerator;
-
+    MapGenerator::GenerationSettings m_mapSettings; // Store settings for when I add saving
+    unsigned int m_currentSeed; // Track current seed
 };
 
 #endif

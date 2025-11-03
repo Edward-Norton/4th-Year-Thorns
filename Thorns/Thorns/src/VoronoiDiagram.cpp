@@ -1,4 +1,4 @@
-#include "VoronoiDiagram.h"
+﻿#include "VoronoiDiagram.h"
 #include "Map.h"
 #include "PointOfInterest.h"
 #include "MapTile.h"
@@ -9,7 +9,8 @@ VoronoiDiagram::VoronoiDiagram()
 {
 }
 
-void VoronoiDiagram::generate(Map* map, int numSites, unsigned int seed)
+void VoronoiDiagram::generate(Map* map, int numSites, const sf::Vector2f& hideoutPos,
+    float minSiteDistance, unsigned int seed)
 {
     if (!map)
     {
@@ -20,42 +21,57 @@ void VoronoiDiagram::generate(Map* map, int numSites, unsigned int seed)
     m_map = map;
     m_sites.clear();
 
-    // Setup random number generator
+    // Setup random number generator (PRNG)
+    // mt19937: Mersenne Twister algorithm - produces deterministic sequence from seed
+    // random_device: Hardware-based true random (non-deterministic, no seed)
+    // If seed == 0, use random_device for truly random generation
+    // Otherwise, use provided seed for reproducible/saveable generation
     std::mt19937 rng(seed == 0 ? std::random_device{}() : seed);
 
     std::cout << "Generating " << numSites << " Voronoi sites...\n";
 
-    // Step 1: Generate site positions (avoiding POIs)
-    generateSites(map, numSites, rng);
+    // Step 1: Generate site positions (avoiding hideout and enforcing spacing)
+    generateSites(map, numSites, hideoutPos, minSiteDistance, rng);
 
     std::cout << "Successfully placed " << m_sites.size() << " sites\n";
 
     // Step 2: Assign each tile to nearest site
     assignTilesToRegions(map);
 
-    std::cout << "Voronoi diagram generation complete!\n";
+    std::cout << "Voronoi diagram generation complete\n";
 }
 
-void VoronoiDiagram::generateSites(Map* map, int numSites, std::mt19937& rng)
+void VoronoiDiagram::generateSites(Map* map, unsigned char numSites, const sf::Vector2f& hideoutPos,
+    float minSiteDistance, std::mt19937& rng)
 {
     sf::Vector2f worldSize = map->getWorldSize();
-    const auto& pois = map->getPOIs();
+    float tileSize = map->getTileSize();
 
     // Distribution for random positions
-    std::uniform_real_distribution<float> distX(0.f, worldSize.x);
+    std::uniform_real_distribution<float> distX(0.f, worldSize.x); // Ranges float PN: double not used since mt19937 is 32 bit
     std::uniform_real_distribution<float> distY(0.f, worldSize.y);
 
-    int attempts = 0;
-    const int maxAttempts = numSites * 100; // Prevent infinite loop
+    // Calculate hideout exclusion radius (diagonal of hideout + padding)
+    float hideoutExclusion = 400.f;
 
-    while (m_sites.size() < static_cast<size_t>(numSites) && attempts < maxAttempts)
+    int attempts = 0;
+    const int maxAttempts = numSites * 1000;
+
+    while (m_sites.size() < size_t(numSites) && attempts < maxAttempts)
     {
         sf::Vector2f candidatePos(distX(rng), distY(rng));
 
-        // Check if position is valid (not in/near POI)
-        if (isValidSitePosition(candidatePos, pois))
+        // Check if position is valid (not near hideout or other sites)
+        if (isValidSitePosition(candidatePos, hideoutPos, minSiteDistance, hideoutExclusion))
         {
-            m_sites.emplace_back(candidatePos, static_cast<int>(m_sites.size()));
+            // Convert to tile coordinates
+            sf::Vector2i tileCoords = map->worldToTile(candidatePos);
+
+            // Snap to tile center for consistency
+            // Makes site linked to tile
+            candidatePos = map->tileToWorld(tileCoords.x, tileCoords.y);
+
+            m_sites.emplace_back(candidatePos, tileCoords, static_cast<int>(m_sites.size()));
         }
 
         ++attempts;
@@ -68,6 +84,11 @@ void VoronoiDiagram::generateSites(Map* map, int numSites, std::mt19937& rng)
     }
 }
 
+// Nearest neighbour assignemnt
+// Personal notes to add later next update on optimization:
+//  - Spatial Partition which is already in consideration
+//  - Chunk processing, only process chunks instead of whole map
+//   -
 void VoronoiDiagram::assignTilesToRegions(Map* map)
 {
     int width = map->getWidth();
@@ -98,27 +119,28 @@ void VoronoiDiagram::assignTilesToRegions(Map* map)
     }
 }
 
-bool VoronoiDiagram::isValidSitePosition(const sf::Vector2f& pos,
-    const std::vector<std::unique_ptr<PointOfInterest>>& pois) const
+bool VoronoiDiagram::isValidSitePosition(const sf::Vector2f& pos, const sf::Vector2f& hideoutPos,
+    float minSiteDistance, float hideoutExclusion) const
 {
-    // Check against all POIs
-    for (const auto& poi : pois)
+    // Check distance from hideout
+    float distToHideout = std::sqrt(distanceSquared(pos, hideoutPos));
+    if (distToHideout < hideoutExclusion)
+        return false;
+
+    // Check distance from all existing sites
+    for (const auto& site : m_sites)
     {
-        // Check if inside POI bounds
-        if (poi->contains(pos))
-            return false;
-
-        // Check if too close to POI (within exclusion radius)
-        float dx = pos.x - poi->getPosition().x;
-        float dy = pos.y - poi->getPosition().y;
-        float distSq = dx * dx + dy * dy;
-        float exclusionRadiusSq = poi->getExclusionRadius() * poi->getExclusionRadius();
-
-        if (distSq < exclusionRadiusSq)
+        float distToSite = std::sqrt(distanceSquared(pos, site.position));
+        if (distToSite < minSiteDistance)
             return false;
     }
 
     return true;
+}
+
+void VoronoiDiagram::markSiteWithPOI(int siteID)
+{
+
 }
 
 int VoronoiDiagram::getClosestSiteId(const sf::Vector2f& worldPos) const
@@ -165,3 +187,27 @@ void VoronoiDiagram::renderDebug(sf::RenderTarget& target) const
         target.draw(circle);
     }
 }
+
+
+
+// ========================================================================================================
+// RANDOM NUMBER GENERATION - TECHNICAL NOTES
+// ========================================================================================================
+/*
+* Video References and Notes:
+* "Stop using rand()" - https://youtu.be/oW6iuFbwPDg?si=osEtvERGpgz_uBYN
+* "std::mt19937" - https://www.geeksforgeeks.org/cpp/stdmt19937-class-in-cpp/
+*
+* 1. PRNG - std::mt19937
+* -----------------------
+* - Same seed same sequence
+*
+* used to save the seed and get the same sequence for when saving is added, wanted to future proof this aspect now
+*
+* 2. True Random on hardware - std::random_device
+* --------------------------
+* Hardware based source
+* No seed so cant reproduce or save sequence
+* Mainy for fallback here and wanted to test it
+*
+*======================================================================================================== */

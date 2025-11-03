@@ -7,6 +7,7 @@ MapTile::MapTile()
 {
 }
 
+// Just for debug sprites will replace this
 sf::Color MapTile::getDebugColor() const
 {
     switch (m_terrainType)

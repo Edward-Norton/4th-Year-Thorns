@@ -4,9 +4,16 @@
 #include <SFML/Graphics.hpp>
 
 /// <summary>
-/// Individual tile in the procedural map
-/// Stores terrain type, walkability, region data, etc.
+/// Single cell for the map grid, each tile needs to store;
+/// - Its terrain type for sprites
+/// - Walkability for walls or borders
+/// - Voronoi Region ID to know which area it belongs to
+/// 
+/// Note: Had to add region ID due to wanting biomes or terrain linked POIs later
+/// so this is just some future proffing
 /// </summary>
+
+
 class MapTile
 {
 public:
@@ -14,12 +21,14 @@ public:
     {
         UNKNOWN,        // Ungenerated/invalid
         Grass,          // Open grassland
+
         // For later use
-        Forest,         // Dense forest
+        Forest,         // Forest
         DeepForest,     // Very dense forest
         Dirt,           // Cleared/path areas
         Water,          // Lakes/rivers
         Stone,          // Rocky terrain or boulders
+
         // These are red for now
         POI             // Part of a Point of Interest
     };
