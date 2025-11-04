@@ -43,6 +43,9 @@ public:
     // Generate complete map with all phases
     std::unique_ptr<Map> generate(const GenerationSettings& settings);
 
+    // Regenerate existing map with new seed
+    void regenerate(Map* map, const GenerationSettings& settings);
+
     // ========== Phase Access (for debugging) ==========
     VoronoiDiagram* getVoronoiDiagram() { return m_voronoi.get(); }
 
@@ -50,7 +53,7 @@ private:
     // ========== Generation Phases ==========
     void phase1_Voronoi(Map* map, const GenerationSettings& settings);
 
-    // ========== POI Setup ==========
+    // ========== POI ==========
     // Add default POIs to map (hideout)
     void setupHideoutPOI(Map* map);
 

@@ -133,8 +133,8 @@ void Game::regenerateMap()
     ++m_currentSeed;
     m_mapSettings.seed = m_currentSeed;
 
-    // Generate new map
-    m_map = m_mapGenerator.generate(m_mapSettings);
+    // Regenerate existing map (reuses memory instead of allocating new)
+    m_mapGenerator.regenerate(m_map.get(), m_mapSettings);
 
     // Reset player position to center (for when night time is added and over need "flash" screen with day also)
     sf::Vector2f mapCenter = m_map->getWorldSize();

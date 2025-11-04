@@ -29,6 +29,31 @@ void Map::initialize(int width, int height, float tileSize)
         << " tiles (" << getWorldSize().x << "x" << getWorldSize().y << " pixels)\n";
 }
 
+void Map::reset()
+{
+    // Clear POIs
+    m_pois.clear();
+
+    // Reset all tiles to default state
+    for (int y = 0; y < m_height; ++y)
+    {
+        for (int x = 0; x < m_width; ++x)
+        {
+            MapTile* tile = getTile(x, y);
+            if (tile)
+            {
+                tile->setTerrainType(MapTile::TerrainType::UNKNOWN);
+                tile->setWalkable(false);
+                tile->setVoronoiRegion(-1);
+            }
+        }
+    }
+
+    m_needsRebuild = true;
+
+    std::cout << "Map reset: " << m_width << "x" << m_height << " tiles cleared\n";
+}
+
 MapTile* Map::getTile(int x, int y)
 {
     if (!isValidTile(x, y))

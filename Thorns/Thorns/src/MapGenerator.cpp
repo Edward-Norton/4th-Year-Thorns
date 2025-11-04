@@ -45,6 +45,44 @@ std::unique_ptr<Map> MapGenerator::generate(const GenerationSettings& settings)
     return map;
 }
 
+void MapGenerator::regenerate(Map* map, const GenerationSettings& settings)
+{
+    if (!map)
+    {
+        std::cerr << "MapGenerator::regenerate() - null map pointer!\n";
+        return;
+    }
+
+    std::cout << "\n=== Regenerating Existing Map ===\n";
+
+    // Reset map data (clears tiles and POIs, keeps memory allocated)
+    map->reset();
+
+    // Setup static POIs (hideout at the center)
+    setupHideoutPOI(map);
+    map->markPOITiles();
+
+    // Run generation phases
+    // ========== VORONOI DIAGRAMS ==========
+    std::cout << "\n--- Phase 1: Voronoi Diagram ---\n";
+    phase1_Voronoi(map, settings);
+
+    // Spawn POIs at Voronoi sites
+    std::cout << "\n--- Spawning POIs at Voronoi sites ---\n";
+    spawnPOIsAtSites(map, settings);
+    map->markPOITiles();
+
+    // ========== PERLIN NOISE ==========
+    std::cout << "\n--- Phase 2: Perlin Noise ---\n";
+
+    std::cout << "\n--- Phase 3: Cellular Automata ---\n";
+
+    std::cout << "\n--- Phase 4: Connectivity Check ---\n";
+
+    std::cout << "\n=== Map Regeneration Complete ===\n\n";
+}
+
+
 void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
 {
     // Generate Voronoi with hideout awareness

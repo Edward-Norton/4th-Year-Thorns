@@ -17,13 +17,13 @@ public:
     Map();
     ~Map() = default;
 
-    // ========== Initialization ==========
+    // ========== Object Management ==========
 
-    /// Initialize map with dimensions and tile size
-    /// @param width Map width in tiles
-    /// @param height Map height in tiles
-    /// @param tileSize Size of each tile in pixels (e.g., 64)
+    // Initialize map with dimensions and tile size
     void initialize(int width, int height, float tileSize);
+
+    // Reset map data
+    void reset();
 
     // ========== Tile Access ==========
 
