@@ -151,7 +151,7 @@ Tile at (200, 150):
   - Distance to A: 111px
   - Distance to B: 170px
   - Distance to C: 305px
-→ Tile assigned to region A
+-> Tile assigned to region A
 ```
 
 ### Phases 2-4: Future Terrain Refinement
@@ -248,5 +248,5 @@ generator.regenerate(map.get(), settings);
 
 - **Terrain Sprites**: Replace debug colors with textured tiles
 - **Biome System**: Link terrain types to Voronoi regions (forest region, plains region)
-- **Hand Held Map**: Render low-res version of entire map, with marked POIs for current map
+- **Hand Held Map**: Render low-res version of entire map, with marked POIs for current map for player to know where they are.
 - **Chunk Partition**: Only update and render adjacent objects in near regions, ignore far regions. 
