@@ -88,12 +88,14 @@ public:
         const sf::Vector2f& hideoutPos,
         float minSiteDistance, std::mt19937& rng);
 
+    // ========== Rejection Sampling ==========
+    // Old method; kept for comparison and documentation
     void VoronoiDiagram::generateSitesRejection(Map* map, unsigned char numSites,
         const sf::Vector2f& hideoutPos,
         float minSiteDistance, std::mt19937& rng);
 
 
-    // Build spatial grid (expose for MapGenerator to use)
+    // Build spatial grid
     void buildSpatialGrid(float worldWidth, float worldHeight, float cellSize)
     {
         m_spatialGrid.initialize(worldWidth, worldHeight, cellSize);
@@ -139,13 +141,16 @@ private:
     bool isValidSitePositionPoisson(const sf::Vector2f& pos,
         const sf::Vector2f& hideoutPos,
         float minDist, float hideoutExclusion) const;
+
+    // ========== Rejection Sampling ==========
+    // Check if position is valid for site placement
+    bool isValidSitePosition(const sf::Vector2f& pos, const sf::Vector2f& hideoutPos, 
+        float minSiteDistance, float hideoutExclusion) const;
     
     // ========== Spatial Partitioning ==========
     // Assign tiles to regions using spatial grid for fast lookups
     void assignTilesToRegionsSP(Map* map);
     
-    // Check if position is valid for site placement
-    bool isValidSitePosition(const sf::Vector2f& pos, const sf::Vector2f& hideoutPos, float minSiteDistance, float hideoutExclusion) const;
     
     // ========== Utilities ==========
     // Calculate squared distance between two points
@@ -195,5 +200,5 @@ private:
 
 // Personal Notes Poisson Sampling and Spatial Partition:
 /*
-    
+    // Video Url for Poisson example: https://youtu.be/jofUe3Kjag4?si=HnIRv3t2Yv7CT_Gq
 */

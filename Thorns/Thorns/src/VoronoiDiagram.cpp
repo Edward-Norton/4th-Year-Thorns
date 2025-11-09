@@ -3,12 +3,18 @@
 #include "PointOfInterest.h"
 #include "MapTile.h"
 #include <iostream>
+#include "MathUtilities.h"
 
 // ========================================================================================================
 // SPATIAL GRID IMPLEMENTATION
 // ========================================================================================================
 
 SpatialGrid::SpatialGrid()
+    : m_cells(),
+    m_cellSize(0),
+    m_gridHeight(0),
+    m_gridWidth(0),
+    m_worldHeight(0)
 {
 }
 
@@ -18,13 +24,13 @@ void SpatialGrid::initialize(float worldWidth, float worldHeight, float cellSize
     m_worldHeight = worldHeight;
     m_cellSize = cellSize;
 
-    // Calculate grid dimensions (round up)
+    // Calculate grid dimensions (remineder ceil rounds up to nearest whole int)
     m_gridWidth = static_cast<int>(std::ceil(worldWidth / cellSize));
     m_gridHeight = static_cast<int>(std::ceil(worldHeight / cellSize));
 
     m_cells.clear();
 
-    std::cout << "SpatialGrid initialized: " << m_gridWidth << "×" << m_gridHeight
+    std::cout << "SpatialGrid initialized: " << m_gridWidth << " × " << m_gridHeight
         << " cells (cell size: " << cellSize << "px)\n";
 }
 
@@ -105,6 +111,8 @@ void VoronoiDiagram::generateSitesPoisson(Map* map, unsigned char numSites,
     const sf::Vector2f& hideoutPos,
     float minSiteDistance, std::mt19937& rng)
 {
+    // Step 1: Clear old data from previous generation
+    std::cout << "Generating Voronoi sites with Poisson disk sampling...\n";
     m_sites.clear();
     m_poissonGrid.clear();
     m_activeList.clear();
@@ -112,29 +120,32 @@ void VoronoiDiagram::generateSitesPoisson(Map* map, unsigned char numSites,
     // Bridson's Poisson Disk Sampling Algorithm
     // Reference: https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf
 
+    //Step 2: Set up 
     sf::Vector2f worldSize = map->getWorldSize();
     const float hideoutExclusion = 400.f;
     const int k = 30; // Number of attempts per active point
 
+    // Step 3:
     // Cell size for background grid (r / sqrt(2) ensures no two points in same cell)
     float cellSize = minSiteDistance / std::sqrt(2.f);
+
+    // Ensure there are enough cells to cover the world map
     int gridWidth = static_cast<int>(std::ceil(worldSize.x / cellSize));
     int gridHeight = static_cast<int>(std::ceil(worldSize.y / cellSize));
 
+    // Step 4:
     // Background grid for O(1) collision detection
-    m_poissonGrid.clear();
     m_poissonGrid.resize(gridWidth * gridHeight, sf::Vector2f(-1.f, -1.f)); // -1 = empty
 
-    // Active list of candidate points
-    m_activeList.clear();
+
 
     // Distributions
     std::uniform_real_distribution<float> distX(0.f, worldSize.x);
     std::uniform_real_distribution<float> distY(0.f, worldSize.y);
     std::uniform_real_distribution<float> distRadius(minSiteDistance, 2.f * minSiteDistance);
-    std::uniform_real_distribution<float> distAngle(0.f, 2.f * 3.14159265f);
+    std::uniform_real_distribution<float> distAngle(0.f, MathUtils::TWO_PI);
 
-    // Step 1: Choose initial sample (avoid hideout)
+    // Step 6: Choose initial sample (avoid hideout)
     sf::Vector2f initialSample;
     int attempts = 0;
     do
@@ -150,33 +161,32 @@ void VoronoiDiagram::generateSitesPoisson(Map* map, unsigned char numSites,
         return;
     }
 
-    // Add initial sample
+    // Step 7: Add initial sample
     m_activeList.push_back(initialSample);
     int gridX = static_cast<int>(initialSample.x / cellSize);
     int gridY = static_cast<int>(initialSample.y / cellSize);
     m_poissonGrid[gridY * gridWidth + gridX] = initialSample;
 
-    // Step 2: Generate points from active list
+    // Step 8: Generate points from active list
     while (!m_activeList.empty() && m_sites.size() < size_t(numSites))
     {
-        // Pick random point from active list
+        // Step 8.1: Pick random point from active list
         std::uniform_int_distribution<size_t> activeDist(0, m_activeList.size() - 1);
         size_t activeIndex = activeDist(rng);
         sf::Vector2f activePoint = m_activeList[activeIndex];
 
         bool foundValidPoint = false;
 
-        // Try k times to generate a valid point in annulus
+        // Step 8.2: Try k times to place a point in the annulus (ring shape)
+        // Annulus = area between radius r and 2r from active point
         for (int attempt = 0; attempt < k; ++attempt)
         {
             // Generate point in annulus (r to 2r from active point)
             float radius = distRadius(rng);
             float angle = distAngle(rng);
 
-            sf::Vector2f candidate(
-                activePoint.x + radius * std::cos(angle),
-                activePoint.y + radius * std::sin(angle)
-            );
+            sf::Vector2f direction = MathUtils::angleRadiansToVector(angle); // No impact on time generation, roughly the same, keeping for readability
+            sf::Vector2f candidate = activePoint + (direction * radius);
 
             // Check bounds
             if (candidate.x < 0 || candidate.x >= worldSize.x ||
@@ -251,6 +261,8 @@ void VoronoiDiagram::generateSitesRejection(Map* map, unsigned char numSites,
     const sf::Vector2f& hideoutPos,
     float minSiteDistance, std::mt19937& rng)
 {
+
+    std::cout << "Generating Voronoi sites with Rejection sampling...\n";
     m_sites.clear();
 
     sf::Vector2f worldSize = map->getWorldSize();

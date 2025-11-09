@@ -56,7 +56,9 @@ std::unique_ptr<Map> MapGenerator::generate(const GenerationSettings& settings)
 
     std::chrono::duration<double, std::milli> elapsed = endTotal - startTotal;
 
-    std::cout << "mapGeneration took " << elapsed.count() << " ms\n";
+    
+    std::cout <<"\n====GENERATION TIME===\n" << "mapGeneration took " << elapsed.count() << " ms\n"
+        << "With a map size of " << std::to_string(settings.mapHeight) << "x" << std::to_string(settings.mapWidth) << "\n";
 
 
     return map;
@@ -110,8 +112,7 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
     // Step 1: Generate Voronoi sites only (no tile iteration yet)
     std::mt19937 rng(settings.seed == 0 ? std::random_device{}() : settings.seed);
     sf::Vector2f worldSize = map->getWorldSize();
-
-    std::cout << "Generating Voronoi sites with Poisson disk sampling...\n";
+    
     m_voronoi->generateSitesPoisson(map, settings.voronoiSites, m_hideoutPosition,
         settings.minSiteDistance, rng);
 
@@ -127,8 +128,6 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
     }
 
     // Step 3: Single loop - assign regions AND set terrain together
-    std::cout << "Assigning tiles to regions in single pass...\n";
-
     int width = map->getWidth();
     int height = map->getHeight();
     int tilesProcessed = 0;
@@ -173,7 +172,7 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
             // Assign Voronoi region
             tile->setVoronoiRegion(closestRegion);
 
-            // Set terrain type (all in same pass!)
+            // Set terrain type
             tile->setTerrainType(MapTile::TerrainType::Grass);
             tile->setWalkable(true);
 
@@ -181,7 +180,6 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
         }
     }
 
-    // After the region assignment loop, add this:
     std::cout << "Voronoi assignment complete: " << tilesProcessed << " tiles processed\n";
 
     // Debug: Count tiles per region

@@ -2,8 +2,6 @@
 #define MATH_UTILS_HPP
 
 #include <SFML/Graphics.hpp>
-#define _USE_MATH_DEFINES
-#include <math.h>
 
 // Personal note: Need to use "inline" or you get a LNK2005 error due to multiple declaration rule.
 // Inline makes it so the compiler is "hinted" to generate the code at the call site, in other words
@@ -11,6 +9,12 @@
 
 namespace MathUtils
 {
+    // ===== MATH CONSTS =====
+    inline constexpr float PI = 3.14159265358979323846;
+    inline constexpr float TWO_PI = 2.0f * PI;
+    inline constexpr float HALF_PI = 0.5f * PI;
+
+
     // ===== VECTOR OPERATIONS =====
 
     /// Calculate the magnitude (length) of a 2D vector
@@ -33,7 +37,7 @@ namespace MathUtils
     /// Convert vector to angle in degrees (0° = right, 90° = down in SFML)
     inline float vectorToAngleDegrees(const sf::Vector2f& vector)
     {
-        return std::atan2(vector.y, vector.x) * (180.0f / static_cast<float>(M_PI));
+        return std::atan2(vector.y, vector.x) * (180.0f / static_cast<float>(PI));
     }
 
     /// Convert vector to angle in radians
@@ -45,7 +49,7 @@ namespace MathUtils
     /// Convert angle in degrees to unit direction vector
     inline sf::Vector2f angleDegreesToVector(float angleDegrees)
     {
-        float angleRad = angleDegrees * (static_cast<float>(M_PI) / 180.0f);
+        float angleRad = angleDegrees * (static_cast<float>(PI) / 180.0f);
         return sf::Vector2f(std::cos(angleRad), std::sin(angleRad));
     }
 
