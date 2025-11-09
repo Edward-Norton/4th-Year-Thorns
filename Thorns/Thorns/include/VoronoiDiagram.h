@@ -124,6 +124,15 @@ public:
     // ========== Debug ==========
     void renderDebug(sf::RenderTarget& target) const;
 
+    // ========== Wipe Old Data ==========
+    void clear()
+    {
+        m_sites.clear();
+        m_spatialGrid.clear();
+        m_poissonGrid.clear();
+        m_activeList.clear();
+    }
+
 private:
     // ========== Poisson Disk Sampling ==========
     // Helper: Check if position is valid for new site

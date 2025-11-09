@@ -105,6 +105,10 @@ void VoronoiDiagram::generateSitesPoisson(Map* map, unsigned char numSites,
     const sf::Vector2f& hideoutPos,
     float minSiteDistance, std::mt19937& rng)
 {
+    m_sites.clear();
+    m_poissonGrid.clear();
+    m_activeList.clear();
+
     // Bridson's Poisson Disk Sampling Algorithm
     // Reference: https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf
 
@@ -247,6 +251,8 @@ void VoronoiDiagram::generateSitesRejection(Map* map, unsigned char numSites,
     const sf::Vector2f& hideoutPos,
     float minSiteDistance, std::mt19937& rng)
 {
+    m_sites.clear();
+
     sf::Vector2f worldSize = map->getWorldSize();
     const float hideoutExclusion = 400.f;
 
