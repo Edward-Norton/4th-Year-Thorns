@@ -28,34 +28,34 @@ bool Game::initializeGame()
     // Initialize player entity
     if (!m_player.initialize(Assets::Textures::PLAYER_ATLAS))
     {
-        std::cout << "Failed to load player!" << std::endl;
+        std::cerr << "Failed to load player!" << std::endl;
         return false;
     }
 
     // Initialize enemy entity
     if (!m_enemy.initialize(Assets::Textures::ENEMY_SHIP))
     {
-        std::cout << "Failed to load enemy!" << std::endl;
+        std::cerr << "Failed to load enemy!" << std::endl;
         return false;
     }
 
     // Initialize UI (menus load fonts but don't create buttons yet)
     if (!m_mainMenu.initialize(Assets::Fonts::JERSEY_20))
     {
-        std::cout << "Failed to initialize main menu!" << std::endl;
+        std::cerr << "Failed to initialize main menu!" << std::endl;
         return false;
     }
 
     if (!m_pauseMenu.initialize(Assets::Fonts::JERSEY_20))
     {
-        std::cout << "Failed to initialize pause menu!" << std::endl;
+        std::cerr << "Failed to initialize pause menu!" << std::endl;
         return false;
     }
 
     // Settings menu needs access to input controller and screen settings
     if (!m_settingsMenu.initialize(Assets::Fonts::JERSEY_20, &m_input, &m_screenSettings))
     {
-        std::cout << "Failed to initialize settings menu!" << std::endl;
+        std::cerr << "Failed to initialize settings menu!" << std::endl;
         return false;
     }
 
@@ -101,9 +101,9 @@ void Game::generateMap()
     m_mapSettings.mapWidth = 40;
     m_mapSettings.mapHeight = 40;
     m_mapSettings.tileSize = 64.f;
-    m_mapSettings.voronoiSites = 4;
+    m_mapSettings.voronoiSites = 10;
     m_mapSettings.minSiteDistance = 400.0f;  // Minimum 400 pixels between sites
-    m_currentSeed = 12345; // Needs to be random when game is done!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    m_currentSeed = 12345;
     m_mapSettings.seed = m_currentSeed;
 
     // POI spawning configuration

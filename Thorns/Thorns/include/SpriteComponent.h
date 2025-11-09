@@ -67,6 +67,7 @@ private:
     sf::Sprite m_sprite;
     bool m_isValid;
     sf::IntRect m_textureRect;  // Store for animation switching
+    sf::Vector2f m_targetSize;
 };
 
 #endif

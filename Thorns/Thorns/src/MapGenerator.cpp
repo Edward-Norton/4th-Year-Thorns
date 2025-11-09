@@ -1,6 +1,8 @@
 #include "MapGenerator.h"
 #include "PointOfInterest.h"
 #include <iostream>
+#include <chrono>
+#include "AssetPaths.h"
 
 MapGenerator::MapGenerator()
     : m_voronoi(std::make_unique<VoronoiDiagram>())
@@ -12,9 +14,17 @@ std::unique_ptr<Map> MapGenerator::generate(const GenerationSettings& settings)
     // Step 2: Generate the base map (pn step 1 in game.cpp)
     std::cout << "\n=== Starting Map Generation ===\n";
 
+    auto startTotal = std::chrono::high_resolution_clock::now();
+
     // Step 2.1: All tiles are UNKNOWN initally and use the default params while also alocating memory for map
     auto map = std::make_unique<Map>();
     map->initialize(settings.mapWidth, settings.mapHeight, settings.tileSize);
+
+    // Step 2.2: Load the terrain atlas (to be updated with new types)
+    if (!map->loadTerrainAtlas(Assets::Textures::TERRAIN_ATLAS)) {
+        std::cerr << "Failed to load the Map terrain atlas, defaulted to debug rendering\n";
+        map->setDebugMode(true);
+    }
 
     // Setup static POIs (hideout at the center)
     // Step 2.3: Where the hideout needs to be based on map size
@@ -28,7 +38,7 @@ std::unique_ptr<Map> MapGenerator::generate(const GenerationSettings& settings)
     std::cout << "\n--- Phase 1: Voronoi Diagram ---\n";
     phase1_Voronoi(map.get(), settings);
 
-    // Spawn POIs at Voronoi sites
+    // Step 3.1: Spawn POIs at Voronoi sites
     std::cout << "\n--- Spawning POIs at Voronoi sites ---\n";
     spawnPOIsAtSites(map.get(), settings);
     map->markPOITiles();
@@ -41,6 +51,13 @@ std::unique_ptr<Map> MapGenerator::generate(const GenerationSettings& settings)
     std::cout << "\n--- Phase 4: Connectivity Check ---\n";
 
     std::cout << "\n=== Map Generation Complete ===\n\n";
+
+    auto endTotal = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double, std::milli> elapsed = endTotal - startTotal;
+
+    std::cout << "mapGeneration took " << elapsed.count() << " ms\n";
+
 
     return map;
 }
@@ -83,32 +100,114 @@ void MapGenerator::regenerate(Map* map, const GenerationSettings& settings)
 }
 
 
+// ========================================================================================================
+// Voronoi + Terrain Assignment in ONE LOOP
+// - Was using multiple for loops, so one after another to accomplish result, using 1 for multi use instead. 
+// - From 3 for loops to 1
+// ========================================================================================================
 void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
 {
-    // Generate Voronoi with hideout awareness
-    m_voronoi->generate(map, settings.voronoiSites, m_hideoutPosition,
-        settings.minSiteDistance, settings.seed);
+    // Step 1: Generate Voronoi sites only (no tile iteration yet)
+    std::mt19937 rng(settings.seed == 0 ? std::random_device{}() : settings.seed);
+    sf::Vector2f worldSize = map->getWorldSize();
 
-    // Color tiles based on their Voronoi region for visualization
-    for (int y = 0; y < map->getHeight(); ++y)
+    std::cout << "Generating Voronoi sites with Poisson disk sampling...\n";
+    m_voronoi->generateSitesPoisson(map, settings.voronoiSites, m_hideoutPosition,
+        settings.minSiteDistance, rng);
+
+    // Step 2: Build spatial grid for fast nearest-neighbor queries
+    const auto& sites = m_voronoi->getSites();
+    std::cout << "Building spatial grid for " << sites.size() << " sites...\n";
+
+    m_voronoi->buildSpatialGrid(worldSize.x, worldSize.y, settings.minSiteDistance);
+
+    for (size_t i = 0; i < sites.size(); ++i)
     {
-        for (int x = 0; x < map->getWidth(); ++x)
+        m_voronoi->addSiteToGrid(static_cast<int>(i), sites[i].position);
+    }
+
+    // Step 3: Single loop - assign regions AND set terrain together
+    std::cout << "Assigning tiles to regions in single pass...\n";
+
+    int width = map->getWidth();
+    int height = map->getHeight();
+    int tilesProcessed = 0;
+
+    // ========== SINGLE LOOP: Do everything in one pass ==========
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
         {
             MapTile* tile = map->getTile(x, y);
             if (!tile)
                 continue;
 
-            // Skip POI tiles
+            // Skip POI tiles (hideout area)
             if (tile->getTerrainType() == MapTile::TerrainType::POI)
                 continue;
 
-            // For now, just mark as grass (will be refined in later phases)
+            // Get tile world position
+            sf::Vector2f tilePos = map->tileToWorld(x, y);
+
+            // Find nearest Voronoi site using spatial grid (O(k) instead of O(n))
+            std::vector<int> nearbySites = m_voronoi->getNearbySites(tilePos);
+
+            int closestRegion = -1;
+            float closestDistSq = std::numeric_limits<float>::max();
+
+            // Check only nearby sites (spatial optimization)
+            for (int siteIdx : nearbySites)
+            {
+                const VoronoiSite& site = sites[siteIdx];
+                float dx = tilePos.x - site.position.x;
+                float dy = tilePos.y - site.position.y;
+                float distSq = dx * dx + dy * dy;
+
+                if (distSq < closestDistSq)
+                {
+                    closestDistSq = distSq;
+                    closestRegion = site.regionId;
+                }
+            }
+
+            // Assign Voronoi region
+            tile->setVoronoiRegion(closestRegion);
+
+            // Set terrain type (all in same pass!)
             tile->setTerrainType(MapTile::TerrainType::Grass);
             tile->setWalkable(true);
+
+            ++tilesProcessed;
         }
+    }
+
+    // After the region assignment loop, add this:
+    std::cout << "Voronoi assignment complete: " << tilesProcessed << " tiles processed\n";
+
+    // Debug: Count tiles per region
+    std::unordered_map<int, int> regionCounts;
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            const MapTile* tile = map->getTile(x, y);
+            if (tile && tile->getVoronoiRegion() != -1)
+            {
+                regionCounts[tile->getVoronoiRegion()]++;
+            }
+        }
+    }
+
+    std::cout << "Tiles per region:\n";
+    for (const auto& [regionId, count] : regionCounts)
+    {
+        std::cout << "  Region " << regionId << ": " << count << " tiles\n";
     }
 }
 
+// ========================================================================================================
+// POI MANAGEMENT
+// ========================================================================================================
 void MapGenerator::setupHideoutPOI(Map* map)
 {
     sf::Vector2f worldSize = map->getWorldSize();
@@ -134,7 +233,7 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
 
     if (sites.empty())
     {
-        std::cerr << "No Voronoi sites available for POI placement!\n";
+        std::cerr << "No Voronoi sites available for POI placement\n";
         return;
     }
 

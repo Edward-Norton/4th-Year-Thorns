@@ -6,6 +6,8 @@ Map::Map()
     , m_height(0)
     , m_tileSize(64.f)
     , m_needsRebuild(true)
+    , m_debugMode(false)
+    , m_atlasLoaded(false)
 {
 }
 
@@ -17,11 +19,7 @@ void Map::initialize(int width, int height, float tileSize)
 
     // Allocate 2D grid
     m_tiles.clear();
-    m_tiles.resize(m_height);
-    for (int y = 0; y < m_height; ++y)
-    {
-        m_tiles[y].resize(m_width);
-    }
+    m_tiles.resize(m_width * m_height);
 
     m_needsRebuild = true;
 
@@ -31,41 +29,36 @@ void Map::initialize(int width, int height, float tileSize)
 
 void Map::reset()
 {
-    // Clear POIs
     m_pois.clear();
 
-    // Reset all tiles to default state
-    for (int y = 0; y < m_height; ++y)
+    // Reset all tiles
+    for (auto& tile : m_tiles)
     {
-        for (int x = 0; x < m_width; ++x)
-        {
-            MapTile* tile = getTile(x, y);
-            if (tile)
-            {
-                tile->setTerrainType(MapTile::TerrainType::UNKNOWN);
-                tile->setWalkable(false);
-                tile->setVoronoiRegion(-1);
-            }
-        }
+        tile.setTerrainType(MapTile::TerrainType::UNKNOWN);
+        tile.setWalkable(false);
+        tile.setVoronoiRegion(-1);
     }
 
     m_needsRebuild = true;
-
     std::cout << "Map reset: " << m_width << "x" << m_height << " tiles cleared\n";
 }
+
+// ========================================================================================================
+// QUERY DATA
+// ========================================================================================================
 
 MapTile* Map::getTile(int x, int y)
 {
     if (!isValidTile(x, y))
         return nullptr;
-    return &m_tiles[y][x];
+    return &m_tiles[y * m_width + x];
 }
 
 const MapTile* Map::getTile(int x, int y) const
 {
     if (!isValidTile(x, y))
         return nullptr;
-    return &m_tiles[y][x];
+    return &m_tiles[y * m_width + x];
 }
 
 MapTile* Map::getTileAtWorldPos(const sf::Vector2f& worldPos)
@@ -89,7 +82,6 @@ sf::Vector2i Map::worldToTile(const sf::Vector2f& worldPos) const
 
 sf::Vector2f Map::tileToWorld(int x, int y) const
 {
-    // Return center of tile
     float worldX = (x * m_tileSize) + (m_tileSize / 2.f);
     float worldY = (y * m_tileSize) + (m_tileSize / 2.f);
     return sf::Vector2f(worldX, worldY);
@@ -105,11 +97,9 @@ sf::Vector2f Map::getWorldSize() const
     return sf::Vector2f(m_width * m_tileSize, m_height * m_tileSize);
 }
 
-sf::FloatRect Map::getWorldBounds() const
-{
-    return sf::FloatRect(sf::Vector2f(0.f, 0.f), getWorldSize());
-}
-
+// ========================================================================================================
+// POIS
+// ========================================================================================================
 void Map::addPOI(std::unique_ptr<PointOfInterest> poi)
 {
     if (poi)
@@ -166,6 +156,9 @@ void Map::markPOITiles()
     m_needsRebuild = true;
 }
 
+// ========================================================================================================
+// RENDERING
+// ========================================================================================================
 void Map::render(sf::RenderTarget& target) const
 {
     if (m_debugMode)
@@ -174,8 +167,93 @@ void Map::render(sf::RenderTarget& target) const
     }
     else // Change to sprites later
     {
-        renderDebug(target); 
+        renderVisible(target, target.getView());
     }
+}
+
+void Map::renderVisible(sf::RenderTarget& target, const sf::View& view) const
+{
+    if (!m_atlasLoaded || !m_sharedSprite || !m_sharedSprite->isValid())
+    {
+        renderDebug(target);
+        return;
+    }
+
+    // Get visible tile bounds
+    sf::Vector2f viewCenter = view.getCenter();
+    sf::Vector2f viewSize = view.getSize();
+    sf::FloatRect viewBounds(
+        sf::Vector2f(viewCenter.x - viewSize.x / 2.f, viewCenter.y - viewSize.y / 2.f),
+        sf::Vector2f(viewSize.x, viewSize.y)
+    );
+
+    sf::Vector2i minTile = worldToTile(sf::Vector2f(viewBounds.position.x, viewBounds.position.y));
+    sf::Vector2i maxTile = worldToTile(sf::Vector2f(
+        viewBounds.position.x + viewBounds.size.x,
+        viewBounds.position.y + viewBounds.size.y
+    ));
+
+    // Clamp with padding
+    minTile.x = std::max(0, minTile.x - 1);
+    minTile.y = std::max(0, minTile.y - 1);
+    maxTile.x = std::min(m_width - 1, maxTile.x + 1);
+    maxTile.y = std::min(m_height - 1, maxTile.y + 1);
+
+    int tilesRendered = 0;
+
+    // Render visible tiles by repositioning the shared sprite
+    for (int y = minTile.y; y <= maxTile.y; ++y)
+    {
+        for (int x = minTile.x; x <= maxTile.x; ++x)
+        {
+            const MapTile* tile = getTile(x, y);
+            if (!tile)
+                continue;
+
+            // Get texture rect for this terrain type
+            sf::IntRect texRect = getTerrainTextureRect(tile->getTerrainType());
+
+            // Update shared sprite's texture rect
+            m_sharedSprite->setTextureRect(texRect);
+
+            // Position sprite at tile's top-left corner
+            float worldX = x * m_tileSize;
+            float worldY = y * m_tileSize;
+            m_sharedSprite->setPosition(sf::Vector2f(
+                std::round(worldX),
+                std::round(worldY)
+            ));
+
+            // After setting texture rect, verify scale:
+            sf::Vector2f spriteSize = m_sharedSprite->getSize();
+
+            // Print once for debugging
+            static bool printed = false;
+            if (!printed) {
+                std::cout << "Sprite rendering size: " << spriteSize.x << "x" << spriteSize.y << "\n";
+                std::cout << "Expected tile size: " << m_tileSize << "x" << m_tileSize << "\n";
+                printed = true;
+            }
+
+            // Render this tile
+            m_sharedSprite->render(target);
+
+            ++tilesRendered;
+        }
+    }
+
+    // Print once per second to avoid spam
+    static sf::Clock debugClock;
+    if (debugClock.getElapsedTime().asSeconds() > 4.0f)
+    {
+        std::cout << "Rendering " << tilesRendered << " / "
+            << (m_width * m_height) << " tiles ("
+            << (tilesRendered * 100.0f / (m_width * m_height))
+            << "%)\n";
+        debugClock.restart();
+    }
+
+    renderVoronoiBoundaries(target);
 }
 
 void Map::renderDebug(sf::RenderTarget& target) const
@@ -286,4 +364,53 @@ void Map::renderVoronoiBoundaries(sf::RenderTarget& target) const
     }
 
     target.draw(boundaryLines);
+}
+
+// ========================================================================================================
+// SPRITE SYSTEM 
+// - Was initally having tons of textures for each sprite, made the loading massive
+// - Now using ONE sprite for each one.
+// ========================================================================================================
+bool Map::loadTerrainAtlas(const std::string& atlasPath)
+{
+    // Create ONE shared sprite component
+    m_sharedSprite = std::make_unique<SpriteComponent>();
+
+    // Load the atlas texture into this sprite
+    if (!m_sharedSprite->loadTexture(atlasPath, m_tileSize, m_tileSize))
+    {
+        std::cerr << "Failed to load terrain atlas: " << atlasPath << "\n";
+        m_atlasLoaded = false;
+        m_sharedSprite.reset();
+        return false;
+    }
+
+    m_atlasLoaded = true;
+    std::cout << "Terrain atlas loaded: " << atlasPath << " (using shared sprite)\n";
+    return true;
+}
+
+sf::IntRect Map::getTerrainTextureRect(MapTile::TerrainType type) const
+{
+    const int tilePixelSize = 64;
+    const int spacing = 1;  // Atlas has 1px spacing
+    const int cellSize = tilePixelSize + spacing;
+
+    switch (type)
+    {
+    case MapTile::TerrainType::Grass:
+        return sf::IntRect(sf::Vector2i(cellSize, 0), sf::Vector2i(tilePixelSize, tilePixelSize));
+
+    case MapTile::TerrainType::Forest:
+        return sf::IntRect(sf::Vector2i(0, cellSize), sf::Vector2i(tilePixelSize, tilePixelSize));
+
+    case MapTile::TerrainType::DeepForest:
+        return sf::IntRect(sf::Vector2i(cellSize, cellSize), sf::Vector2i(tilePixelSize, tilePixelSize));
+
+    case MapTile::TerrainType::POI:
+        return sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(tilePixelSize, tilePixelSize));
+
+    default:
+        return sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(tilePixelSize, tilePixelSize));
+    }
 }

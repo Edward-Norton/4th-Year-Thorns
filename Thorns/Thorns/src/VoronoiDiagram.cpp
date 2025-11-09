@@ -4,97 +4,331 @@
 #include "MapTile.h"
 #include <iostream>
 
+// ========================================================================================================
+// SPATIAL GRID IMPLEMENTATION
+// ========================================================================================================
+
+SpatialGrid::SpatialGrid()
+{
+}
+
+void SpatialGrid::initialize(float worldWidth, float worldHeight, float cellSize)
+{
+    m_worldWidth = worldWidth;
+    m_worldHeight = worldHeight;
+    m_cellSize = cellSize;
+
+    // Calculate grid dimensions (round up)
+    m_gridWidth = static_cast<int>(std::ceil(worldWidth / cellSize));
+    m_gridHeight = static_cast<int>(std::ceil(worldHeight / cellSize));
+
+    m_cells.clear();
+
+    std::cout << "SpatialGrid initialized: " << m_gridWidth << "×" << m_gridHeight
+        << " cells (cell size: " << cellSize << "px)\n";
+}
+
+void SpatialGrid::clear()
+{
+    m_cells.clear();
+}
+
+void SpatialGrid::addSite(int siteIndex, const sf::Vector2f& position)
+{
+    sf::Vector2i gridPos = worldToGrid(position);
+    int hash = gridToHash(gridPos.x, gridPos.y);
+    m_cells[hash].push_back(siteIndex);
+}
+
+std::vector<int> SpatialGrid::getNearbySites(const sf::Vector2f& position) const
+{
+    std::vector<int> nearbySites;
+    sf::Vector2i gridPos = worldToGrid(position);
+
+    // Check 3×3 neighborhood of cells
+    for (int dy = -1; dy <= 1; ++dy)
+    {
+        for (int dx = -1; dx <= 1; ++dx)
+        {
+            int checkX = gridPos.x + dx;
+            int checkY = gridPos.y + dy;
+
+            // Skip out of bounds
+            if (checkX < 0 || checkX >= m_gridWidth ||
+                checkY < 0 || checkY >= m_gridHeight)
+                continue;
+
+            int hash = gridToHash(checkX, checkY);
+            auto it = m_cells.find(hash);
+
+            if (it != m_cells.end())
+            {
+                // Add all sites in this cell
+                nearbySites.insert(nearbySites.end(),
+                    it->second.begin(),
+                    it->second.end());
+            }
+        }
+    }
+
+    return nearbySites;
+}
+
+sf::Vector2i SpatialGrid::worldToGrid(const sf::Vector2f& position) const
+{
+    int x = static_cast<int>(position.x / m_cellSize);
+    int y = static_cast<int>(position.y / m_cellSize);
+
+    // Clamp to grid bounds
+    x = std::max(0, std::min(x, m_gridWidth - 1));
+    y = std::max(0, std::min(y, m_gridHeight - 1));
+
+    return sf::Vector2i(x, y);
+}
+
+int SpatialGrid::gridToHash(int gridX, int gridY) const
+{
+    // Simple hash: treat grid as 1D array
+    return gridY * m_gridWidth + gridX;
+}
+
+// ========================================================================================================
+// VORONOI DIAGRAM IMPLEMENTATION
+// ========================================================================================================
+
 VoronoiDiagram::VoronoiDiagram()
     : m_map(nullptr)
 {
 }
 
-void VoronoiDiagram::generate(Map* map, int numSites, const sf::Vector2f& hideoutPos,
-    float minSiteDistance, unsigned int seed)
+void VoronoiDiagram::generateSitesPoisson(Map* map, unsigned char numSites,
+    const sf::Vector2f& hideoutPos,
+    float minSiteDistance, std::mt19937& rng)
 {
-    if (!map)
+    // Bridson's Poisson Disk Sampling Algorithm
+    // Reference: https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf
+
+    sf::Vector2f worldSize = map->getWorldSize();
+    const float hideoutExclusion = 400.f;
+    const int k = 30; // Number of attempts per active point
+
+    // Cell size for background grid (r / sqrt(2) ensures no two points in same cell)
+    float cellSize = minSiteDistance / std::sqrt(2.f);
+    int gridWidth = static_cast<int>(std::ceil(worldSize.x / cellSize));
+    int gridHeight = static_cast<int>(std::ceil(worldSize.y / cellSize));
+
+    // Background grid for O(1) collision detection
+    m_poissonGrid.clear();
+    m_poissonGrid.resize(gridWidth * gridHeight, sf::Vector2f(-1.f, -1.f)); // -1 = empty
+
+    // Active list of candidate points
+    m_activeList.clear();
+
+    // Distributions
+    std::uniform_real_distribution<float> distX(0.f, worldSize.x);
+    std::uniform_real_distribution<float> distY(0.f, worldSize.y);
+    std::uniform_real_distribution<float> distRadius(minSiteDistance, 2.f * minSiteDistance);
+    std::uniform_real_distribution<float> distAngle(0.f, 2.f * 3.14159265f);
+
+    // Step 1: Choose initial sample (avoid hideout)
+    sf::Vector2f initialSample;
+    int attempts = 0;
+    do
     {
-        std::cerr << "VoronoiDiagram::generate() - null map pointer, no map passed\n";
+        initialSample = sf::Vector2f(distX(rng), distY(rng));
+        ++attempts;
+    } while (!isValidSitePositionPoisson(initialSample, hideoutPos, minSiteDistance, hideoutExclusion)
+        && attempts < 1000);
+
+    if (attempts >= 1000)
+    {
+        std::cerr << "Failed to find initial Poisson sample\n";
         return;
     }
 
-    m_map = map;
-    m_sites.clear();
+    // Add initial sample
+    m_activeList.push_back(initialSample);
+    int gridX = static_cast<int>(initialSample.x / cellSize);
+    int gridY = static_cast<int>(initialSample.y / cellSize);
+    m_poissonGrid[gridY * gridWidth + gridX] = initialSample;
 
-    // Setup random number generator (PRNG)
-    // mt19937: Mersenne Twister algorithm - produces deterministic sequence from seed
-    // random_device: Hardware-based true random (non-deterministic, no seed)
-    // If seed == 0, use random_device for truly random generation
-    // Otherwise, use provided seed for reproducible/saveable generation
-    std::mt19937 rng(seed == 0 ? std::random_device{}() : seed);
+    // Step 2: Generate points from active list
+    while (!m_activeList.empty() && m_sites.size() < size_t(numSites))
+    {
+        // Pick random point from active list
+        std::uniform_int_distribution<size_t> activeDist(0, m_activeList.size() - 1);
+        size_t activeIndex = activeDist(rng);
+        sf::Vector2f activePoint = m_activeList[activeIndex];
 
-    std::cout << "Generating " << numSites << " Voronoi sites...\n";
+        bool foundValidPoint = false;
 
-    // Step 1: Generate site positions (avoiding hideout and enforcing spacing)
-    generateSites(map, numSites, hideoutPos, minSiteDistance, rng);
+        // Try k times to generate a valid point in annulus
+        for (int attempt = 0; attempt < k; ++attempt)
+        {
+            // Generate point in annulus (r to 2r from active point)
+            float radius = distRadius(rng);
+            float angle = distAngle(rng);
 
-    std::cout << "Successfully placed " << m_sites.size() << " sites\n";
+            sf::Vector2f candidate(
+                activePoint.x + radius * std::cos(angle),
+                activePoint.y + radius * std::sin(angle)
+            );
 
-    // Step 2: Assign each tile to nearest site
-    assignTilesToRegions(map);
+            // Check bounds
+            if (candidate.x < 0 || candidate.x >= worldSize.x ||
+                candidate.y < 0 || candidate.y >= worldSize.y)
+                continue;
 
-    std::cout << "Voronoi diagram generation complete\n";
+            // Check if valid using background grid for fast collision detection
+            int candGridX = static_cast<int>(candidate.x / cellSize);
+            int candGridY = static_cast<int>(candidate.y / cellSize);
+
+            bool tooClose = false;
+
+            // Check 5×5 neighborhood (conservative)
+            for (int dy = -2; dy <= 2 && !tooClose; ++dy)
+            {
+                for (int dx = -2; dx <= 2 && !tooClose; ++dx)
+                {
+                    int checkX = candGridX + dx;
+                    int checkY = candGridY + dy;
+
+                    if (checkX < 0 || checkX >= gridWidth ||
+                        checkY < 0 || checkY >= gridHeight)
+                        continue;
+
+                    sf::Vector2f neighbor = m_poissonGrid[checkY * gridWidth + checkX];
+
+                    // Check if cell is occupied
+                    if (neighbor.x >= 0.f)
+                    {
+                        float distSq = distanceSquared(candidate, neighbor);
+                        if (distSq < minSiteDistance * minSiteDistance)
+                        {
+                            tooClose = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (tooClose)
+                continue;
+
+            // Check hideout exclusion
+            if (!isValidSitePositionPoisson(candidate, hideoutPos, minSiteDistance, hideoutExclusion))
+                continue;
+
+            // Valid point found!
+            m_activeList.push_back(candidate);
+            m_poissonGrid[candGridY * gridWidth + candGridX] = candidate;
+
+            // Create site
+            sf::Vector2i tileCoords = map->worldToTile(candidate);
+            sf::Vector2f snappedPos = map->tileToWorld(tileCoords.x, tileCoords.y);
+            m_sites.emplace_back(snappedPos, tileCoords, static_cast<int>(m_sites.size()));
+
+            foundValidPoint = true;
+            break;
+        }
+
+        // If no valid point found after k attempts, remove from active list
+        if (!foundValidPoint)
+        {
+            m_activeList.erase(m_activeList.begin() + activeIndex);
+        }
+    }
+
+    std::cout << "Poisson disk sampling complete: " << m_sites.size() << " sites generated\n";
 }
 
-void VoronoiDiagram::generateSites(Map* map, unsigned char numSites, const sf::Vector2f& hideoutPos,
+
+void VoronoiDiagram::generateSitesRejection(Map* map, unsigned char numSites,
+    const sf::Vector2f& hideoutPos,
     float minSiteDistance, std::mt19937& rng)
 {
     sf::Vector2f worldSize = map->getWorldSize();
-    float tileSize = map->getTileSize();
+    const float hideoutExclusion = 400.f;
 
-    // Distribution for random positions
-    std::uniform_real_distribution<float> distX(0.f, worldSize.x); // Ranges float PN: double not used since mt19937 is 32 bit
+    std::uniform_real_distribution<float> distX(0.f, worldSize.x);
     std::uniform_real_distribution<float> distY(0.f, worldSize.y);
 
-    // Calculate hideout exclusion radius (diagonal of hideout + padding)
-    float hideoutExclusion = 400.f;
-
     int attempts = 0;
-    const int maxAttempts = numSites * 1000;
+    const int maxAttempts = numSites * 1000; // Max 1000 tries per site
 
-    while (m_sites.size() < size_t(numSites) && attempts < maxAttempts)
+    std::cout << "Generating " << static_cast<int>(numSites)
+        << " sites using rejection sampling...\n";
+
+    while (m_sites.size() < static_cast<size_t>(numSites) && attempts < maxAttempts)
     {
+        // Generate random position
         sf::Vector2f candidatePos(distX(rng), distY(rng));
 
-        // Check if position is valid (not near hideout or other sites)
-        if (isValidSitePosition(candidatePos, hideoutPos, minSiteDistance, hideoutExclusion))
+        // Check distance from hideout
+        float distToHideout = std::sqrt(distanceSquared(candidatePos, hideoutPos));
+        if (distToHideout < hideoutExclusion)
         {
-            // Convert to tile coordinates
-            sf::Vector2i tileCoords = map->worldToTile(candidatePos);
-
-            // Snap to tile center for consistency
-            // Makes site linked to tile
-            candidatePos = map->tileToWorld(tileCoords.x, tileCoords.y);
-
-            m_sites.emplace_back(candidatePos, tileCoords, static_cast<int>(m_sites.size()));
+            ++attempts;
+            continue; // Too close to hideout
         }
+
+        // Check distance from existing sites
+        bool tooClose = false;
+        for (const auto& site : m_sites)
+        {
+            float distToSite = std::sqrt(distanceSquared(candidatePos, site.position));
+            if (distToSite < minSiteDistance)
+            {
+                tooClose = true;
+                break;
+            }
+        }
+
+        if (tooClose)
+        {
+            ++attempts;
+            continue;
+        }
+
+        // Valid position! Snap to tile center
+        sf::Vector2i tileCoords = map->worldToTile(candidatePos);
+        sf::Vector2f snappedPos = map->tileToWorld(tileCoords.x, tileCoords.y);
+
+        m_sites.emplace_back(snappedPos, tileCoords, static_cast<int>(m_sites.size()));
 
         ++attempts;
     }
 
-    if (attempts >= maxAttempts)
+    if (m_sites.size() < static_cast<size_t>(numSites))
     {
-        std::cerr << "Warning: Could only place " << m_sites.size()
-            << " sites after " << maxAttempts << " attempts\n";
+        std::cerr << "Warning: Only placed " << m_sites.size()
+            << " sites after " << attempts << " attempts\n";
+    }
+    else
+    {
+        std::cout << "Rejection sampling complete: " << m_sites.size()
+            << " sites placed in " << attempts << " attempts\n";
     }
 }
 
-// Nearest neighbour assignemnt
-// Personal notes to add later next update on optimization:
-//  - Spatial Partition which is already in consideration
-//  - Chunk processing, only process chunks instead of whole map
-//   -
-void VoronoiDiagram::assignTilesToRegions(Map* map)
+bool VoronoiDiagram::isValidSitePositionPoisson(const sf::Vector2f& pos,
+    const sf::Vector2f& hideoutPos,
+    float minDist, float hideoutExclusion) const
+{
+    // Check distance from hideout
+    float distToHideout = std::sqrt(distanceSquared(pos, hideoutPos));
+    return distToHideout >= hideoutExclusion;
+}
+
+void VoronoiDiagram::assignTilesToRegionsSP(Map* map)
 {
     int width = map->getWidth();
     int height = map->getHeight();
+    int tilesProcessed = 0;
 
-    // For each tile, find nearest Voronoi site
+    std::cout << "Assigning " << (width * height) << " tiles to Voronoi regions...\n";
+
+    // For each tile, find nearest site using spatial grid
     for (int y = 0; y < height; ++y)
     {
         for (int x = 0; x < width; ++x)
@@ -103,20 +337,47 @@ void VoronoiDiagram::assignTilesToRegions(Map* map)
             if (!tile)
                 continue;
 
-            // Skip POI tiles - they don't belong to any region
+            // Skip POI tiles
             if (tile->getTerrainType() == MapTile::TerrainType::POI)
                 continue;
 
             // Get world position of tile center
             sf::Vector2f tilePos = map->tileToWorld(x, y);
 
-            // Find closest site
-            int closestSiteId = getClosestSiteId(tilePos);
+            // Get nearby sites from spatial grid (O(k) instead of O(s))
+            std::vector<int> nearbySiteIndices = m_spatialGrid.getNearbySites(tilePos);
 
-            // Assign tile to that region
-            tile->setVoronoiRegion(closestSiteId);
+            if (nearbySiteIndices.empty())
+            {
+                // Fallback: shouldn't happen but check all sites if grid fails
+                tile->setVoronoiRegion(getClosestSiteId(tilePos));
+            }
+            else
+            {
+                // Find closest among nearby sites
+                int closestId = -1;
+                float closestDistSq = std::numeric_limits<float>::max();
+
+                for (int siteIdx : nearbySiteIndices)
+                {
+                    const VoronoiSite& site = m_sites[siteIdx];
+                    float distSq = distanceSquared(tilePos, site.position);
+
+                    if (distSq < closestDistSq)
+                    {
+                        closestDistSq = distSq;
+                        closestId = site.regionId;
+                    }
+                }
+
+                tile->setVoronoiRegion(closestId);
+            }
+
+            ++tilesProcessed;
         }
     }
+
+    std::cout << "Tile assignment complete: " << tilesProcessed << " tiles assigned\n";
 }
 
 bool VoronoiDiagram::isValidSitePosition(const sf::Vector2f& pos, const sf::Vector2f& hideoutPos,

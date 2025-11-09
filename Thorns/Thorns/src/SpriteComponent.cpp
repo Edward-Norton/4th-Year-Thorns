@@ -6,6 +6,7 @@ SpriteComponent::SpriteComponent()
     , m_sprite(m_texture)
     , m_isValid(false)
     , m_textureRect(sf::Vector2i(0, 0), sf::Vector2i(0, 0))
+    , m_targetSize(0.0f, 0.0f)
 {
 }
 
@@ -91,13 +92,14 @@ void SpriteComponent::centerOrigin()
 
 void SpriteComponent::setSize(float width, float height)
 {
-    // Get the size of the current texture rect (not the full texture)
+    m_targetSize = sf::Vector2f(width, height); 
+
     sf::IntRect rect = m_sprite.getTextureRect();
     if (rect.size.x == 0 || rect.size.y == 0) return;
 
     float scaleX = width / static_cast<float>(rect.size.x);
     float scaleY = height / static_cast<float>(rect.size.y);
-    m_sprite.setScale(sf::Vector2f{ scaleX, scaleY });
+    m_sprite.setScale(sf::Vector2f(scaleX, scaleY));
 }
 
 sf::Vector2f SpriteComponent::getSize() const
@@ -121,6 +123,11 @@ void SpriteComponent::setTextureRect(const sf::IntRect& rect)
 {
     m_textureRect = rect;
     m_sprite.setTextureRect(m_textureRect);
+
+    // Reapply the target size with the new texture rect
+    if (m_targetSize.x > 0 && m_targetSize.y > 0) {
+        setSize(m_targetSize.x, m_targetSize.y);
+    }
 }
 
 sf::IntRect SpriteComponent::getTextureRect() const

@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <random>
+#include <unordered_map>
 
 class Map;
 class PointOfInterest;
@@ -33,6 +34,41 @@ struct VoronoiSite
 };
 
 /// <summary>
+/// Spatial grid for fast nearest-neighbor queries
+/// Divides world space into cells for O(1) site lookups
+/// </summary>
+class SpatialGrid
+{
+public:
+    SpatialGrid();
+
+    void initialize(float worldWidth, float worldHeight, float cellSize);
+    void clear();
+
+    // Add site to grid
+    void addSite(int siteIndex, const sf::Vector2f& position);
+
+    // Get sites near a position (returns indices into VoronoiDiagram::m_sites)
+    std::vector<int> getNearbySites(const sf::Vector2f& position) const;
+
+private:
+    float m_cellSize;
+    int m_gridWidth;
+    int m_gridHeight;
+    float m_worldWidth;
+    float m_worldHeight;
+
+    // Hash grid: (gridX, gridY) -> list of site indices
+    std::unordered_map<int, std::vector<int>> m_cells;
+
+    // Convert world position to grid coordinates
+    sf::Vector2i worldToGrid(const sf::Vector2f& position) const;
+
+    // Convert grid coordinates to hash key
+    int gridToHash(int gridX, int gridY) const;
+};
+
+/// <summary>
 /// Generates Voronoi diagram for map regions
 /// Tries to create exclusion zones around the sites
 /// </summary>
@@ -46,7 +82,34 @@ public:
     // Generate Voronoi sites and assign map tiles to regions
     // Map to be passed, number of sites and the seed used for generation for next map generation
     // *Note: Respects Hideout position in the generation for min spacing 
-    void generate(Map* map, int numSites, const sf::Vector2f& hideoutPos, float minSiteDistance, unsigned int seed = 0); // Random seed fallback
+    // ========== Poisson Disk Sampling ==========
+    // Generate evenly-spaced sites using Bridson's algorithm
+    void generateSitesPoisson(Map* map, unsigned char numSites,
+        const sf::Vector2f& hideoutPos,
+        float minSiteDistance, std::mt19937& rng);
+
+    void VoronoiDiagram::generateSitesRejection(Map* map, unsigned char numSites,
+        const sf::Vector2f& hideoutPos,
+        float minSiteDistance, std::mt19937& rng);
+
+
+    // Build spatial grid (expose for MapGenerator to use)
+    void buildSpatialGrid(float worldWidth, float worldHeight, float cellSize)
+    {
+        m_spatialGrid.initialize(worldWidth, worldHeight, cellSize);
+    }
+
+    // Add site to spatial grid
+    void addSiteToGrid(int siteIndex, const sf::Vector2f& position)
+    {
+        m_spatialGrid.addSite(siteIndex, position);
+    }
+
+    // Get nearby sites for a position (exposed for single-pass)
+    std::vector<int> getNearbySites(const sf::Vector2f& position) const
+    {
+        return m_spatialGrid.getNearbySites(position);
+    }
     
     // ========== Queries ==========
     // Find closest site to a world position
@@ -62,27 +125,37 @@ public:
     void renderDebug(sf::RenderTarget& target) const;
 
 private:
-    // Generate random positions for Voronoi sites
-    // Ensures sites don't spawn inside POIs or too close to them / hideout needed due to static
-    void generateSites(Map* map, unsigned char numSites, const sf::Vector2f& hideoutPos, float minSiteDistance, std::mt19937& rng);
+    // ========== Poisson Disk Sampling ==========
+    // Helper: Check if position is valid for new site
+    bool isValidSitePositionPoisson(const sf::Vector2f& pos,
+        const sf::Vector2f& hideoutPos,
+        float minDist, float hideoutExclusion) const;
     
-    // Assign each map tile to nearest Voronoi site
-    void assignTilesToRegions(Map* map);
+    // ========== Spatial Partitioning ==========
+    // Assign tiles to regions using spatial grid for fast lookups
+    void assignTilesToRegionsSP(Map* map);
     
     // Check if position is valid for site placement
     bool isValidSitePosition(const sf::Vector2f& pos, const sf::Vector2f& hideoutPos, float minSiteDistance, float hideoutExclusion) const;
     
+    // ========== Utilities ==========
     // Calculate squared distance between two points
     float distanceSquared(const sf::Vector2f& a, const sf::Vector2f& b) const;
 
+    // Locals
     std::vector<VoronoiSite> m_sites;
+    SpatialGrid m_spatialGrid;
     Map* m_map;  // Non-owning pointer to map being processed
+
+    // Poisson dusk sampling temp stoages
+    mutable std::vector<sf::Vector2f> m_poissonGrid;
+    mutable std::vector<sf::Vector2f> m_activeList;
 };
 
 #endif
 
 
-// Personal Notes:
+// Personal Notes Voronoi Diagram:
 /*
     Voronoi Diagrams are cell wall like structured, seperating regions based on distance into seed points.]
     Each point in space belongs its closets seed point.
@@ -109,4 +182,9 @@ private:
     - Had to add these for optimization due to long compiler times on own machine at times
         - Invalid postions rejected
         - Max attempts due to infinte loop possibilities
+*/
+
+// Personal Notes Poisson Sampling and Spatial Partition:
+/*
+    
 */

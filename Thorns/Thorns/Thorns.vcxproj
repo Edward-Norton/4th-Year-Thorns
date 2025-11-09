@@ -20,12 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="ASSETS\IMAGES\EnemyShip.png" />
-    <Image Include="ASSETS\IMAGES\PlayerShip.png" />
     <Image Include="ASSETS\IMAGES\player_atlas.png" />
-    <Image Include="ASSETS\IMAGES\SFML-LOGO.png">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
-    </Image>
+    <Image Include="ASSETS\IMAGES\terrain_atlas.png" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="ASSETS\FONTS\Jersey20-Regular.ttf" />
@@ -78,6 +74,9 @@
     <ClInclude Include="include\SettingsMenu.h" />
     <ClInclude Include="include\SpriteComponent.h" />
     <ClInclude Include="include\VoronoiDiagram.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ASSETS\IMAGES\terrain-atlas-points.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

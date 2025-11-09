@@ -108,16 +108,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="ASSETS\IMAGES\SFML-LOGO.png">
-      <Filter>Resource Files\IMAGES</Filter>
-    </Image>
     <Image Include="ASSETS\IMAGES\EnemyShip.png">
       <Filter>Resource Files\IMAGES</Filter>
     </Image>
-    <Image Include="ASSETS\IMAGES\PlayerShip.png">
+    <Image Include="ASSETS\IMAGES\player_atlas.png">
       <Filter>Resource Files\IMAGES</Filter>
     </Image>
-    <Image Include="ASSETS\IMAGES\player_atlas.png">
+    <Image Include="ASSETS\IMAGES\terrain_atlas.png">
       <Filter>Resource Files\IMAGES</Filter>
     </Image>
   </ItemGroup>
@@ -260,5 +257,10 @@
     <ClInclude Include="include\MapGenerator.h">
       <Filter>Header Files\World</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ASSETS\IMAGES\terrain-atlas-points.txt">
+      <Filter>Resource Files\IMAGES</Filter>
+    </Text>
   </ItemGroup>
 </Project>
