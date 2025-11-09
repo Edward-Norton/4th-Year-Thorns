@@ -181,19 +181,19 @@ void VoronoiDiagram::generateSitesPoisson(Map* map, unsigned char numSites,
         // Annulus = area between radius r and 2r from active point
         for (int attempt = 0; attempt < k; ++attempt)
         {
-            // Generate point in annulus (r to 2r from active point)
-            float radius = distRadius(rng);
+            // Generate point in annulus
+            float radius = distRadius(rng); // from the current active point
             float angle = distAngle(rng);
 
             sf::Vector2f direction = MathUtils::angleRadiansToVector(angle); // No impact on time generation, roughly the same, keeping for readability
             sf::Vector2f candidate = activePoint + (direction * radius);
 
-            // Check bounds
+            // Step 8.3: Check bounds
             if (candidate.x < 0 || candidate.x >= worldSize.x ||
                 candidate.y < 0 || candidate.y >= worldSize.y)
                 continue;
 
-            // Check if valid using background grid for fast collision detection
+            // Step 8.4: Check if valid using grid
             int candGridX = static_cast<int>(candidate.x / cellSize);
             int candGridY = static_cast<int>(candidate.y / cellSize);
 
@@ -229,11 +229,11 @@ void VoronoiDiagram::generateSitesPoisson(Map* map, unsigned char numSites,
             if (tooClose)
                 continue;
 
-            // Check hideout exclusion
+            // Step 8.5: Check hideout exclusion
             if (!isValidSitePositionPoisson(candidate, hideoutPos, minSiteDistance, hideoutExclusion))
                 continue;
 
-            // Valid point found!
+            // Valid point found
             m_activeList.push_back(candidate);
             m_poissonGrid[candGridY * gridWidth + candGridX] = candidate;
 
@@ -246,7 +246,8 @@ void VoronoiDiagram::generateSitesPoisson(Map* map, unsigned char numSites,
             break;
         }
 
-        // If no valid point found after k attempts, remove from active list
+        // Step 8.6: If no valid point found after k attempts, remove from active list
+        // Had to add to prevent infin loops
         if (!foundValidPoint)
         {
             m_activeList.erase(m_activeList.begin() + activeIndex);

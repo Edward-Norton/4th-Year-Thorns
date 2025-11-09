@@ -382,6 +382,7 @@ bool Map::loadTerrainAtlas(const std::string& atlasPath)
         std::cerr << "Failed to load terrain atlas: " << atlasPath << "\n";
         m_atlasLoaded = false;
         m_sharedSprite.reset();
+        m_sharedSprite.reset();
         return false;
     }
 

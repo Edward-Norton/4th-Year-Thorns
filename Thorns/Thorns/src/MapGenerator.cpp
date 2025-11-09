@@ -122,6 +122,7 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
 
     m_voronoi->buildSpatialGrid(worldSize.x, worldSize.y, settings.minSiteDistance);
 
+    // Adding each tile to the spatial grid for hash lookups
     for (size_t i = 0; i < sites.size(); ++i)
     {
         m_voronoi->addSiteToGrid(static_cast<int>(i), sites[i].position);
