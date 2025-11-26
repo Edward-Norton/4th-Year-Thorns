@@ -133,7 +133,7 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
     int height = map->getHeight();
     int tilesProcessed = 0;
 
-    // ========== SINGLE LOOP: Do everything in one pass ==========
+    // ========== Single Loop: Do everything in one pass (try to reduce n-notation hopefully)  ==========
     for (int y = 0; y < height; ++y)
     {
         for (int x = 0; x < width; ++x)
@@ -253,7 +253,7 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
     }
 
     // Setup RNG for random site selection
-    std::mt19937 rng(settings.seed == 0 ? std::random_device{}() : settings.seed + 999);
+    std::mt19937 rng(settings.seed == 0 ? std::random_device{}() : settings.seed);
     std::uniform_int_distribution<int> siteDist(0, static_cast<int>(sites.size()) - 1);
 
     // Track remaining POIs to spawn
@@ -270,7 +270,7 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
     // Spawn POIs
     int poisSpawned = 0;
     int attempts = 0;
-    const int maxAttempts = totalPOIs * 10;
+    const int maxAttempts = totalPOIs * 20;
 
     while (poisSpawned < totalPOIs && attempts < maxAttempts)
     {
@@ -299,6 +299,7 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
         case PointOfInterest::Type::Village:
             name = "Village " + std::to_string(settings.numVillages - villagesLeft + 1);
             size = sf::Vector2f(500.f, 500.f);
+            spritePath = "";
             break;
         case PointOfInterest::Type::Farm:
             name = "Farm " + std::to_string(settings.numFarms - farmsLeft + 1);
@@ -308,6 +309,7 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
         default:
             name = "Unknown POI";
             size = sf::Vector2f(150.f, 150.f);
+            spritePath = "";
             break;
         }
 

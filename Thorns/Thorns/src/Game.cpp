@@ -101,7 +101,7 @@ void Game::generateMap()
     m_mapSettings.mapWidth = 80;
     m_mapSettings.mapHeight = 80;
     m_mapSettings.tileSize = 64.f;
-    m_mapSettings.voronoiSites = 20;
+    m_mapSettings.voronoiSites = 5;
     m_mapSettings.minSiteDistance = 800.0f;  // Minimum 400 pixels between sites
     m_currentSeed = 12345;
     m_mapSettings.seed = m_currentSeed;
