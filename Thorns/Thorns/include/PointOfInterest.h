@@ -4,6 +4,11 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
+#include "IRenderable.h"
+#include "IPositionable.h"
+#include "ICollidable.h"
+#include "SpriteComponent.h"
+
 /// <summary>
 /// Represents a fixed prefab location that blocks procedural generation
 /// Examples: Player hideout, key locations
@@ -21,7 +26,7 @@
 /// 4) Algorithims later will prevent generation in the zones
 /// 
 /// </summary>
-class PointOfInterest
+class PointOfInterest : public IRenderable, public IPositionable, public ICollidable
 {
 public:
     enum class Type
@@ -37,12 +42,22 @@ public:
     PointOfInterest(const std::string& name, Type type, const sf::Vector2f& worldPos, const sf::Vector2f& size);
     ~PointOfInterest() = default;
 
-    // ========== Position & Bounds ==========
-    // Get the world-space center position
-    sf::Vector2f getPosition() const { return m_worldPosition; }
+    // ========== Sprite ==========
+    bool loadSprite(const std::string& spritePath);
+    void render(sf::RenderTarget& target) const override;
 
-    // Get axis-aligned bounding box in world space
-    sf::FloatRect getBounds() const;
+    // ========== Collision ==========
+    sf::FloatRect getBounds() const override;
+    bool checkEntityCollision(const sf::FloatRect& entityBounds) const;
+    void addCollisionRect(const sf::FloatRect& rect); // This is to add rect for walls and such
+    const std::vector<sf::FloatRect>& getCollisionRects() const { return m_collisionRects; }
+    void clearCollisionRects();
+
+    // ========== Position & Bounds ==========
+    sf::Vector2f getPosition() const override { return m_worldPosition; }
+    void setPosition(const sf::Vector2f& pos) override;
+
+    sf::FloatRect getVisualBounds() const;
 
     // Get exclusion radius for Voronoi site placement
     // This prevents Voronoi areas from being placed too close to POI
@@ -56,6 +71,11 @@ public:
     Type getType() const { return m_type; }
     bool isBlocking() const { return m_blocking; } // Needed for the algorithim to skip the tiles
 
+    sf::Vector2f getSize() const { return m_size; }
+
+    // ========== Validation ==========
+    bool hasSprite() const;
+
 private:
     std::string m_name;
     Type m_type;
@@ -65,6 +85,13 @@ private:
 
     float m_exclusionRadius;        // Radius around POI where Voronoi sites can't spawn
     bool m_blocking;                // If true, generation algorithms skip this area
+
+    // Rendering
+    std::unique_ptr<SpriteComponent> m_sprite;
+
+    // Collision (multiple rectangles for complex shapes like buildings with walls)
+    // PN: All rectangles are in world space coordinates
+    std::vector<sf::FloatRect> m_collisionRects;
 };
 
 #endif

@@ -124,12 +124,14 @@ bool Map::isInsidePOI(const sf::Vector2f& worldPos) const
 void Map::markPOITiles()
 {
     // Mark all tiles that fall within POI bounds as POI terrain
+    // PN: Only to do this for the border tiles, no need to take in all the data just a general idea. 
+
     for (const auto& poi : m_pois)
     {
         if (!poi->isBlocking())
             continue;
 
-        sf::FloatRect bounds = poi->getBounds();
+        sf::FloatRect bounds = poi->getVisualBounds();
 
         // Get tile range covered by POI
         sf::Vector2i topLeft = worldToTile(sf::Vector2f(bounds.position));
@@ -138,7 +140,13 @@ void Map::markPOITiles()
             bounds.position.y + bounds.size.y
         ));
 
-        // Mark tiles in range
+        // Clamp to valid tile range
+        topLeft.x = std::max(0, topLeft.x);
+        topLeft.y = std::max(0, topLeft.y);
+        bottomRight.x = std::min(m_width - 1, bottomRight.x);
+        bottomRight.y = std::min(m_height - 1, bottomRight.y);
+
+        // Mark tiles in range (This is the grass area under)
         for (int y = topLeft.y; y <= bottomRight.y; ++y)
         {
             for (int x = topLeft.x; x <= bottomRight.x; ++x)
@@ -161,17 +169,27 @@ void Map::markPOITiles()
 // ========================================================================================================
 void Map::render(sf::RenderTarget& target) const
 {
+    const sf::View& view = target.getView();
+
+    // Layer 1: Terrain
     if (m_debugMode)
     {
         renderDebug(target);
     }
     else // Change to sprites later
     {
-        renderVisible(target, target.getView());
+        renderTerrain(target, view);
     }
+
+    // Voronoi Borders
+    renderVoronoiBoundaries(target);
+
+    // Layer 2 Pois
+    renderPOIs(target, view);
+
 }
 
-void Map::renderVisible(sf::RenderTarget& target, const sf::View& view) const
+void Map::renderTerrain(sf::RenderTarget& target, const sf::View& view) const
 {
     if (!m_atlasLoaded || !m_sharedSprite || !m_sharedSprite->isValid())
     {
@@ -199,8 +217,6 @@ void Map::renderVisible(sf::RenderTarget& target, const sf::View& view) const
     maxTile.x = std::min(m_width - 1, maxTile.x + 1);
     maxTile.y = std::min(m_height - 1, maxTile.y + 1);
 
-    int tilesRendered = 0;
-
     // Render visible tiles by repositioning the shared sprite
     for (int y = minTile.y; y <= maxTile.y; ++y)
     {
@@ -208,6 +224,10 @@ void Map::renderVisible(sf::RenderTarget& target, const sf::View& view) const
         {
             const MapTile* tile = getTile(x, y);
             if (!tile)
+                continue;
+
+            // Skip POI tiles (they're rendered as sprites separately)
+            if (tile->getTerrainType() == MapTile::TerrainType::POI)
                 continue;
 
             // Get texture rect for this terrain type
@@ -224,36 +244,40 @@ void Map::renderVisible(sf::RenderTarget& target, const sf::View& view) const
                 std::round(worldY)
             ));
 
-            // After setting texture rect, verify scale:
-            sf::Vector2f spriteSize = m_sharedSprite->getSize();
-
-            // Print once for debugging
-            static bool printed = false;
-            if (!printed) {
-                std::cout << "Sprite rendering size: " << spriteSize.x << "x" << spriteSize.y << "\n";
-                std::cout << "Expected tile size: " << m_tileSize << "x" << m_tileSize << "\n";
-                printed = true;
-            }
-
             // Render this tile
             m_sharedSprite->render(target);
-
-            ++tilesRendered;
         }
     }
+}
 
-    // Print once per second to avoid spam
-    static sf::Clock debugClock;
-    if (debugClock.getElapsedTime().asSeconds() > 4.0f)
+void Map::renderPOIs(sf::RenderTarget& target, const sf::View& view) const
+{
+    // Get view frustum for culling
+    sf::Vector2f viewCenter = view.getCenter();
+    sf::Vector2f viewSize = view.getSize();
+    sf::FloatRect viewBounds(
+        sf::Vector2f(viewCenter.x - viewSize.x / 2.f, viewCenter.y - viewSize.y / 2.f),
+        viewSize
+    );
+
+    // Add padding for POIs partially in view (use largest POI size as padding)
+    const float padding = 600.f;
+    viewBounds.position.x -= padding;
+    viewBounds.position.y -= padding;
+    viewBounds.size.x += padding * 2.f;
+    viewBounds.size.y += padding * 2.f;
+
+    // Render only visible POIs
+    for (const auto& poi : m_pois)
     {
-        std::cout << "Rendering " << tilesRendered << " / "
-            << (m_width * m_height) << " tiles ("
-            << (tilesRendered * 100.0f / (m_width * m_height))
-            << "%)\n";
-        debugClock.restart();
-    }
+        sf::FloatRect poiBounds = poi->getVisualBounds();
 
-    renderVoronoiBoundaries(target);
+        // Frustum culling
+        if (viewBounds.findIntersection(poiBounds).has_value())
+        {
+            poi->render(target);
+        }
+    }
 }
 
 void Map::renderDebug(sf::RenderTarget& target) const
@@ -407,9 +431,6 @@ sf::IntRect Map::getTerrainTextureRect(MapTile::TerrainType type) const
 
     case MapTile::TerrainType::DeepForest:
         return sf::IntRect(sf::Vector2i(cellSize, cellSize), sf::Vector2i(tilePixelSize, tilePixelSize));
-
-    case MapTile::TerrainType::POI:
-        return sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(tilePixelSize, tilePixelSize));
 
     default:
         return sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(tilePixelSize, tilePixelSize));

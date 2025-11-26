@@ -11,6 +11,9 @@ namespace Assets
         const std::string PLAYER_ATLAS = "ASSETS\\IMAGES\\player_atlas.png";
         const std::string ENEMY_SHIP = "ASSETS\\IMAGES\\EnemyShip.png";
         const std::string TERRAIN_ATLAS = "ASSETS\\IMAGES\\terrain_atlas.png";
+        const std::string HIDEOUT_SPRITE = "ASSETS\\IMAGES\\hideout_1.png";
+        const std::string FARM_SPRITE = "ASSETS\\IMAGES\\Farm.png";
+        
     }
 
     // ========== FONTS ==========

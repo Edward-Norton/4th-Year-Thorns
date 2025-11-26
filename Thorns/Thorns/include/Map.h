@@ -63,7 +63,11 @@ public:
     void renderDebug(sf::RenderTarget& target) const;
     void renderVoronoiBoundaries(sf::RenderTarget& target) const;
 
-    void renderVisible(sf::RenderTarget& target, const sf::View& view) const;
+    // Frustrum rendering
+    void renderTerrain(sf::RenderTarget& target, const sf::View& view) const;
+
+    // Keep the POIs on top of the ground
+    void renderPOIs(sf::RenderTarget& target, const sf::View& view) const;
 
     void setDebugMode(bool enabled) { m_debugMode = enabled; }
     bool isDebugMode() const { return m_debugMode; }

@@ -217,8 +217,14 @@ void MapGenerator::setupHideoutPOI(Map* map)
         "Player Hideout",
         PointOfInterest::Type::PlayerHideout,
         m_hideoutPosition,
-        sf::Vector2f(200.f, 200.f)  // 200x200 pixel area
+        sf::Vector2f(500.0f, 500.0f)  // 200x200 pixel area
     );
+
+    // Load hideout sprite
+    if (!hideout->loadSprite(Assets::Textures::HIDEOUT_SPRITE))
+    {
+        std::cerr << "Failed to load hideout sprite!\n";
+    }
 
     std::cout << "Placed hideout at map center: (" 
               << m_hideoutPosition.x << ", " << m_hideoutPosition.y << ")\n";
@@ -257,6 +263,10 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
     // Track used site indices
     std::vector<bool> usedSites(sites.size(), false);
 
+    // Get map bounds for edge detection
+    sf::Vector2f worldSize = map->getWorldSize();
+    const float edgeMargin = 600.f; // Keep POIs 600px from edges (to accommodate 500x500 sprites)
+
     // Spawn POIs
     int poisSpawned = 0;
     int attempts = 0;
@@ -282,16 +292,18 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
         // Get name and size based on type
         std::string name;
         sf::Vector2f size;
+        std::string spritePath;
 
         switch (poiType)
         {
         case PointOfInterest::Type::Village:
             name = "Village " + std::to_string(settings.numVillages - villagesLeft + 1);
-            size = sf::Vector2f(300.f, 250.f);
+            size = sf::Vector2f(500.f, 500.f);
             break;
         case PointOfInterest::Type::Farm:
             name = "Farm " + std::to_string(settings.numFarms - farmsLeft + 1);
-            size = sf::Vector2f(110.f, 100.f);
+            size = sf::Vector2f(500.f, 500.f);
+            spritePath = Assets::Textures::FARM_SPRITE;
             break;
         default:
             name = "Unknown POI";
@@ -299,8 +311,37 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
             break;
         }
 
+        // Check if POI would be too close to map edges
+        float halfWidth = size.x / 2.f;
+        float halfHeight = size.y / 2.f;
+
+        if (site.position.x - halfWidth < edgeMargin ||
+            site.position.x + halfWidth > worldSize.x - edgeMargin ||
+            site.position.y - halfHeight < edgeMargin ||
+            site.position.y + halfHeight > worldSize.y - edgeMargin)
+        {
+            // Too close to edge, skip this site
+            std::cout << "Skipped site " << siteIndex << " - too close to map edge\n";
+            usedSites[siteIndex] = true; // Mark as used so we don't try again
+            ++attempts;
+            continue;
+        }
+
         // Create POI at site position
         auto poi = std::make_unique<PointOfInterest>(name, poiType, site.position, size);
+
+        // Load sprite if path is available
+        if (!spritePath.empty())
+        {
+            if (!poi->loadSprite(spritePath))
+            {
+                std::cerr << "Warning: Failed to load sprite for " << name << "\n";
+            }
+        }
+        else
+        {
+            std::cout << "Note: No sprite path for " << name << " (will use defaults)\n";
+        }
 
         std::cout << "Spawned " << name << " at Voronoi site " << siteIndex
             << " (pos: " << site.position.x << ", " << site.position.y << ")\n";
