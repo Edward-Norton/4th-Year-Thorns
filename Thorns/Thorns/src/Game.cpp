@@ -344,6 +344,11 @@ void Game::render()
         m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
         m_player.render(m_window);
         m_enemy.render(m_window);
+
+        // For UI spacing
+        m_window.setView(m_uiView);
+        m_player.getInventory().render(m_window);
+
         break;
 
     case GameState::Paused:

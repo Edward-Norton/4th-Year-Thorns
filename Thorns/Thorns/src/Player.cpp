@@ -92,10 +92,8 @@ void Player::updateWithInput(sf::Time deltaTime, const InputController& input, c
 void Player::render(sf::RenderTarget& target) const
 {
     if (!m_active) return;
-
-    m_cursor.render(target);
     m_sprite.render(target);
-    m_inventory.render(target);
+    m_cursor.render(target);
 }
 
 void Player::updateState()
