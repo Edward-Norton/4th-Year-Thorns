@@ -119,6 +119,7 @@ void VoronoiDiagram::generateSitesPoisson(Map* map, unsigned char numSites,
 
     // Bridson's Poisson Disk Sampling Algorithm
     // Reference: https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf
+    // Video: https://www.youtube.com/watch?v=7WcmyxyFO7o (In unity but for example)
 
     //Step 2: Set up 
     sf::Vector2f worldSize = map->getWorldSize();
