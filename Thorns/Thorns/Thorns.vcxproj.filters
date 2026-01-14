@@ -106,6 +106,9 @@
     <Filter Include="Source Files\Algorithms">
       <UniqueIdentifier>{b7583ab3-079b-40ef-9f98-ccd4c8b831d3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\DATA">
+      <UniqueIdentifier>{c2421b7e-0896-43e9-9368-d5ffdb55afe0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="ASSETS\IMAGES\EnemyShip.png">
@@ -192,7 +195,7 @@
     <ClCompile Include="src\WorldObject.cpp">
       <Filter>Source Files\World</Filter>
     </ClCompile>
-    <ClCompile Include="src\ObjectPlayer.cpp">
+    <ClCompile Include="src\ObjectPlacer.cpp">
       <Filter>Source Files\World</Filter>
     </ClCompile>
   </ItemGroup>
@@ -280,11 +283,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ASSETS\IMAGES\terrain-atlas-points.txt">
-      <Filter>Resource Files\IMAGES</Filter>
+    <Text Include="ASSETS\DATA\forest-atlas-points.txt">
+      <Filter>Resource Files\DATA</Filter>
     </Text>
-    <Text Include="ASSETS\IMAGES\forest-atlas-points.txt">
-      <Filter>Resource Files\IMAGES</Filter>
+    <Text Include="ASSETS\DATA\terrain-atlas-points.txt">
+      <Filter>Resource Files\DATA</Filter>
     </Text>
   </ItemGroup>
 </Project>

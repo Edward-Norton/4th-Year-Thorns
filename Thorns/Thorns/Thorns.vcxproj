@@ -43,7 +43,7 @@
     <ClCompile Include="src\MapGenerator.cpp" />
     <ClCompile Include="src\MapTile.cpp" />
     <ClCompile Include="src\Menu.cpp" />
-    <ClCompile Include="src\ObjectPlayer.cpp" />
+    <ClCompile Include="src\ObjectPlacer.cpp" />
     <ClCompile Include="src\PerlinNoise.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\PointOfInterest.cpp" />
@@ -83,8 +83,8 @@
     <ClInclude Include="include\WorldObject.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ASSETS\IMAGES\forest-atlas-points.txt" />
-    <Text Include="ASSETS\IMAGES\terrain-atlas-points.txt" />
+    <Text Include="ASSETS\DATA\forest-atlas-points.txt" />
+    <Text Include="ASSETS\DATA\terrain-atlas-points.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
