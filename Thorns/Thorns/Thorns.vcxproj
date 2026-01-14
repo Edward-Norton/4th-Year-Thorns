@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="ASSETS\IMAGES\EnemyShip.png" />
+    <Image Include="ASSETS\IMAGES\forest_atlas.png" />
     <Image Include="ASSETS\IMAGES\player_atlas.png" />
     <Image Include="ASSETS\IMAGES\terrain_atlas.png" />
   </ItemGroup>
@@ -42,12 +43,15 @@
     <ClCompile Include="src\MapGenerator.cpp" />
     <ClCompile Include="src\MapTile.cpp" />
     <ClCompile Include="src\Menu.cpp" />
+    <ClCompile Include="src\ObjectPlayer.cpp" />
+    <ClCompile Include="src\PerlinNoise.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\PointOfInterest.cpp" />
     <ClCompile Include="src\ScreenSettings.cpp" />
     <ClCompile Include="src\SettingsMenu.cpp" />
     <ClCompile Include="src\SpriteComponent.cpp" />
     <ClCompile Include="src\VoronoiDiagram.cpp" />
+    <ClCompile Include="src\WorldObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\AssetPaths.h" />
@@ -68,14 +72,18 @@
     <ClInclude Include="include\MapTile.h" />
     <ClInclude Include="include\MathUtilities.h" />
     <ClInclude Include="include\Menu.h" />
+    <ClInclude Include="include\ObjectPlacer.h" />
+    <ClInclude Include="include\PerlinNoise.h" />
     <ClInclude Include="include\Player.h" />
     <ClInclude Include="include\PointOfInterest.h" />
     <ClInclude Include="include\ScreenSettings.h" />
     <ClInclude Include="include\SettingsMenu.h" />
     <ClInclude Include="include\SpriteComponent.h" />
     <ClInclude Include="include\VoronoiDiagram.h" />
+    <ClInclude Include="include\WorldObject.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="ASSETS\IMAGES\forest-atlas-points.txt" />
     <Text Include="ASSETS\IMAGES\terrain-atlas-points.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

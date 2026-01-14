@@ -13,7 +13,16 @@ namespace Assets
         const std::string TERRAIN_ATLAS = "ASSETS\\IMAGES\\terrain_atlas.png";
         const std::string HIDEOUT_SPRITE = "ASSETS\\IMAGES\\hideout_1.png";
         const std::string FARM_SPRITE = "ASSETS\\IMAGES\\Farm.png";
+
+        // Forest Objects
+        const std::string FOREST_ATLAS = "ASSETS\\IMAGES\\forest_atlas.png";
         
+    }
+
+    // ========== DATA FILES ==========
+    namespace Data
+    {
+        const std::string FOREST_ATLAS_DEFINITIONS = "ASSETS\\DATA\\forest-atlas-points.txt";
     }
 
     // ========== FONTS ==========

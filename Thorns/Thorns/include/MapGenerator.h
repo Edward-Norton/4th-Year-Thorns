@@ -4,6 +4,7 @@
 #include <memory>
 #include "Map.h"
 #include "VoronoiDiagram.h"
+#include "ObjectPlacer.h"
 
 /// <summary>
 /// Orchestrates procedural map generation pipeline
@@ -11,7 +12,9 @@
 ///         - Divide map into regions
 ///         - Terrain boundaries
 ///         - Ensure POIs are spaced appropriately
-/// Phase 2: (TODO) Perlin noise for terrain density
+/// Phase 2: Perlin noise for object placement
+///         - Trees, rocks, vegetation
+///         - Natural-looking distribution
 /// Phase 3: (TODO) Cellular automata for refinement
 /// Phase 4: (TODO) Dijkstra map for connectivity validation
 /// </summary>
@@ -34,6 +37,12 @@ public:
         unsigned char numVillages = 1;
         unsigned char numFarms = 1;
 
+        // ========== Object Placement (Perlin Noise) ==========
+        bool enableObjectPlacement = true;      // Enable/disable Phase 2
+        double objectFrequency = 0.08;          // Perlin noise frequency
+        int objectOctaves = 2;                  // Number of noise layers
+        double objectThreshold = 0.65;          // Placement threshold
+
     };
 
     MapGenerator();
@@ -48,10 +57,12 @@ public:
 
     // ========== Phase Access (for debugging) ==========
     VoronoiDiagram* getVoronoiDiagram() { return m_voronoi.get(); }
+    ObjectPlacer* getObjectPlacer() { return m_objectPlacer.get(); }
 
 private:
     // ========== Generation Phases ==========
     void phase1_Voronoi(Map* map, const GenerationSettings& settings);
+    void phase2_PerlinObjects(Map* map, const GenerationSettings& settings);
 
     // ========== POI ==========
     // Add default POIs to map (hideout)
@@ -65,6 +76,7 @@ private:
 
     // ========== Algorithm Instances ========== (Only pointers incase pointer to phase later is needed)
     std::unique_ptr<VoronoiDiagram> m_voronoi;
+    std::unique_ptr<ObjectPlacer> m_objectPlacer;
 
     // Store hideout position for Voronoi generation
     sf::Vector2f m_hideoutPosition;

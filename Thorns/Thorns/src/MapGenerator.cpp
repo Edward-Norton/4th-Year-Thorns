@@ -6,6 +6,7 @@
 
 MapGenerator::MapGenerator()
     : m_voronoi(std::make_unique<VoronoiDiagram>())
+    , m_objectPlacer(std::make_unique<ObjectPlacer>())
 {
 }
 
@@ -45,6 +46,14 @@ std::unique_ptr<Map> MapGenerator::generate(const GenerationSettings& settings)
 
     // ========== PERLIN NOISE ==========
     std::cout << "\n--- Phase 2: Perlin Noise ---\n";
+    if (settings.enableObjectPlacement)
+    {
+        phase2_PerlinObjects(map.get(), settings);
+    }
+    else
+    {
+        std::cout << "\n--- Phase 2: Perlin Noise (SKIPPED) ---\n";
+    }
 
     std::cout << "\n--- Phase 3: Cellular Automata ---\n";
 
@@ -93,6 +102,10 @@ void MapGenerator::regenerate(Map* map, const GenerationSettings& settings)
 
     // ========== PERLIN NOISE ==========
     std::cout << "\n--- Phase 2: Perlin Noise ---\n";
+    if (settings.enableObjectPlacement)
+    {
+        phase2_PerlinObjects(map, settings);
+    }
 
     std::cout << "\n--- Phase 3: Cellular Automata ---\n";
 
@@ -202,6 +215,44 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
     {
         std::cout << "  Region " << regionId << ": " << count << " tiles\n";
     }
+}
+
+// ========================================================================================================
+// PHASE 2: PERLIN NOISE OBJECT PLACEMENT
+// ========================================================================================================
+
+void MapGenerator::phase2_PerlinObjects(Map* map, const GenerationSettings& settings)
+{
+    std::cout << "\n--- Phase 2: Perlin Noise Object Placement ---\n";
+
+    // Initialize object placer if needed
+    static bool initialized = false;
+    if (!initialized)
+    {
+        if (!m_objectPlacer->initialize(
+            Assets::Textures::FOREST_ATLAS,
+            Assets::Data::FOREST_ATLAS_DEFINITIONS))
+        {
+            std::cerr << "Failed to initialize ObjectPlacer!\n";
+            return;
+        }
+        initialized = true;
+    }
+
+    // Configure placement settings
+    ObjectPlacer::PlacementSettings placementSettings;
+    placementSettings.frequency = settings.objectFrequency;
+    placementSettings.octaves = settings.objectOctaves;
+    placementSettings.persistence = 0.5;
+    placementSettings.placementThreshold = settings.objectThreshold;
+    placementSettings.objectType = WorldObject::Type::SmallRoot;  // Testing with SmallRoot
+    placementSettings.respectPOIs = true;  // Don't place in POI areas
+    placementSettings.grassOnly = true;    // Only on grass terrain
+
+    // Generate objects
+    m_objectPlacer->generateObjects(map, placementSettings, settings.seed);
+
+    std::cout << "Phase 2 complete: " << m_objectPlacer->getObjectCount() << " objects placed\n";
 }
 
 // ========================================================================================================

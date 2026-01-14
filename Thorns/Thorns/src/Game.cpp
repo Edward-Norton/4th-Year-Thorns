@@ -101,14 +101,21 @@ void Game::generateMap()
     m_mapSettings.mapWidth = 80;
     m_mapSettings.mapHeight = 80;
     m_mapSettings.tileSize = 64.f;
-    m_mapSettings.voronoiSites = 5;
-    m_mapSettings.minSiteDistance = 800.0f;  // Minimum 400 pixels between sites
     m_currentSeed = 12345;
     m_mapSettings.seed = m_currentSeed;
 
+    // ========== PHASE 1: VORONOI SITES SETTINGS ==========
     // POI spawning configuration
+    m_mapSettings.voronoiSites = 5;
+    m_mapSettings.minSiteDistance = 800.0f;  // Minimum 400 pixels between sites
     m_mapSettings.numVillages = 1;
     m_mapSettings.numFarms = 2;
+
+    // ========== PHASE 2: PERLIN NOISE SETTINGS ==========
+    m_mapSettings.enableObjectPlacement = true;  // Enable object placement
+    m_mapSettings.objectFrequency = 0.08;        // Medium-sized patterns
+    m_mapSettings.objectOctaves = 2;             // Some detail variation
+    m_mapSettings.objectThreshold = 0.65;        // Moderately sparse placement
 
     // Generating map
     m_map = m_mapGenerator.generate(m_mapSettings);
@@ -325,8 +332,15 @@ void Game::render()
         if (previousState == GameState::Paused || previousState == GameState::Playing)
         {
             m_window.setView(m_gameView);
-            if (m_map)
+            if (m_map) {
                 m_map->render(m_window);
+
+                // Render procedurally placed objects (Phase 2)
+                if (m_mapGenerator.getObjectPlacer())
+                {
+                    m_mapGenerator.getObjectPlacer()->render(m_window, m_gameView);
+                }
+            }
             m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
             m_player.render(m_window);
             m_enemy.render(m_window);
@@ -339,9 +353,21 @@ void Game::render()
         // Normal gameplay rendering
         m_window.setView(m_gameView);
 
-        if (m_map)
+        if (m_map) {
+            // Layer 1: The Terrain
             m_map->render(m_window);
+
+            // Layer 2: Objects like rocks and trees
+            if (m_mapGenerator.getObjectPlacer())
+            {
+                m_mapGenerator.getObjectPlacer()->render(m_window, m_gameView);
+            }
+        }
+
+        // To be removed, Layer 3 Voronoi
         m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
+
+        //Entities
         m_player.render(m_window);
         m_enemy.render(m_window);
 
@@ -355,10 +381,18 @@ void Game::render()
         // Show frozen game in background with pause menu overlay
         m_window.setView(m_gameView);
         if (m_map)
+        {
             m_map->render(m_window);
-        m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
-        m_player.render(m_window);
-        m_enemy.render(m_window);
+
+            if (m_mapGenerator.getObjectPlacer())
+            {
+                m_mapGenerator.getObjectPlacer()->render(m_window, m_gameView);
+            }
+
+            m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
+            m_player.render(m_window);
+            m_enemy.render(m_window);
+        }
 
         m_window.setView(m_uiView);
         m_pauseMenu.render(m_window);

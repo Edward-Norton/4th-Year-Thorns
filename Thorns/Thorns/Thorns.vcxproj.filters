@@ -117,6 +117,9 @@
     <Image Include="ASSETS\IMAGES\terrain_atlas.png">
       <Filter>Resource Files\IMAGES</Filter>
     </Image>
+    <Image Include="ASSETS\IMAGES\forest_atlas.png">
+      <Filter>Resource Files\IMAGES</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Font Include="ASSETS\FONTS\Jersey20-Regular.ttf">
@@ -181,6 +184,15 @@
       <Filter>Source Files\Algorithms</Filter>
     </ClCompile>
     <ClCompile Include="src\MapGenerator.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PerlinNoise.cpp">
+      <Filter>Source Files\Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WorldObject.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ObjectPlayer.cpp">
       <Filter>Source Files\World</Filter>
     </ClCompile>
   </ItemGroup>
@@ -257,9 +269,21 @@
     <ClInclude Include="include\MapGenerator.h">
       <Filter>Header Files\World</Filter>
     </ClInclude>
+    <ClInclude Include="include\PerlinNoise.h">
+      <Filter>Header Files\Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WorldObject.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ObjectPlacer.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ASSETS\IMAGES\terrain-atlas-points.txt">
+      <Filter>Resource Files\IMAGES</Filter>
+    </Text>
+    <Text Include="ASSETS\IMAGES\forest-atlas-points.txt">
       <Filter>Resource Files\IMAGES</Filter>
     </Text>
   </ItemGroup>
