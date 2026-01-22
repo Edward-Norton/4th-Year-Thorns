@@ -25,6 +25,12 @@ namespace Assets
         const std::string FOREST_ATLAS_DEFINITIONS = "ASSETS\\DATA\\forest-atlas-points.txt";
     }
 
+    // ========== MAPS ==========
+    namespace Maps
+    {
+        const std::string HIDEOUT_TEMPLATE = "ASSETS\\MAPS\\POI_Templates\\hideout.tmx";
+    }
+
     // ========== FONTS ==========
     namespace Fonts
     {

@@ -8,6 +8,7 @@ MapGenerator::MapGenerator()
     : m_voronoi(std::make_unique<VoronoiDiagram>())
     , m_objectPlacer(std::make_unique<ObjectPlacer>())
 {
+    m_poiTemplates.loadTemplate("hideout", "ASSETS/MAPS/POI_Templates/hideout.tmx");
 }
 
 std::unique_ptr<Map> MapGenerator::generate(const GenerationSettings& settings)
@@ -268,7 +269,7 @@ void MapGenerator::setupHideoutPOI(Map* map)
         "Player Hideout",
         PointOfInterest::Type::PlayerHideout,
         m_hideoutPosition,
-        sf::Vector2f(500.0f, 500.0f)  // 200x200 pixel area
+        sf::Vector2f(481.0f, 419.0f)
     );
 
     // Load hideout sprite
@@ -276,6 +277,8 @@ void MapGenerator::setupHideoutPOI(Map* map)
     {
         std::cerr << "Failed to load hideout sprite!\n";
     }
+
+    m_poiTemplates.applyTemplateCollision(hideout.get(), "hideout");
 
     std::cout << "Placed hideout at map center: (" 
               << m_hideoutPosition.x << ", " << m_hideoutPosition.y << ")\n";

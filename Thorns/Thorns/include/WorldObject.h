@@ -6,6 +6,7 @@
 #include "SpriteComponent.h"
 #include "IRenderable.h"
 #include "IPositionable.h"
+#include "ICollidable.h"
 
 /// <summary>
 /// Represents a procedurally placed object in the world (trees, rocks, etc.)
@@ -15,7 +16,7 @@
 /// - Lightweight: Only stores position and sprite reference
 /// - Batched rendering: Multiple objects share same texture atlas
 /// </summary>
-class WorldObject : public IRenderable, public IPositionable
+class WorldObject : public IRenderable, public IPositionable, public ICollidable
 {
 public:
     /// Object type determines sprite and placement rules
@@ -39,12 +40,14 @@ public:
     sf::Vector2f getPosition() const override { return m_worldPosition; }
     void setPosition(const sf::Vector2f& pos) override;
 
+    // ICollidable implementation
+    sf::FloatRect getBounds() const override;
+
     // ========== Configuration ==========
     bool loadSprite(const std::string& atlasPath, const sf::IntRect& textureRect, const sf::Vector2f& size);
 
     // ========== Queries ==========
     Type getType() const { return m_type; }
-    sf::FloatRect getBounds() const;
     bool isValid() const;
 
 private:

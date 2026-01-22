@@ -290,6 +290,30 @@ void Game::updatePlaying(sf::Time deltaTime)
     // Update player with input and mouse position
     m_player.updateWithInput(deltaTime, m_input, getMouseWorldPosition());
 
+    // Check collision with world (POIs, trees, rocks, etc.)
+    sf::FloatRect playerBounds = m_player.getBounds();
+    auto collision = m_collisionManager.checkWorldCollisionDetailed(playerBounds, m_map.get());
+
+    if (collision.collided)
+    {
+        // Push player out of collision
+        sf::Vector2f correction = m_collisionManager.resolveCollision(collision);
+        m_player.setPosition(m_player.getPosition() + correction);
+    }
+
+    // Check collision with procedurally placed objects (trees, rocks)
+    if (m_mapGenerator.getObjectPlacer())
+    {
+        const auto& worldObjects = m_mapGenerator.getObjectPlacer()->getObjects();
+        auto objectCollision = m_collisionManager.checkCollisionWith(playerBounds, worldObjects);
+
+        if (objectCollision.collided)
+        {
+            sf::Vector2f correction = m_collisionManager.resolveCollision(objectCollision);
+            m_player.setPosition(m_player.getPosition() + correction);
+        }
+    }
+
     //==============================================================================================<<<<< REMOVE THE BELOW WHEN DONT HAVE TO DEBUG
     // Check for map regeneration (R key)
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R))

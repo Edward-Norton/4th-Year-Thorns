@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="48" tileheight="42" infinite="0" nextlayerid="4" nextobjectid="38">
+ <objectgroup id="3" name="Collision" locked="1" offsetx="48" offsety="13">
+  <object id="4" name="entrance_wall_right_01" x="368.077" y="187.045" width="57.884" height="19.8755"/>
+  <object id="9" name="far_right_wall" x="405.875" y="-4.98207" width="20.0909" height="192.01"/>
+  <object id="10" name="top_wall" x="-42.0938" y="-4.9375" width="447.906" height="19.8125"/>
+  <object id="11" name="entrance_wall_left_02" x="-42.0938" y="14.9375" width="20.0707" height="37.9742"/>
+  <object id="12" name="door_hinge_top_01" x="91.0425" y="14.913" width="9.94348" height="6.13043"/>
+  <object id="15" name="far_left_wall" x="-41.9375" y="117.125" width="19.875" height="281.815"/>
+  <object id="16" name="bottom_wall" x="-22" y="379" width="319.934" height="19.8182"/>
+  <object id="17" name="bathroom_wall" x="278.063" y="187.063" width="19.875" height="191.813"/>
+  <object id="18" name="bedroom_wall_divider" x="187.125" y="277" width="9.625" height="101.943"/>
+  <object id="19" name="entrance_wall_right_02" x="298.063" y="187.043" width="5.875" height="20"/>
+  <object id="20" name="bathroom_wall_01" x="176.545" y="192.055" width="101.474" height="9.86166"/>
+  <object id="21" name="bathroom_door_hinge" x="187" y="202.063" width="10" height="10.9375"/>
+  <object id="22" name="bedroom_entrance_01" x="-22.0028" y="191.909" width="37.821" height="10.0341"/>
+  <object id="23" name="bedroom_entrance_02" x="80.0625" y="192.063" width="31.875" height="9.875"/>
+  <object id="24" name="middle_wall_divider" x="91" y="85.0909" width="9.96023" height="106.92"/>
+  <object id="25" name="right_wall_divider" x="283.043" y="85.0435" width="9.95652" height="101.985"/>
+  <object id="26" name="cabinet" x="-18.75" y="18.125" width="63.5" height="28.625"/>
+  <object id="27" name="kitchen_counter" x="105.125" y="104.719" width="28.9375" height="64.1875"/>
+  <object id="28" name="top_door_hinge" x="283.044" y="14.9556" width="9.91111" height="6"/>
+  <object id="29" name="chair" x="364.17" y="33.8245" width="26.2041" height="30.625" rotation="332.152"/>
+  <object id="30" name="bed" x="138.125" y="291.75" width="46.625" height="86.125"/>
+  <object id="31" name="bathtub" x="199.75" y="310.75" width="31.375" height="64.5"/>
+  <object id="33" name="wood_pile_01" x="299.273" y="306.091" width="20.7273" height="9.45455"/>
+  <object id="34" name="wood_pile_02" x="299.182" y="315.818" width="27.4545" height="11.1818"/>
+  <object id="35" name="wood_pile_04" x="299.636" y="358.636" width="21.9091" height="26.1818"/>
+  <object id="36" name="wood_pile_03" x="299.818" y="327.364" width="23.8182" height="30.7273"/>
+  <object id="37" name="lamp" x="-15.852" y="351.192" width="24.25" height="23.7811" rotation="6.03363"/>
+ </objectgroup>
+</map>

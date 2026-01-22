@@ -12,6 +12,7 @@
 #include "IUpdatable.h"
 #include "Map.h"
 #include "MapGenerator.h"
+#include "CollisionManager.h"
 
 class Game : IUpdatable
 {
@@ -79,6 +80,7 @@ private:
 
     // ========== Systems ==========
     GameStateManager m_stateManager;  // Manages state transitions
+    CollisionManager m_collisionManager;    // Manages Collision between objects and entities. 
     InputController m_input;          // Handles keyboard/gamepad input
     ScreenSettings m_screenSettings;  // Manages resolution and fullscreen
 

@@ -135,9 +135,6 @@
     </Media>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Enemy.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
@@ -197,6 +194,15 @@
     </ClCompile>
     <ClCompile Include="src\ObjectPlacer.cpp">
       <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="src\POITemplate.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CollisionManager.cpp">
+      <Filter>Source Files\Managers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -280,6 +286,12 @@
     </ClInclude>
     <ClInclude Include="include\ObjectPlacer.h">
       <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="include\POITemplate.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CollisionManager.h">
+      <Filter>Header Files\Managers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

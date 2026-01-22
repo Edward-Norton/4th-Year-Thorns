@@ -5,6 +5,7 @@
 #include "Map.h"
 #include "VoronoiDiagram.h"
 #include "ObjectPlacer.h"
+#include "POITemplate.h"
 
 /// <summary>
 /// Orchestrates procedural map generation pipeline
@@ -80,6 +81,8 @@ private:
 
     // Store hideout position for Voronoi generation
     sf::Vector2f m_hideoutPosition;
+
+    POITemplateManager m_poiTemplates;
 };
 
 #endif

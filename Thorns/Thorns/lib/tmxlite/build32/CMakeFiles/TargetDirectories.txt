@@ -1,0 +1,4 @@
+C:/tmxlite-master/tmxlite/build32/CMakeFiles/tmxlite.dir
+C:/tmxlite-master/tmxlite/build32/CMakeFiles/INSTALL.dir
+C:/tmxlite-master/tmxlite/build32/CMakeFiles/ALL_BUILD.dir
+C:/tmxlite-master/tmxlite/build32/CMakeFiles/ZERO_CHECK.dir
