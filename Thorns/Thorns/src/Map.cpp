@@ -123,39 +123,39 @@ bool Map::isInsidePOI(const sf::Vector2f& worldPos) const
 
 void Map::markPOITiles()
 {
-    // Mark all tiles that fall within POI bounds as POI terrain
-    // PN: Only to do this for the border tiles, no need to take in all the data just a general idea. 
-
     for (const auto& poi : m_pois)
     {
         if (!poi->isBlocking())
             continue;
 
-        sf::FloatRect bounds = poi->getVisualBounds();
+        const auto& collisionRects = poi->getCollisionRects();
 
-        // Get tile range covered by POI
-        sf::Vector2i topLeft = worldToTile(sf::Vector2f(bounds.position));
-        sf::Vector2i bottomRight = worldToTile(sf::Vector2f(
-            bounds.position.x + bounds.size.x,
-            bounds.position.y + bounds.size.y
-        ));
-
-        // Clamp to valid tile range
-        topLeft.x = std::max(0, topLeft.x);
-        topLeft.y = std::max(0, topLeft.y);
-        bottomRight.x = std::min(m_width - 1, bottomRight.x);
-        bottomRight.y = std::min(m_height - 1, bottomRight.y);
-
-        // Mark tiles in range (This is the grass area under)
-        for (int y = topLeft.y; y <= bottomRight.y; ++y)
+        for (const auto& rect : collisionRects)
         {
-            for (int x = topLeft.x; x <= bottomRight.x; ++x)
+            // Get tile range covered by this collision rect
+            sf::Vector2i topLeft = worldToTile(sf::Vector2f(rect.position));
+            sf::Vector2i bottomRight = worldToTile(sf::Vector2f(
+                rect.position.x + rect.size.x,
+                rect.position.y + rect.size.y
+            ));
+
+            // Clamp to valid tile range
+            topLeft.x = std::max(0, topLeft.x);
+            topLeft.y = std::max(0, topLeft.y);
+            bottomRight.x = std::min(m_width - 1, bottomRight.x);
+            bottomRight.y = std::min(m_height - 1, bottomRight.y);
+
+            // Mark tiles covered by collision rects as POI
+            for (int y = topLeft.y; y <= bottomRight.y; ++y)
             {
-                MapTile* tile = getTile(x, y);
-                if (tile)
+                for (int x = topLeft.x; x <= bottomRight.x; ++x)
                 {
-                    tile->setTerrainType(MapTile::TerrainType::POI);
-                    tile->setWalkable(false);
+                    MapTile* tile = getTile(x, y);
+                    if (tile)
+                    {
+                        tile->setTerrainType(MapTile::TerrainType::POI);
+                        tile->setWalkable(false);
+                    }
                 }
             }
         }

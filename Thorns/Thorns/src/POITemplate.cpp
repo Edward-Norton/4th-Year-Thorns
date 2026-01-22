@@ -102,7 +102,11 @@ std::vector<sf::FloatRect> POITemplateManager::extractCollisionRects(const tmx::
         if (layer->getName() != "Collision")
             continue;
 
-        const auto& objects = layer->getLayerAs<tmx::ObjectGroup>().getObjects();
+        const auto& objectGroup = layer->getLayerAs<tmx::ObjectGroup>();
+        const auto& objects = objectGroup.getObjects();
+
+        // Get layer offset (critical!)
+        const auto& layerOffset = objectGroup.getOffset();
 
         for (const auto& obj : objects)
         {
@@ -111,8 +115,8 @@ std::vector<sf::FloatRect> POITemplateManager::extractCollisionRects(const tmx::
             rects.push_back(
                 sf::FloatRect(
                     sf::Vector2f(
-                        static_cast<float>(aabb.left),
-                        static_cast<float>(aabb.top)
+                        static_cast<float>(aabb.left + layerOffset.x),  // Add offset X
+                        static_cast<float>(aabb.top + layerOffset.y)    // Add offset Y
                     ),
                     sf::Vector2f(
                         static_cast<float>(aabb.width),
