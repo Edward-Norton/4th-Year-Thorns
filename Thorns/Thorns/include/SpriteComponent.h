@@ -24,6 +24,9 @@ public:
     // Load texture region from atlas (for sprite sheets)
     bool loadTexture(const std::string& texturePath, float width, float height, const sf::IntRect& textureRect);
 
+
+    bool setSharedTexture(const sf::Texture& sharedTexture, float width, float height, const sf::IntRect& textureRect);
+
     // ========== IRenderable ==========
     void render(sf::RenderTarget& target) const override;
 

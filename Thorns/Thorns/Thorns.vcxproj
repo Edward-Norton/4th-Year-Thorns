@@ -49,6 +49,7 @@
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\PointOfInterest.cpp" />
     <ClCompile Include="src\POITemplate.cpp" />
+    <ClCompile Include="src\POITypeConfig.cpp" />
     <ClCompile Include="src\ScreenSettings.cpp" />
     <ClCompile Include="src\SettingsMenu.cpp" />
     <ClCompile Include="src\SpriteComponent.cpp" />
@@ -80,6 +81,7 @@
     <ClInclude Include="include\Player.h" />
     <ClInclude Include="include\PointOfInterest.h" />
     <ClInclude Include="include\POITemplate.h" />
+    <ClInclude Include="include\POITypeConfig.h" />
     <ClInclude Include="include\ScreenSettings.h" />
     <ClInclude Include="include\SettingsMenu.h" />
     <ClInclude Include="include\SpriteComponent.h" />

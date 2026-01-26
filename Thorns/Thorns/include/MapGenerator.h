@@ -6,6 +6,7 @@
 #include "VoronoiDiagram.h"
 #include "ObjectPlacer.h"
 #include "POITemplate.h"
+#include "POITypeConfig.h"
 
 /// <summary>
 /// Orchestrates procedural map generation pipeline
@@ -72,6 +73,14 @@ private:
     // Spawn POIs at Voronoi sites based on settings
     void spawnPOIsAtSites(Map* map, const GenerationSettings& settings);
 
+    POIConfigRegistry m_poiConfig;
+    POITemplateManager m_poiTemplates;
+
+    std::unique_ptr<PointOfInterest> createPOI(
+        PointOfInterest::Type type,
+        const sf::Vector2f& position,
+        int instanceNumber);
+
     // Helper to pick random POI type
     PointOfInterest::Type getRandomPOIType(int& villagesLeft, int& farmsLeft,std::mt19937& rng);
 
@@ -82,7 +91,9 @@ private:
     // Store hideout position for Voronoi generation
     sf::Vector2f m_hideoutPosition;
 
-    POITemplateManager m_poiTemplates;
+    // Other locals
+    bool m_perlinAssetsInit = false;
+
 };
 
 #endif

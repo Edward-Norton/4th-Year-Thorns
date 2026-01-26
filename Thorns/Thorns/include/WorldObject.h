@@ -44,7 +44,7 @@ public:
     sf::FloatRect getBounds() const override;
 
     // ========== Configuration ==========
-    bool loadSprite(const std::string& atlasPath, const sf::IntRect& textureRect, const sf::Vector2f& size);
+    bool loadSpriteFromTexture(const sf::Texture& sharedTexture, const sf::IntRect& textureRect, const sf::Vector2f& size);
 
     // ========== Queries ==========
     Type getType() const { return m_type; }

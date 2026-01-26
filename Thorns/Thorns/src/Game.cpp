@@ -98,8 +98,8 @@ void Game::setupMenus()
 void Game::generateMap()
 {
     // Configure generation settings (Defaults in base class, change here for testing)
-    m_mapSettings.mapWidth = 80;
-    m_mapSettings.mapHeight = 80;
+    m_mapSettings.mapWidth = 160;
+    m_mapSettings.mapHeight = 160;
     m_mapSettings.tileSize = 64.f;
     m_currentSeed = 12345;
     m_mapSettings.seed = m_currentSeed;

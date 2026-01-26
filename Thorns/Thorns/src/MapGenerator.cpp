@@ -157,7 +157,7 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
                 continue;
 
             // Skip POI tiles (hideout area)
-            if (tile->getTerrainType() == MapTile::TerrainType::POI)
+            if (tile->getTerrainType() == MapTile::TerrainType::POI_Collision)
                 continue;
 
             // Get tile world position
@@ -226,9 +226,8 @@ void MapGenerator::phase2_PerlinObjects(Map* map, const GenerationSettings& sett
 {
     std::cout << "\n--- Phase 2: Perlin Noise Object Placement ---\n";
 
-    // Initialize object placer if needed
-    static bool initialized = false;
-    if (!initialized)
+    // Prevent assets being initalized again upon regeneration. 
+    if (!m_perlinAssetsInit)
     {
         if (!m_objectPlacer->initialize(
             Assets::Textures::FOREST_ATLAS,
@@ -237,7 +236,7 @@ void MapGenerator::phase2_PerlinObjects(Map* map, const GenerationSettings& sett
             std::cerr << "Failed to initialize ObjectPlacer!\n";
             return;
         }
-        initialized = true;
+        m_perlinAssetsInit = true;
     }
 
     // Configure placement settings
@@ -296,7 +295,6 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
         return;
     }
 
-    // Calculate total POIs to spawn
     int totalPOIs = settings.numVillages + settings.numFarms;
 
     if (totalPOIs > static_cast<int>(sites.size()))
@@ -306,32 +304,23 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
         totalPOIs = static_cast<int>(sites.size());
     }
 
-    // Setup RNG for random site selection
     std::mt19937 rng(settings.seed == 0 ? std::random_device{}() : settings.seed);
     std::uniform_int_distribution<int> siteDist(0, static_cast<int>(sites.size()) - 1);
 
-    // Track remaining POIs to spawn
     int villagesLeft = settings.numVillages;
     int farmsLeft = settings.numFarms;
-
-    // Track used site indices
     std::vector<bool> usedSites(sites.size(), false);
 
-    // Get map bounds for edge detection
     sf::Vector2f worldSize = map->getWorldSize();
-    const float edgeMargin = 600.f; // Keep POIs 600px from edges (to accommodate 500x500 sprites)
 
-    // Spawn POIs
     int poisSpawned = 0;
     int attempts = 0;
     const int maxAttempts = totalPOIs * 20;
 
     while (poisSpawned < totalPOIs && attempts < maxAttempts)
     {
-        // Pick random site
         int siteIndex = siteDist(rng);
 
-        // Skip if already used
         if (usedSites[siteIndex])
         {
             ++attempts;
@@ -340,75 +329,49 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
 
         const VoronoiSite& site = sites[siteIndex];
 
-        // Determine POI type
         PointOfInterest::Type poiType = getRandomPOIType(villagesLeft, farmsLeft, rng);
 
-        // Get name and size based on type
-        std::string name;
-        sf::Vector2f size;
-        std::string spritePath;
-
-        switch (poiType)
+        const POITypeConfig* config = m_poiConfig.getConfig(poiType);
+        if (!config)
         {
-        case PointOfInterest::Type::Village:
-            name = "Village " + std::to_string(settings.numVillages - villagesLeft + 1);
-            size = sf::Vector2f(500.f, 500.f);
-            spritePath = "";
-            break;
-        case PointOfInterest::Type::Farm:
-            name = "Farm " + std::to_string(settings.numFarms - farmsLeft + 1);
-            size = sf::Vector2f(500.f, 500.f);
-            spritePath = Assets::Textures::FARM_SPRITE;
-            break;
-        default:
-            name = "Unknown POI";
-            size = sf::Vector2f(150.f, 150.f);
-            spritePath = "";
-            break;
+            std::cerr << "No config found for POI type\n";
+            ++attempts;
+            continue;
         }
 
-        // Check if POI would be too close to map edges
-        float halfWidth = size.x / 2.f;
-        float halfHeight = size.y / 2.f;
+        float halfWidth = config->size.x / 2.f;
+        float halfHeight = config->size.y / 2.f;
+
+        float edgeMargin = std::max(config->size.x, config->size.y) / 2.f + 200.f;
 
         if (site.position.x - halfWidth < edgeMargin ||
             site.position.x + halfWidth > worldSize.x - edgeMargin ||
             site.position.y - halfHeight < edgeMargin ||
             site.position.y + halfHeight > worldSize.y - edgeMargin)
         {
-            // Too close to edge, skip this site
             std::cout << "Skipped site " << siteIndex << " - too close to map edge\n";
-            usedSites[siteIndex] = true; // Mark as used so we don't try again
+            usedSites[siteIndex] = true;
             ++attempts;
             continue;
         }
 
-        // Create POI at site position
-        auto poi = std::make_unique<PointOfInterest>(name, poiType, site.position, size);
+        int instanceNumber = (poiType == PointOfInterest::Type::Village)
+            ? (settings.numVillages - villagesLeft + 1)
+            : (settings.numFarms - farmsLeft + 1);
 
-        // Load sprite if path is available
-        if (!spritePath.empty())
+        auto poi = createPOI(poiType, site.position, instanceNumber);
+
+        if (poi)
         {
-            if (!poi->loadSprite(spritePath))
-            {
-                std::cerr << "Warning: Failed to load sprite for " << name << "\n";
-            }
+            std::cout << "Spawned " << poi->getName() << " at Voronoi site " << siteIndex
+                << " (pos: " << site.position.x << ", " << site.position.y << ")\n";
+
+            map->addPOI(std::move(poi));
+            usedSites[siteIndex] = true;
+            m_voronoi->markSiteWithPOI(site.regionId);
+            ++poisSpawned;
         }
-        else
-        {
-            std::cout << "Note: No sprite path for " << name << " (will use defaults)\n";
-        }
 
-        std::cout << "Spawned " << name << " at Voronoi site " << siteIndex
-            << " (pos: " << site.position.x << ", " << site.position.y << ")\n";
-
-        map->addPOI(std::move(poi));
-
-        // Mark site as used and having POI
-        usedSites[siteIndex] = true;
-        m_voronoi->markSiteWithPOI(site.regionId);
-
-        ++poisSpawned;
         ++attempts;
     }
 
@@ -421,6 +384,54 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
     std::cout << "POI spawning complete: " << poisSpawned << " POIs placed\n";
 }
 
+
+std::unique_ptr<PointOfInterest> MapGenerator::createPOI(
+    PointOfInterest::Type type,
+    const sf::Vector2f& position,
+    int instanceNumber)
+{
+    const POITypeConfig* config = m_poiConfig.getConfig(type);
+    if (!config)
+    {
+        std::cerr << "Cannot create POI: No config for type\n";
+        return nullptr;
+    }
+
+    std::string name = config->name + " " + std::to_string(instanceNumber);
+
+    auto poi = std::make_unique<PointOfInterest>(
+        name,
+        type,
+        position,
+        config->size
+    );
+
+    if (!config->spritePath.empty())
+    {
+        if (!poi->loadSprite(config->spritePath))
+        {
+            std::cerr << "Warning: Failed to load sprite for " << name << "\n";
+        }
+    }
+
+    if (!config->templatePath.empty())
+    {
+        std::string templateName = config->name;
+        std::transform(templateName.begin(), templateName.end(),
+            templateName.begin(), ::tolower);
+
+        if (m_poiTemplates.hasTemplate(templateName))
+        {
+            m_poiTemplates.applyTemplateCollision(poi.get(), templateName);
+        }
+        else
+        {
+            std::cerr << "Warning: No template found for " << templateName << "\n";
+        }
+    }
+
+    return poi;
+}
 
 PointOfInterest::Type MapGenerator::getRandomPOIType(int& villagesLeft, int& farmsLeft, std::mt19937& rng)
 {

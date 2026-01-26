@@ -26,7 +26,7 @@ sf::Color MapTile::getDebugColor() const
         return sf::Color(50, 100, 200);  // Blue
     case TerrainType::Stone:
         return sf::Color(128, 128, 128); // Gray
-    case TerrainType::POI:
+    case TerrainType::POI_Collision:
         return sf::Color(200, 50, 50);   // Red
     default:
         return sf::Color::Magenta;        // Error color

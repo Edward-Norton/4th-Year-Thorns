@@ -3,19 +3,13 @@
 #include <algorithm>
 #include <iostream>
 
-// ========================================================================================================
-// CONSTRUCTION
-// ========================================================================================================
-
 PerlinNoise::PerlinNoise()
 {
     // Initialize with Ken Perlin's reference permutation
     m_permutation.resize(256);
 
-    // Fill with values 0-255
     std::iota(m_permutation.begin(), m_permutation.end(), 0);
 
-    // Duplicate for easy wrapping (avoids modulo operations)
     m_permutation.insert(m_permutation.end(), m_permutation.begin(), m_permutation.end());
 }
 

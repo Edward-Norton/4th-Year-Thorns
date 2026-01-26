@@ -25,24 +25,6 @@ void WorldObject::setPosition(const sf::Vector2f& pos)
     }
 }
 
-bool WorldObject::loadSprite(const std::string& atlasPath, const sf::IntRect& textureRect, const sf::Vector2f& size)
-{
-    m_sprite = std::make_unique<SpriteComponent>();
-
-    if (!m_sprite->loadTexture(atlasPath, size.x, size.y, textureRect))
-    {
-        std::cerr << "Failed to load WorldObject sprite from atlas\n";
-        m_sprite.reset();
-        return false;
-    }
-
-    // Center sprite origin for proper positioning
-    m_sprite->centerOrigin();
-    m_sprite->setPosition(m_worldPosition);
-
-    return true;
-}
-
 sf::FloatRect WorldObject::getBounds() const
 {
     if (m_sprite && m_sprite->isValid())
@@ -53,6 +35,25 @@ sf::FloatRect WorldObject::getBounds() const
     // Fallback: small bounds at position
     return sf::FloatRect(sf::Vector2f(m_worldPosition.x - 16.f, m_worldPosition.y - 16.f),
         sf::Vector2f(32.f, 32.f));
+}
+
+bool WorldObject::loadSpriteFromTexture(const sf::Texture& sharedTexture, const sf::IntRect& textureRect, const sf::Vector2f& size)
+{
+    m_sprite = std::make_unique<SpriteComponent>();
+
+    // Use the shared texture instead of loading from file
+    if (!m_sprite->setSharedTexture(sharedTexture, size.x, size.y, textureRect))
+    {
+        std::cerr << "Failed to set shared texture for WorldObject\n";
+        m_sprite.reset();
+        return false;
+    }
+
+    // Center sprite origin for proper positioning
+    m_sprite->centerOrigin();
+    m_sprite->setPosition(m_worldPosition);
+
+    return true;
 }
 
 bool WorldObject::isValid() const

@@ -107,6 +107,10 @@ private:
     std::unique_ptr<PerlinNoise> m_perlin;
     std::vector<std::unique_ptr<WorldObject>> m_objects;
 
+    // Shared single atlas
+    sf::Texture m_sharedAtlasTexture;
+    bool m_atlasTextureLoaded;
+
     // Object atlas
     std::string m_atlasPath;
     std::unordered_map<WorldObject::Type, ObjectDefinition> m_definitions;

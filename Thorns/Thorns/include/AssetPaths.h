@@ -11,7 +11,10 @@ namespace Assets
         const std::string PLAYER_ATLAS = "ASSETS\\IMAGES\\player_atlas.png";
         const std::string ENEMY_SHIP = "ASSETS\\IMAGES\\EnemyShip.png";
         const std::string TERRAIN_ATLAS = "ASSETS\\IMAGES\\terrain_atlas.png";
+
+        // POIS
         const std::string HIDEOUT_SPRITE = "ASSETS\\IMAGES\\hideout_1.png";
+        const std::string FARM_SPRITE_DEFAULT = "Farm_Default_Size.png";
         const std::string FARM_SPRITE = "ASSETS\\IMAGES\\Farm.png";
 
         // Forest Objects
@@ -23,6 +26,7 @@ namespace Assets
     namespace Data
     {
         const std::string FOREST_ATLAS_DEFINITIONS = "ASSETS\\DATA\\forest-atlas-points.txt";
+        const std::string FARM_DEFINITIONS = "ASSETS\\DATA\\farm-points.txt";
     }
 
     // ========== MAPS ==========

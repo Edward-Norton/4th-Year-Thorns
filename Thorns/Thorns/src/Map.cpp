@@ -151,9 +151,9 @@ void Map::markPOITiles()
                 for (int x = topLeft.x; x <= bottomRight.x; ++x)
                 {
                     MapTile* tile = getTile(x, y);
-                    if (tile)
+                    if (tile->getTerrainType() != MapTile::TerrainType::POI_Collision)
                     {
-                        tile->setTerrainType(MapTile::TerrainType::POI);
+                        // Keep existing terrain, just mark as collision
                         tile->setWalkable(false);
                     }
                 }
@@ -226,17 +226,9 @@ void Map::renderTerrain(sf::RenderTarget& target, const sf::View& view) const
             if (!tile)
                 continue;
 
-            // Skip POI tiles (they're rendered as sprites separately)
-            if (tile->getTerrainType() == MapTile::TerrainType::POI)
-                continue;
-
-            // Get texture rect for this terrain type
             sf::IntRect texRect = getTerrainTextureRect(tile->getTerrainType());
-
-            // Update shared sprite's texture rect
             m_sharedSprite->setTextureRect(texRect);
 
-            // Position sprite at tile's top-left corner
             float worldX = x * m_tileSize;
             float worldY = y * m_tileSize;
             m_sharedSprite->setPosition(sf::Vector2f(
@@ -244,7 +236,6 @@ void Map::renderTerrain(sf::RenderTarget& target, const sf::View& view) const
                 std::round(worldY)
             ));
 
-            // Render this tile
             m_sharedSprite->render(target);
         }
     }

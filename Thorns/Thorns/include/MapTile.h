@@ -30,7 +30,8 @@ public:
         Stone,          // Rocky terrain or boulders
 
         // These are red for now
-        POI             // Part of a Point of Interest
+        POI_Collision             // Part of a Point of Interest
+
     };
 
     MapTile();

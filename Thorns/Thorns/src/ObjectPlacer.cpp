@@ -9,12 +9,28 @@
 ObjectPlacer::ObjectPlacer()
     : m_perlin(nullptr)
     , m_initialized(false)
+    , m_atlasTextureLoaded(false)
 {
 }
 
+// Documentation notes:
+/// <summary>
+/// Forgot to make the atlas shared between all the objects, so each had their own causing massive memory issue. 
+/// This is resolved now by making them all reference the texture rather than owning all, so it was doing 1000x5MB for example
+/// </summary>
 bool ObjectPlacer::initialize(const std::string& atlasPath, const std::string& definitionsPath)
 {
     m_atlasPath = atlasPath;
+
+    if (!m_sharedAtlasTexture.loadFromFile(atlasPath))
+    {
+        std::cerr << "ObjectPlacer: Failed to load texture atlas: " << atlasPath << "\n";
+        m_atlasTextureLoaded = false;
+        return false;
+    }
+
+    m_atlasTextureLoaded = true;
+    std::cout << "ObjectPlacer: Loaded shared texture atlas: " << atlasPath << "\n";
 
     // Parse object definitions
     if (!parseDefinitions(definitionsPath))
@@ -77,8 +93,7 @@ bool ObjectPlacer::parseDefinitions(const std::string& definitionsPath)
         def.textureRect = sf::IntRect(sf::Vector2i(x, y), sf::Vector2i(width, height));
 
         // Scale down large objects to fit in world better
-        // Adjust these scale factors as needed
-        float scale = 0.5f;  // 50% of original size
+        float scale = 0.5f;
         def.size = sf::Vector2f(width * scale, height * scale);
 
         m_definitions[type] = def;
@@ -102,7 +117,7 @@ void ObjectPlacer::generateObjects(Map* map, const PlacementSettings& settings, 
     clearObjects();
 
     // Initialize Perlin noise with seed
-    m_perlin = std::make_unique<PerlinNoise>(seed + 1000); // Offset seed to differ from Voronoi
+    m_perlin = std::make_unique<PerlinNoise>(seed);
 
     std::cout << "\n--- Phase 2: Perlin Noise Object Placement ---\n";
     std::cout << "Parameters:\n";
@@ -119,7 +134,7 @@ void ObjectPlacer::generateObjects(Map* map, const PlacementSettings& settings, 
         return;
     }
 
-    // Sample every Nth tile for performance (adjust as needed)
+    // Sample every (n)th tile, might change depending on performance later
     const int sampleStep = 2;  // Check every 2nd tile
 
     int width = map->getWidth();
@@ -157,7 +172,7 @@ void ObjectPlacer::generateObjects(Map* map, const PlacementSettings& settings, 
                 auto object = std::make_unique<WorldObject>(settings.objectType, worldPos);
 
                 // Load sprite from atlas
-                if (object->loadSprite(m_atlasPath, def->textureRect, def->size))
+                if (object->loadSpriteFromTexture(m_sharedAtlasTexture, def->textureRect, def->size))
                 {
                     m_objects.push_back(std::move(object));
                     ++objectsPlaced;

@@ -358,7 +358,7 @@ void VoronoiDiagram::assignTilesToRegionsSP(Map* map)
                 continue;
 
             // Skip POI tiles
-            if (tile->getTerrainType() == MapTile::TerrainType::POI)
+            if (tile->getTerrainType() == MapTile::TerrainType::POI_Collision)
                 continue;
 
             // Get world position of tile center
