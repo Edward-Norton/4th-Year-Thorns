@@ -44,7 +44,7 @@ public:
     int getWidth() const { return m_width; }
     int getHeight() const { return m_height; }
     float getTileSize() const { return m_tileSize; }
-    /// Get total world size in pixels
+    // Get total world size in pixels
     sf::Vector2f getWorldSize() const;
 
     // ========== Points of Interest ==========

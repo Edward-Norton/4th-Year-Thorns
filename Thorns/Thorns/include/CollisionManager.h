@@ -18,7 +18,7 @@ public:
     CollisionManager();
     ~CollisionManager() = default;
 
-    /// Collision result with detailed information
+    // Collision result with detailed information
     struct CollisionResult
     {
         bool collided;
@@ -26,26 +26,26 @@ public:
         const ICollidable* collidedWith;
     };
 
-    /// Check if entity collides with any world object
+    // Check if entity collides with any world object
     bool checkWorldCollision(const sf::FloatRect& entityBounds, const Map* map) const;
 
-    /// Check collision with world and return detailed result
+    // Check collision with world and return detailed result
     CollisionResult checkWorldCollisionDetailed(const sf::FloatRect& entityBounds, const Map* map) const;
 
-    /// Check collision against a collection of collidable objects
+    // Check collision against a collection of collidable objects
     template<typename T>
     CollisionResult checkCollisionWith(const sf::FloatRect& entityBounds,
         const std::vector<std::unique_ptr<T>>& objects) const;
 
-    /// Resolve collision by calculating correction vector
+    // Resolve collision by calculating correction vector
     sf::Vector2f resolveCollision(const CollisionResult& collision) const;
 
 private:
-    /// Calculate minimum translation vector to separate two rectangles
+    // Calculate minimum translation vector to separate two rectangles
     sf::Vector2f getMinimumTranslationVector(const sf::FloatRect& a, const sf::FloatRect& b) const;
 };
 
-/// Template implementation for generic collision checking
+// Template implementation for generic collision checking
 template<typename T>
 CollisionManager::CollisionResult CollisionManager::checkCollisionWith(
     const sf::FloatRect& entityBounds,

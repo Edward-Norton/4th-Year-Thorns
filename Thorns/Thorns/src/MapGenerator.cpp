@@ -368,7 +368,6 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
 
             map->addPOI(std::move(poi));
             usedSites[siteIndex] = true;
-            m_voronoi->markSiteWithPOI(site.regionId);
             ++poisSpawned;
         }
 

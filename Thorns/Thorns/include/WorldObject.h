@@ -19,7 +19,7 @@
 class WorldObject : public IRenderable, public IPositionable, public ICollidable
 {
 public:
-    /// Object type determines sprite and placement rules
+    // Object type determines sprite and placement rules
     enum class Type
     {
         SmallRoot,      // Small tree roots (testing)

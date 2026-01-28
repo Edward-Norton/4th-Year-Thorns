@@ -9,7 +9,7 @@
 
 
 /// <summary>
-/// Simple button Component class to handle composition of buttons needed for other classes. 
+/// Simple button Component class to handle composition of buttons needed for other classes.
 /// </summary>
 
 enum class ButtonState

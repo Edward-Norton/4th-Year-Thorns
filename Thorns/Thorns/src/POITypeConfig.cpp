@@ -11,11 +11,13 @@ POIConfigRegistry::POIConfigRegistry()
 
 void POIConfigRegistry::registerPOIType(PointOfInterest::Type type, const POITypeConfig& config)
 {
+    // Store to map
     m_configs[type] = config;
 }
 
 const POITypeConfig* POIConfigRegistry::getConfig(PointOfInterest::Type type) const
 {
+    // Get it and fnd it
     auto it = m_configs.find(type);
     if (it != m_configs.end())
         return &it->second;
@@ -24,6 +26,7 @@ const POITypeConfig* POIConfigRegistry::getConfig(PointOfInterest::Type type) co
 
 bool POIConfigRegistry::hasConfig(PointOfInterest::Type type) const
 {
+    // Checker
     return m_configs.find(type) != m_configs.end();
 }
 
@@ -69,6 +72,7 @@ void POIConfigRegistry::loadDefaultConfigs()
     }
 }
 
+// Read the def path for the POI size based on the file given
 sf::Vector2f POIConfigRegistry::parseSizeFromDefinition(const std::string& definitionPath) const
 {
     std::ifstream file(definitionPath);

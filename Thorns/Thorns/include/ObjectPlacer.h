@@ -28,7 +28,7 @@ class Map;
 class ObjectPlacer
 {
 public:
-    /// Configuration for object placement
+    // Configuration for object placement
     struct PlacementSettings
     {
         // ========== Noise Parameters ==========
@@ -53,26 +53,23 @@ public:
 
     // ========== Initialization ==========
 
-    /// Load object atlas and parse object definitions
+    // Load object atlas and parse object definitions
     bool initialize(const std::string& atlasPath, const std::string& definitionsPath);
 
     // ========== Object Generation ==========
 
-    /// Generate objects for entire map using Perlin noise
-    /// @param map - Map to place objects on
-    /// @param settings - Placement configuration
-    /// @param seed - Random seed for reproducible placement
+    // Generate objects for entire map using Perlin noise
     void generateObjects(Map* map, const PlacementSettings& settings, unsigned int seed);
 
-    /// Clear all placed objects
+    // Clear all placed objects
     void clearObjects();
 
     // ========== Rendering ==========
 
-    /// Render visible objects (with frustum culling)
+    // Render visible objects (with frustum culling)
     void render(sf::RenderTarget& target, const sf::View& view) const;
 
-    /// Render debug visualization (noise values, placement points)
+    // Render debug visualization (noise values, placement points)
     void renderDebug(sf::RenderTarget& target, const sf::View& view) const;
 
     // ========== Queries ==========
@@ -83,7 +80,7 @@ public:
 private:
     // ========== Object Definitions ==========
 
-    /// Information about an object type from atlas
+    // Information about an object type from atlas
     struct ObjectDefinition
     {
         std::string name;
@@ -93,13 +90,13 @@ private:
 
     // ========== Helper Methods ==========
 
-    /// Parse object definitions from text file
+    // Parse object definitions from text file
     bool parseDefinitions(const std::string& definitionsPath);
 
-    /// Check if position is valid for object placement
+    // Check if position is valid for object placement
     bool isValidPlacement(const sf::Vector2f& worldPos, Map* map, const PlacementSettings& settings) const;
 
-    /// Get object definition for a type
+    // Get object definition for a type
     const ObjectDefinition* getDefinition(WorldObject::Type type) const;
 
     // ========== Data ==========

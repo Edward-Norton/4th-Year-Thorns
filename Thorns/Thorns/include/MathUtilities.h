@@ -17,14 +17,14 @@ namespace MathUtils
 
     // ===== VECTOR OPERATIONS =====
 
-    /// Calculate the magnitude (length) of a 2D vector
+    // Calculate the magnitude (length) of a 2D vector
     inline float magnitude(const sf::Vector2f& vector)
     {
         return std::sqrt(vector.x * vector.x + vector.y * vector.y);
     }
 
-    /// Normalize a vector to unit length (magnitude = 1)
-    /// Returns zero vector if input vector has zero magnitude
+    // Normalize a vector to unit length (magnitude = 1)
+    // Returns zero vector if input vector has zero magnitude
     inline sf::Vector2f normalize(const sf::Vector2f& vector)
     {
         float mag = magnitude(vector);
@@ -34,26 +34,26 @@ namespace MathUtils
 
     // ===== ANGLE OPERATIONS =====
 
-    /// Convert vector to angle in degrees (0° = right, 90° = down in SFML)
+    // Convert vector to angle in degrees (0° = right, 90° = down in SFML)
     inline float vectorToAngleDegrees(const sf::Vector2f& vector)
     {
         return std::atan2(vector.y, vector.x) * (180.0f / static_cast<float>(PI));
     }
 
-    /// Convert vector to angle in radians
+    // Convert vector to angle in radians
     inline float vectorToAngleRadians(const sf::Vector2f& vector)
     {
         return std::atan2(vector.y, vector.x);
     }
 
-    /// Convert angle in degrees to unit direction vector
+    // Convert angle in degrees to unit direction vector
     inline sf::Vector2f angleDegreesToVector(float angleDegrees)
     {
         float angleRad = angleDegrees * (static_cast<float>(PI) / 180.0f);
         return sf::Vector2f(std::cos(angleRad), std::sin(angleRad));
     }
 
-    /// Convert angle in radians to unit direction vector  
+    // Convert angle in radians to unit direction vector  
     inline sf::Vector2f angleRadiansToVector(float angleRadians)
     {
         return sf::Vector2f(std::cos(angleRadians), std::sin(angleRadians));
@@ -62,14 +62,14 @@ namespace MathUtils
 
     // ===== ANGLE CONVERSION =====
 
-    /// Convert degrees to radians
+    // Convert degrees to radians
     template<typename T>
     inline constexpr T degreesToRadians(T degrees)
     {
         return degrees * (static_cast<T>(M_PI) / T(180));
     }
 
-    /// Convert radians to degrees  
+    // Convert radians to degrees  
     template<typename T>
     inline constexpr T radiansToDegrees(T radians)
     {

@@ -38,30 +38,30 @@ public:
 
     // ========== Noise Generation ==========
 
-    /// Generate noise value at 2D coordinates
-    /// Returns value in range [0.0, 1.0]
+    // Generate noise value at 2D coordinates
+    // Returns value in range [0.0, 1.0]
     double noise(double x, double y, double z = 0.0) const;
 
     // ========== Octave Noise ==========
 
-    /// Generate multi-octave noise for more detail
-    /// x, y, z - Position coordinates
-    /// octaves - Number of noise layers to combine (1-8 typical)
-    /// persistence - Amplitude multiplier per octave (0.5 typical)
-    /// Noise value in range [0.0, 1.0]
+    // Generate multi-octave noise for more detail
+    // x, y, z - Position coordinates
+    // octaves - Number of noise layers to combine (1-8 typical)
+    // persistence - Amplitude multiplier per octave (0.5 typical)
+    // Noise value in range [0.0, 1.0]
     double octaveNoise(double x, double y, double z,
         int octaves,
         double persistence = 0.5) const;
 
     // ========== 2D Convenience Methods ==========
 
-    /// Generate 2D noise (z = 0)
+    // Generate 2D noise (z = 0)
     double noise2D(double x, double y) const
     {
         return noise(x, y, 0.0);
     }
 
-    /// Generate 2D octave noise
+    // Generate 2D octave noise
     double octaveNoise2D(double x, double y, int octaves, double persistence = 0.5) const
     {
         return octaveNoise(x, y, 0.0, octaves, persistence);
@@ -70,19 +70,19 @@ public:
 private:
     // ========== Helper Functions ==========
 
-    /// Fade function for smooth interpolation
+    // Fade function for smooth interpolation
     double fade(double t) const;
 
-    /// Linear interpolation
+    // Linear interpolation
     double lerp(double t, double a, double b) const;
 
-    /// Gradient function - dot product with pseudo-random gradient
+    // Gradient function - dot product with pseudo-random gradient
     double grad(int hash, double x, double y, double z) const;
 
     // ========== Data ==========
 
-    /// Permutation vector
-    /// Used to generate pseudo-random gradients at grid points
+    // Permutation vector
+    // Used to generate pseudo-random gradients at grid points
     std::vector<int> m_permutation;
 };
 
