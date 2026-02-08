@@ -23,6 +23,14 @@
 class MapGenerator
 {
 public:
+    enum class SiteDensity
+    {
+        Sparce,  // Less, larger regions 
+        Medium, // Balanced,
+        Dense,  // More, Smaller regions
+    };
+
+
     struct GenerationSettings
     {
         // ========== Map Layout ==========
@@ -31,6 +39,8 @@ public:
         float tileSize = 64.f;       // Tile size in pixels
 
         // ========== Voronoi Diagram ==========
+        bool autoCalculateSites = false;                    // Auto-calculate site count from map size
+        SiteDensity siteDensity = SiteDensity::Medium;      // Density for auto-calculation
         unsigned char voronoiSites = 20;       // Number of Voronoi regions
         float minSiteDistance = 400.0f; // Min distance between site in pixels
         unsigned int seed = 0;       // Random seed (0 = random)
@@ -65,6 +75,11 @@ private:
     // ========== Generation Phases ==========
     void phase1_Voronoi(Map* map, const GenerationSettings& settings);
     void phase2_PerlinObjects(Map* map, const GenerationSettings& settings);
+
+    // ========== Generation Phases ==========
+    unsigned char calSiteOptimalCount(const GenerationSettings& settings) const;
+    // Get area per site for given density preset
+    float getAreaPerSite(SiteDensity density) const;
 
     // ========== POI ==========
     // Add default POIs to map (hideout)

@@ -123,11 +123,18 @@ void MapGenerator::regenerate(Map* map, const GenerationSettings& settings)
 // ========================================================================================================
 void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
 {
+    // Determine site count (auto do or the previous manual way)
+    unsigned char siteCount = settings.autoCalculateSites
+        ? calSiteOptimalCount(settings)
+        : settings.voronoiSites;
+
+    std::cout << "Generating Voronoi diagram with " << static_cast<int>(siteCount) << " sites\n";
+
     // Step 1: Generate Voronoi sites only (no tile iteration yet)
     std::mt19937 rng(settings.seed == 0 ? std::random_device{}() : settings.seed);
     sf::Vector2f worldSize = map->getWorldSize();
     
-    m_voronoi->generateSitesPoisson(map, settings.voronoiSites, m_hideoutPosition,
+    m_voronoi->generateSitesPoisson(map, siteCount, m_hideoutPosition,
         settings.minSiteDistance, rng);
 
     // Step 2: Build spatial grid for fast nearest-neighbor queries
@@ -253,6 +260,53 @@ void MapGenerator::phase2_PerlinObjects(Map* map, const GenerationSettings& sett
     m_objectPlacer->generateObjects(map, placementSettings, settings.seed);
 
     std::cout << "Phase 2 complete: " << m_objectPlacer->getObjectCount() << " objects placed\n";
+}
+
+// ========================================================================================================
+// Site auto count based on map size
+// ========================================================================================================
+
+unsigned char MapGenerator::calSiteOptimalCount(const GenerationSettings& settings) const
+{
+    // Calculate total map area in pixels
+    float worldWidth = settings.mapWidth * settings.tileSize;
+    float worldHeight = settings.mapHeight * settings.tileSize;
+    float totalArea = worldWidth * worldHeight;
+
+    // Get area per site based on density preset
+    float areaPerSite = getAreaPerSite(settings.siteDensity);
+
+    // Calculate site count
+    float siteCountFloat = totalArea / areaPerSite;
+    unsigned char siteCount = static_cast<unsigned char>(std::round(siteCountFloat));
+
+    // Clamp to decent range (min 3, max 255)
+    siteCount = std::max<unsigned char>(3, std::min<unsigned char>(255, siteCount));
+
+    std::cout << "Auto-calculated site count:\n"
+        << "  Map area: " << totalArea << " px²\n"
+        << "  Density: " << static_cast<int>(settings.siteDensity)
+        << " (" << areaPerSite << " px² per site)\n"
+        << "  Calculated sites: " << static_cast<int>(siteCount) << "\n";
+
+    return siteCount;
+}
+
+float MapGenerator::getAreaPerSite(SiteDensity density) const
+{
+    // Area per site determines region size
+    // Larger values = fewer sites = larger regions
+    switch (density)
+    {
+    case SiteDensity::Sparce:
+        return 2000000.0f;  // Very large regions
+    case SiteDensity::Medium:
+        return 1000000.0f;  // Balanced regions
+    case SiteDensity::Dense:
+        return 500000.0f;   // Smaller, more numerous regions
+    default:
+        return 1000000.0f;
+    }
 }
 
 // ========================================================================================================
