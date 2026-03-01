@@ -133,15 +133,21 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
     // Step 1: Generate Voronoi sites only (no tile iteration yet)
     std::mt19937 rng(settings.seed == 0 ? std::random_device{}() : settings.seed);
     sf::Vector2f worldSize = map->getWorldSize();
+
+    // Derive effective spacing from site count so voronoiSites is the single control determination factor.
+    // A lower count produces a larger derived distance and therefore larger regions.
+    float effectiveMinDist = settings.deriveMinSiteDistance();
+    std::cout << "Effective minSiteDistance: " << effectiveMinDist << "px "
+        << (settings.minSiteDistance > 0.f ? "(manual override)\n" : "(auto-derived from site count)\n");
     
     m_voronoi->generateSitesPoisson(map, siteCount, m_hideoutPosition,
-        settings.minSiteDistance, rng);
+        effectiveMinDist, rng);
 
     // Step 2: Build spatial grid for fast nearest-neighbor queries
     const auto& sites = m_voronoi->getSites();
     std::cout << "Building spatial grid for " << sites.size() << " sites...\n";
 
-    m_voronoi->buildSpatialGrid(worldSize.x, worldSize.y, settings.minSiteDistance);
+    m_voronoi->buildSpatialGrid(worldSize.x, worldSize.y, effectiveMinDist);
 
     // Adding each tile to the spatial grid for hash lookups
     for (size_t i = 0; i < sites.size(); ++i)

@@ -107,8 +107,8 @@ void Game::generateMap()
     // ========== PHASE 1: VORONOI SITES SETTINGS ==========
     // POI spawning configuration
     m_mapSettings.voronoiSites = 5;
-    m_mapSettings.minSiteDistance = 450.0f;  // Minimum 400 pixels between sites
-    m_mapSettings.autoCalculateSites = true;
+    m_mapSettings.minSiteDistance = 0.0f;  // Minimum 400 pixels between sites
+    m_mapSettings.autoCalculateSites = false;
     m_mapSettings.siteDensity = MapGenerator::SiteDensity::Medium;
     // Poi types
     m_mapSettings.numVillages = 1;

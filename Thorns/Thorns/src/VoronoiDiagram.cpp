@@ -260,16 +260,17 @@ void VoronoiDiagram::generateSitesPoisson(Map* map, unsigned char numSites,
             m_activeList.erase(m_activeList.begin() + activeIndex);
         }
 
-        // PN: Just to check if the num sites wanted to generated actually generated 
-        if (m_sites.size() < static_cast<size_t>(numSites))
-        {
-            std::cout << "WARNING: Only generated " << m_sites.size() << " sites out of "
-                << static_cast<int>(numSites) << " requested\n";
-            std::cout << "  This may be due to:\n";
-            std::cout << "    - minSiteDistance (" << minSiteDistance << "px) too large for map\n";
-            std::cout << "    - Hideout exclusion zone limiting placement\n";
-            std::cout << "    - Or some other issue in the poisson sampling\n";
-        }
+    }
+
+    // PN: Just to check if the num sites wanted to generated actually generated 
+    if (m_sites.size() < static_cast<size_t>(numSites))
+    {
+        std::cout << "WARNING: Only generated " << m_sites.size() << " sites out of "
+            << static_cast<int>(numSites) << " requested\n";
+        std::cout << "  This may be due to:\n";
+        std::cout << "    - minSiteDistance (" << minSiteDistance << "px) too large for map\n";
+        std::cout << "    - Hideout exclusion zone limiting placement\n";
+        std::cout << "    - Or some other issue in the poisson sampling\n";
     }
 
     std::cout << "Poisson disk sampling complete: " << m_sites.size() << " sites generated\n";

@@ -42,7 +42,7 @@ public:
         bool autoCalculateSites = false;                    // Auto-calculate site count from map size
         SiteDensity siteDensity = SiteDensity::Medium;      // Density for auto-calculation
         unsigned char voronoiSites = 20;       // Number of Voronoi regions
-        float minSiteDistance = 400.0f; // Min distance between site in pixels
+        float minSiteDistance = 0.0f; // Min distance between site in pixels
         unsigned int seed = 0;       // Random seed (0 = random)
 
         // ========== POI Generation ==========
@@ -54,6 +54,25 @@ public:
         double objectFrequency = 0.08;          // Perlin noise frequency
         int objectOctaves = 2;                  // Number of noise layers
         double objectThreshold = 0.65;          // Placement threshold
+
+        // Compute the effective minimum inter-site distance from voronoiSites and map area.
+        // Uses sqrt(area / numSites) scaled by a packing factor to fill the map evenly.
+        // This ensures region size is proportional to site count without manual tuning.
+        float deriveMinSiteDistance() const
+        {
+            if (minSiteDistance > 0.f)
+                return minSiteDistance; // Manual override
+
+            float worldW = static_cast<float>(mapWidth) * tileSize;
+            float worldH = static_cast<float>(mapHeight) * tileSize;
+            float totalArea = worldW * worldH;
+            int count = std::max(1, static_cast<int>(voronoiSites));
+
+            // sqrt(area / n) gives the side of a square that each site would own.
+            // Multiplied by 0.85 to allow Poisson to fill the space without running out of room.
+            return std::sqrt(totalArea / static_cast<float>(count)) * 0.85f;
+        }
+
 
     };
 
