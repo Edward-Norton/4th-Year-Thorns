@@ -111,11 +111,12 @@ void Map::addPOI(std::unique_ptr<PointOfInterest> poi)
     }
 }
 
+// For visual area of a POI, so the whole sprite
 bool Map::isInsidePOI(const sf::Vector2f& worldPos) const
 {
     for (const auto& poi : m_pois)
     {
-        if (poi->contains(worldPos))
+        if (poi->getVisualBounds().contains(worldPos))
             return true;
     }
     return false;
@@ -151,11 +152,8 @@ void Map::markPOITiles()
                 for (int x = topLeft.x; x <= bottomRight.x; ++x)
                 {
                     MapTile* tile = getTile(x, y);
-                    if (tile->getTerrainType() != MapTile::TerrainType::POI_Collision)
-                    {
-                        // Keep existing terrain, just mark as collision
-                        tile->setWalkable(false);
-                    }
+                    tile->setTerrainType(MapTile::TerrainType::POI_Collision);
+                    tile->setWalkable(false);
                 }
             }
         }
