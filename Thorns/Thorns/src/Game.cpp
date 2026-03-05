@@ -105,11 +105,14 @@ void Game::generateMap()
     m_mapSettings.seed = m_currentSeed;
 
     // ========== PHASE 1: VORONOI SITES SETTINGS ==========
-    // POI spawning configuration
-    m_mapSettings.voronoiSites = 5;
-    m_mapSettings.minSiteDistance = 0.0f;  // Minimum 400 pixels between sites
-    m_mapSettings.autoCalculateSites = false;
-    m_mapSettings.siteDensity = MapGenerator::SiteDensity::Medium;
+    // Set ManualSites for an explicit region count, spacing is auto-derived.
+    // Either set the fixed number or use "SiteDensity::XX" for a general set size 
+    m_mapSettings.siteMode = MapGenerator::GenerationSettings::ManualSites{ 20 };
+    //m_mapSettings.siteMode = MapGenerator::GenerationSettings::AutoDensity{ MapGenerator::SiteDensity::Medium };
+
+    // Optional manual distance override, PN keep at 0 to let the auto function work, otherwise this sets to manual spacing
+    m_mapSettings.minSiteDistance = 0.0f;
+
     // Poi types
     m_mapSettings.numVillages = 1;
     m_mapSettings.numFarms = 2;

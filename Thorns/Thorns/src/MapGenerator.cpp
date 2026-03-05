@@ -123,44 +123,71 @@ void MapGenerator::regenerate(Map* map, const GenerationSettings& settings)
 // ========================================================================================================
 void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
 {
-    // Determine site count (auto do or the previous manual way)
-    unsigned char siteCount = settings.autoCalculateSites
-        ? calSiteOptimalCount(settings)
-        : settings.voronoiSites;
+    // Step 1: Resolve site count and effective spacing from whichever mode is active.
+    unsigned char siteCount = 0;
+    float effectiveMinDist = 0.f;
+
+    // PN: visit is like get_if, it just calls whatever the lambda is needed based on sitemode for this
+    std::visit([&](auto&& mode)
+    {
+            // Decays the pointer to a base time and just make it a T, i.e ManualSites& then becomes a ManualSite
+            using T = std::decay_t<decltype(mode)>;
+
+            if constexpr (std::is_same_v<T, GenerationSettings::ManualSites>)
+            {
+                // Manual mode: use explicit count, derive spacing from it
+                siteCount = mode.count;
+                effectiveMinDist = settings.deriveMinSiteDistance(siteCount);
+                std::cout << "Site mode: Manual (" << static_cast<int>(siteCount) << " sites)\n";
+            }
+            else if constexpr (std::is_same_v<T, GenerationSettings::AutoDensity>)
+            {
+                // Auto mode: count AND spacing both derived from density + map area
+                siteCount = calSiteOptimalCount(mode.density, settings);
+                effectiveMinDist = settings.deriveMinSiteDistance(siteCount);
+                std::cout << "Site mode: Auto density (" << static_cast<int>(siteCount) << " sites)\n";
+            }
+    }, settings.siteMode);
+
+    // Manual distance override applies on top of either mode
+    if (settings.minSiteDistance > 0.f)
+    {
+        effectiveMinDist = settings.minSiteDistance;
+        std::cout << "minSiteDistance: " << effectiveMinDist << "px (manual override)\n";
+    }
+    else
+    {
+        std::cout << "minSiteDistance: " << effectiveMinDist << "px (auto derived from site count)\n";
+    }
 
     std::cout << "Generating Voronoi diagram with " << static_cast<int>(siteCount) << " sites\n";
 
-    // Step 1: Generate Voronoi sites only (no tile iteration yet)
+    // Step 2: Generate Voronoi sites using Poisson disk sampling
     std::mt19937 rng(settings.seed == 0 ? std::random_device{}() : settings.seed);
     sf::Vector2f worldSize = map->getWorldSize();
 
-    // Derive effective spacing from site count so voronoiSites is the single control determination factor.
-    // A lower count produces a larger derived distance and therefore larger regions.
-    float effectiveMinDist = settings.deriveMinSiteDistance();
-    std::cout << "Effective minSiteDistance: " << effectiveMinDist << "px "
-        << (settings.minSiteDistance > 0.f ? "(manual override)\n" : "(auto-derived from site count)\n");
-    
     m_voronoi->generateSitesPoisson(map, siteCount, m_hideoutPosition,
         effectiveMinDist, rng);
 
-    // Step 2: Build spatial grid for fast nearest-neighbor queries
+    // Step 3: Build spatial grid for fast nearest-neighbor queries.
+    // Cell size must match effectiveMinDist so the 3x3 neighbourhood covers the full exclusion radius.
     const auto& sites = m_voronoi->getSites();
     std::cout << "Building spatial grid for " << sites.size() << " sites...\n";
 
     m_voronoi->buildSpatialGrid(worldSize.x, worldSize.y, effectiveMinDist);
 
-    // Adding each tile to the spatial grid for hash lookups
+    // Add each site to the spatial grid for O(1) tile-to-region lookups
     for (size_t i = 0; i < sites.size(); ++i)
     {
         m_voronoi->addSiteToGrid(static_cast<int>(i), sites[i].position);
     }
 
-    // Step 3: Single loop - assign regions AND set terrain together
+    // Step 4: Single loop - assign regions AND set terrain together
+    // ========== Single Loop: Do everything in one pass (try to reduce n-notation hopefully) ==========
     int width = map->getWidth();
     int height = map->getHeight();
     int tilesProcessed = 0;
 
-    // ========== Single Loop: Do everything in one pass (try to reduce n-notation hopefully)  ==========
     for (int y = 0; y < height; ++y)
     {
         for (int x = 0; x < width; ++x)
@@ -173,7 +200,6 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
             if (tile->getTerrainType() == MapTile::TerrainType::POI_Collision)
                 continue;
 
-            // Get tile world position
             sf::Vector2f tilePos = map->tileToWorld(x, y);
 
             // Find nearest Voronoi site using spatial grid (O(k) instead of O(n))
@@ -197,10 +223,7 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
                 }
             }
 
-            // Assign Voronoi region
             tile->setVoronoiRegion(closestRegion);
-
-            // Set terrain type
             tile->setTerrainType(MapTile::TerrainType::Grass);
             tile->setWalkable(true);
 
@@ -218,9 +241,7 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
         {
             const MapTile* tile = map->getTile(x, y);
             if (tile && tile->getVoronoiRegion() != -1)
-            {
                 regionCounts[tile->getVoronoiRegion()]++;
-            }
         }
     }
 
@@ -272,27 +293,26 @@ void MapGenerator::phase2_PerlinObjects(Map* map, const GenerationSettings& sett
 // Site auto count based on map size
 // ========================================================================================================
 
-unsigned char MapGenerator::calSiteOptimalCount(const GenerationSettings& settings) const
+// Determine the amount of sites auto
+unsigned char MapGenerator::calSiteOptimalCount(SiteDensity density, const GenerationSettings& settings) const
 {
-    // Calculate total map area in pixels
+    // Area
     float worldWidth = settings.mapWidth * settings.tileSize;
     float worldHeight = settings.mapHeight * settings.tileSize;
     float totalArea = worldWidth * worldHeight;
 
-    // Get area per site based on density preset
-    float areaPerSite = getAreaPerSite(settings.siteDensity);
+    // For each site
+    float areaPerSite = getAreaPerSite(density);
 
-    // Calculate site count
+    // Need to round
     float siteCountFloat = totalArea / areaPerSite;
     unsigned char siteCount = static_cast<unsigned char>(std::round(siteCountFloat));
-
-    // Clamp to decent range (min 3, max 255)
+    // Min 3 max of 255
     siteCount = std::max<unsigned char>(3, std::min<unsigned char>(255, siteCount));
 
     std::cout << "Auto-calculated site count:\n"
-        << "  Map area: " << totalArea << " px²\n"
-        << "  Density: " << static_cast<int>(settings.siteDensity)
-        << " (" << areaPerSite << " px² per site)\n"
+        << "  Map area: " << totalArea << " px\n"
+        << "  Area per site: " << areaPerSite << " px per site\n"
         << "  Calculated sites: " << static_cast<int>(siteCount) << "\n";
 
     return siteCount;

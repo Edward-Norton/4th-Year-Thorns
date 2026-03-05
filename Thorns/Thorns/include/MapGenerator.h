@@ -38,12 +38,20 @@ public:
         unsigned short mapHeight = 128;         // Map height in tiles
         float tileSize = 64.f;       // Tile size in pixels
 
-        // ========== Voronoi Diagram ==========
-        bool autoCalculateSites = false;                    // Auto-calculate site count from map size
-        SiteDensity siteDensity = SiteDensity::Medium;      // Density for auto-calculation
-        unsigned char voronoiSites = 20;       // Number of Voronoi regions
-        float minSiteDistance = 0.0f; // Min distance between site in pixels
+        // ========== Voronoi Site Generation ==========
+        // Two mutually exclusive modes to try and make it easier to swap if needed for testing or final version
+        // ManualSites: explicit site count, spacing auto-derived from count and map area
+        // AutoDensity: site count and spacing both derived from map area + density preset
+        struct ManualSites { unsigned char count = 20; }; // Number of Voronoi regions
+        struct AutoDensity { SiteDensity density = SiteDensity::Medium; }; // Density for auto-calculation 
+
+        // Holds either ManualSites or AutoDensity
+        // Basically just a swap for types.
+        std::variant<ManualSites, AutoDensity> siteMode = ManualSites{};
+ 
+        float minSiteDistance = 0.0f; // Min distance between site in pixels, leave at 0 of for the auto derive
         unsigned int seed = 0;       // Random seed (0 = random)
+
 
         // ========== POI Generation ==========
         unsigned char numVillages = 1;
@@ -55,22 +63,17 @@ public:
         int objectOctaves = 2;                  // Number of noise layers
         double objectThreshold = 0.65;          // Placement threshold
 
-        // Compute the effective minimum inter-site distance from voronoiSites and map area.
-        // Uses sqrt(area / numSites) scaled by a packing factor to fill the map evenly.
-        // This ensures region size is proportional to site count without manual tuning.
-        float deriveMinSiteDistance() const
+        // Derives the min distance for the current way of setting points (Poisson), 
+        // make each site own an even share of the map, solve issue with sites not covering map sections
+        // Get size total, divide to get each area each site roughly holds, distance for sites
+        float deriveMinSiteDistance(int count) const
         {
-            if (minSiteDistance > 0.f)
-                return minSiteDistance; // Manual override
-
             float worldW = static_cast<float>(mapWidth) * tileSize;
             float worldH = static_cast<float>(mapHeight) * tileSize;
-            float totalArea = worldW * worldH;
-            int count = std::max(1, static_cast<int>(voronoiSites));
 
             // sqrt(area / n) gives the side of a square that each site would own.
             // Multiplied by 0.85 to allow Poisson to fill the space without running out of room.
-            return std::sqrt(totalArea / static_cast<float>(count)) * 0.85f;
+            return std::sqrt((worldW * worldH) / static_cast<float>(std::max(1, count))) * 0.85f;
         }
 
 
@@ -96,7 +99,7 @@ private:
     void phase2_PerlinObjects(Map* map, const GenerationSettings& settings);
 
     // ========== Generation Phases ==========
-    unsigned char calSiteOptimalCount(const GenerationSettings& settings) const;
+    unsigned char calSiteOptimalCount(SiteDensity density, const GenerationSettings& settings) const;
     // Get area per site for given density preset
     float getAreaPerSite(SiteDensity density) const;
 
