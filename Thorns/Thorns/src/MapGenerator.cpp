@@ -3,6 +3,7 @@
 #include <iostream>
 #include <chrono>
 #include "AssetPaths.h"
+#include <numeric>
 
 MapGenerator::MapGenerator()
     : m_voronoi(std::make_unique<VoronoiDiagram>())
@@ -182,7 +183,7 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
         m_voronoi->addSiteToGrid(static_cast<int>(i), sites[i].position);
     }
 
-    // Step 4: Single loop - assign regions AND set terrain together
+    // Step 4: Single loop assign regions AND set terrain together
     // ========== Single Loop: Do everything in one pass (try to reduce n-notation hopefully) ==========
     int width = map->getWidth();
     int height = map->getHeight();
@@ -384,6 +385,24 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
         totalPOIs = static_cast<int>(sites.size());
     }
 
+    // Trying to sort sites by distance from hideout to the furthest first.
+    // Issues with POIs being placed really close to the player spawn so it was redundant. 
+    std::vector<int> sitesByDistance(sites.size()); // Temp so sites are not modified
+    std::iota(sitesByDistance.begin(), sitesByDistance.end(), 0); // Pn: iota just uses iterators to fill values
+
+    // Order the sites in reverse order, the furthest is first
+    std::sort(sitesByDistance.begin(), sitesByDistance.end(), [&](int a, int b)
+    {
+            auto distSq = [&](const sf::Vector2f& pos)
+            {
+                    float dx = pos.x - m_hideoutPosition.x;
+                    float dy = pos.y - m_hideoutPosition.y;
+                    return dx * dx + dy * dy;
+            };
+            // Descending order so index 0 is the furthest site
+            return distSq(sites[a].position) > distSq(sites[b].position);
+    });
+
     std::mt19937 rng(settings.seed == 0 ? std::random_device{}() : settings.seed);
     std::uniform_int_distribution<int> siteDist(0, static_cast<int>(sites.size()) - 1);
 
@@ -397,15 +416,11 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
     int attempts = 0;
     const int maxAttempts = totalPOIs * 20;
 
-    while (poisSpawned < totalPOIs && attempts < maxAttempts)
+    // Going now from furthest to nearst to place valid POI sites
+    for (int siteIndex : sitesByDistance)
     {
-        int siteIndex = siteDist(rng);
-
-        if (usedSites[siteIndex])
-        {
-            ++attempts;
-            continue;
-        }
+        if (poisSpawned >= totalPOIs)
+            break;
 
         const VoronoiSite& site = sites[siteIndex];
 
@@ -415,23 +430,24 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
         if (!config)
         {
             std::cerr << "No config found for POI type\n";
-            ++attempts;
             continue;
         }
 
         float halfWidth = config->size.x / 2.f;
         float halfHeight = config->size.y / 2.f;
-
         float edgeMargin = std::max(config->size.x, config->size.y) / 2.f + 200.f;
 
+        // Skip sites too close to map edge, just prevent them clipping out
         if (site.position.x - halfWidth < edgeMargin ||
             site.position.x + halfWidth > worldSize.x - edgeMargin ||
             site.position.y - halfHeight < edgeMargin ||
             site.position.y + halfHeight > worldSize.y - edgeMargin)
         {
             std::cout << "Skipped site " << siteIndex << " - too close to map edge\n";
-            usedSites[siteIndex] = true;
-            ++attempts;
+
+            // POI type was already decremented inside getRandomPOIType, just need to restore it
+            if (poiType == PointOfInterest::Type::Village) ++villagesLeft;
+            else if (poiType == PointOfInterest::Type::Farm) ++farmsLeft;
             continue;
         }
 
@@ -447,11 +463,8 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
                 << " (pos: " << site.position.x << ", " << site.position.y << ")\n";
 
             map->addPOI(std::move(poi));
-            usedSites[siteIndex] = true;
             ++poisSpawned;
         }
-
-        ++attempts;
     }
 
     if (poisSpawned < totalPOIs)
