@@ -1,4 +1,5 @@
 #include "PointOfInterest.h"
+#include "CollisionManager.h"
 #include <iostream>
 
 PointOfInterest::PointOfInterest(const std::string& name, Type type,
@@ -21,7 +22,7 @@ PointOfInterest::PointOfInterest(const std::string& name, Type type,
             worldPos.y - size.y / 2.f),
         sf::Vector2f(size.x, size.y)
     );
-    m_collisionRects.push_back(defaultCollision);
+    m_collisionShapes.push_back(defaultCollision);
 }
 
 bool PointOfInterest::loadSprite(const std::string& spritePath)
@@ -53,20 +54,28 @@ void PointOfInterest::render(sf::RenderTarget& target) const
 
 void PointOfInterest::setPosition(const sf::Vector2f& pos)
 {
-    // Calculate offset from old position
     sf::Vector2f offset = pos - m_worldPosition;
-
     m_worldPosition = pos;
 
     if (m_sprite)
-    {
         m_sprite->setPosition(pos);
-    }
 
-    // Update all collision rects to new position
-    for (auto& rect : m_collisionRects)
+    // Translate all shapes by the same offset
+    for (auto& shape : m_collisionShapes)
     {
-        rect.position += offset;
+        std::visit([&](auto& s)
+            {
+                using T = std::decay_t<decltype(s)>;
+                if constexpr (std::is_same_v<T, sf::FloatRect>)
+                {
+                    s.position += offset;
+                }
+                else if constexpr (std::is_same_v<T, CollisionPolygon>)
+                {
+                    for (auto& pt : s.points)
+                        pt += offset;
+                }
+            }, shape);
     }
 }
 
@@ -94,7 +103,7 @@ sf::FloatRect PointOfInterest::getVisualBounds() const
 bool PointOfInterest::contains(const sf::Vector2f& worldPos) const
 {
     // Check against all collision rectangles
-    for (const auto& rect : m_collisionRects)
+    for (const auto& rect : getCollisionRects())
     {
         if (rect.contains(worldPos))
             return true;
@@ -104,23 +113,76 @@ bool PointOfInterest::contains(const sf::Vector2f& worldPos) const
 
 bool PointOfInterest::checkEntityCollision(const sf::FloatRect& entityBounds) const
 {
-    // Check collision with all rectangles
-    for (const auto& rect : m_collisionRects)
+    for (const auto& shape : m_collisionShapes)
     {
-        if (entityBounds.findIntersection(rect).has_value())
-            return true;
+        bool hit = std::visit([&](const auto& s) -> bool
+            {
+                using T = std::decay_t<decltype(s)>;
+                if constexpr (std::is_same_v<T, sf::FloatRect>)
+                    return entityBounds.findIntersection(s).has_value();
+                else if constexpr (std::is_same_v<T, CollisionPolygon>)
+                    return CollisionManager::aabbVsPolygon(entityBounds, s.points);
+                return false;
+            }, shape);
+
+        if (hit) return true;
     }
     return false;
 }
 
+void PointOfInterest::addCollisionShape(const CollisionShape& shape)
+{
+    m_collisionShapes.push_back(shape);
+}
+
+void PointOfInterest::clearCollisionShapes()
+{
+    m_collisionShapes.clear();
+}
+
 void PointOfInterest::addCollisionRect(const sf::FloatRect& rect)
 {
-    m_collisionRects.push_back(rect);
+    m_collisionShapes.push_back(rect);
 }
 
 void PointOfInterest::clearCollisionRects()
 {
-    m_collisionRects.clear();
+    m_collisionShapes.clear();
+}
+
+std::vector<sf::FloatRect> PointOfInterest::getCollisionRects() const
+{
+    std::vector<sf::FloatRect> rects;
+    rects.reserve(m_collisionShapes.size());
+
+    for (const auto& shape : m_collisionShapes)
+    {
+        std::visit([&](const auto& s)
+            {
+                using T = std::decay_t<decltype(s)>;
+                if constexpr (std::is_same_v<T, sf::FloatRect>)
+                {
+                    rects.push_back(s);
+                }
+                else if constexpr (std::is_same_v<T, CollisionPolygon>)
+                {
+                    // AABB of polygon for tile marking
+                    float minX = s.points[0].x, maxX = s.points[0].x;
+                    float minY = s.points[0].y, maxY = s.points[0].y;
+                    for (const auto& pt : s.points)
+                    {
+                        minX = std::min(minX, pt.x); maxX = std::max(maxX, pt.x);
+                        minY = std::min(minY, pt.y); maxY = std::max(maxY, pt.y);
+                    }
+                    rects.emplace_back(
+                        sf::Vector2f(minX, minY),
+                        sf::Vector2f(maxX - minX, maxY - minY)
+                    );
+                }
+            }, shape);
+    }
+
+    return rects;
 }
 
 bool PointOfInterest::hasSprite() const

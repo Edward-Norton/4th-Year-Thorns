@@ -92,6 +92,10 @@
     <Text Include="ASSETS\DATA\forest-atlas-points.txt" />
     <Text Include="ASSETS\DATA\terrain-atlas-points.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ASSETS\MAPS\POI_TEMPLATES\farm.tmx" />
+    <None Include="ASSETS\MAPS\POI_TEMPLATES\hideout.tmx" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{65491047-284d-4edc-be38-e5e02e30a2e0}</ProjectGuid>

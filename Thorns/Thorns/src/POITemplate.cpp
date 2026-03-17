@@ -1,6 +1,7 @@
 #include "POITemplate.h"
 #include "PointOfInterest.h"
 #include <iostream>
+#include <tmxlite/ObjectGroup.hpp>
 
 POITemplateManager::POITemplateManager()
 {
@@ -29,7 +30,7 @@ bool POITemplateManager::loadTemplate(const std::string& name, const std::string
     m_templates[name] = std::move(tmpl);
 
     std::cout << "Loaded POI template '" << name << "' with "
-        << m_templates[name].collisionRects.size() << " collision rects\n";
+        << m_templates[name].shapes.size() << " collision rects\n";
 
     return true;
 }
@@ -66,25 +67,39 @@ void POITemplateManager::applyTemplateCollision(PointOfInterest* poi, const std:
     sf::Vector2f poiCenter = poi->getPosition();
     sf::Vector2f poiSize = poi->getSize();
 
-    // Transform collision rects from template space to world space
-    for (const auto& rect : tmpl->collisionRects)
-    {
-        // Template rects are relative to top-left (0,0)
-        // Transform to be centered on POI position so:
-        // 1. Subtract half size to get top-left of POI
-        // 2. Add template rect position
-        sf::FloatRect worldRect(
-            sf::Vector2f(
-                poiCenter.x - (poiSize.x / 2.f) + rect.position.x,
-                poiCenter.y - (poiSize.y / 2.f) + rect.position.y
-            ),
-            rect.size
-        );
+    // Top-left origin of POI in world space — all template coords offset from here
+    sf::Vector2f origin(
+        poiCenter.x - (poiSize.x / 2.f),
+        poiCenter.y - (poiSize.y / 2.f)
+    );
 
-        poi->addCollisionRect(worldRect);
+    // Transform collision rects from template space to world space
+    for (const auto& shape : tmpl->shapes)
+    {
+        // std::visit selects the correct lambda branch at runtime based on active variant type
+        std::visit([&](const auto& s)
+        {
+                using T = std::decay_t<decltype(s)>;
+
+                if constexpr (std::is_same_v<T, sf::FloatRect>)
+                {
+                    poi->addCollisionShape(sf::FloatRect(
+                        sf::Vector2f(origin.x + s.position.x, origin.y + s.position.y),
+                        s.size
+                    ));
+                }
+                else if constexpr (std::is_same_v<T, CollisionPolygon>)
+                {
+                    CollisionPolygon worldPoly;
+                    worldPoly.points.reserve(s.points.size());
+                    for (const auto& pt : s.points)
+                        worldPoly.points.emplace_back(origin.x + pt.x, origin.y + pt.y);
+                    poi->addCollisionShape(std::move(worldPoly));
+                }
+            }, shape);
     }
 
-    std::cout << "Applied " << tmpl->collisionRects.size()
+    std::cout << "Applied " << tmpl->shapes.size()
         << " collision rects to '" << poi->getName() << "'\n";
 }
 
@@ -100,53 +115,61 @@ POITemplate POITemplateManager::parseTemplate(const tmx::Map& mapData)
         mapSize.y * tileSize.y
     );
 
-    tmpl.collisionRects = extractCollisionRects(mapData);
+    tmpl.shapes = extractCollisionShapes(mapData);
 
     return tmpl;
 }
 
-std::vector<sf::FloatRect> POITemplateManager::extractCollisionRects(const tmx::Map& mapData)
+std::vector<CollisionShape> POITemplateManager::extractCollisionShapes(const tmx::Map& mapData)
 {
-    std::vector<sf::FloatRect> rects;
+    std::vector<CollisionShape> shapes;
 
     for (const auto& layer : mapData.getLayers())
     {
-        // Step 1: Skip non-object layers, due to how I used tiled, only objects for collisions
-        if (layer->getType() != tmx::Layer::Type::Object)
-            continue;
+        if (layer->getType() != tmx::Layer::Type::Object) continue;
+        if (layer->getName() != "Collision")              continue;
 
-        // Step 2: Only parse Collision
-        if (layer->getName() != "Collision")
-            continue;
-
-        // Step 3: Cast to object group to access objects
         const auto& objectGroup = layer->getLayerAs<tmx::ObjectGroup>();
-        const auto& objects = objectGroup.getObjects();
-
-        // Get layer offset. Note: Needed to due how the .tmx stores the data
         const auto& layerOffset = objectGroup.getOffset();
 
-        // Step 5: Extract each object as collision rectangle
-        for (const auto& obj : objects)
+        for (const auto& obj : objectGroup.getObjects())
         {
-            auto aabb = obj.getAABB();
+            const auto& aabb = obj.getAABB();
+            const float ox = static_cast<float>(aabb.left + layerOffset.x);
+            const float oy = static_cast<float>(aabb.top + layerOffset.y);
+            const float ow = static_cast<float>(aabb.width);
+            const float oh = static_cast<float>(aabb.height);
 
-            rects.push_back(
-                sf::FloatRect(
-                    sf::Vector2f(
-                        static_cast<float>(aabb.left + layerOffset.x),  // Add offset X
-                        static_cast<float>(aabb.top + layerOffset.y)    // Add offset Y
-                    ),
-                    sf::Vector2f(
-                        static_cast<float>(aabb.width),
-                        static_cast<float>(aabb.height)
-                    )
-                )
-            );
+            switch (obj.getShape())
+            {
+            case tmx::Object::Shape::Rectangle:
+            {
+                shapes.emplace_back(sf::FloatRect(
+                    sf::Vector2f(ox, oy),
+                    sf::Vector2f(ow, oh)
+                ));
+                break;
+            }
+            case tmx::Object::Shape::Polygon:
+            case tmx::Object::Shape::Polyline:
+            {
+                CollisionPolygon poly;
+                for (const auto& pt : obj.getPoints())
+                {
+                    // tmxlite polygon points are relative to the object's own position
+                    poly.points.emplace_back(ox + pt.x, oy + pt.y);
+                }
+                if (poly.points.size() >= 3)
+                    shapes.emplace_back(std::move(poly));
+                break;
+            }
+            default:
+                break;
+            }
         }
     }
 
-    return rects;
+    return shapes;
 }
 
 

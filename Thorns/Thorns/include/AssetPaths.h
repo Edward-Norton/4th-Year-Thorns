@@ -33,6 +33,7 @@ namespace Assets
     namespace Maps
     {
         const std::string HIDEOUT_TEMPLATE = "ASSETS\\MAPS\\POI_Templates\\hideout.tmx";
+        const std::string FARM_TEMPLATE = "ASSETS\\MAPS\\POI_Templates\\farm.tmx";
     }
 
     // ========== FONTS ==========

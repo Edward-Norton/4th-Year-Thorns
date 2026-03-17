@@ -40,9 +40,15 @@ public:
     // Resolve collision by calculating correction vector
     sf::Vector2f resolveCollision(const CollisionResult& collision) const;
 
+    // This is to determine if its a polygon or not, try and decouple the collision type chekcing
+    static bool aabbVsPolygon(const sf::FloatRect& box, const std::vector<sf::Vector2f>& points);
+
 private:
     // Calculate minimum translation vector to separate two rectangles
     sf::Vector2f getMinimumTranslationVector(const sf::FloatRect& a, const sf::FloatRect& b) const;
+
+    // MinTrasVec for AABB or polygon via SAT
+    sf::Vector2f getMTVPolygon(const sf::FloatRect& box, const std::vector<sf::Vector2f>& points) const;
 };
 
 // Template implementation for generic collision checking

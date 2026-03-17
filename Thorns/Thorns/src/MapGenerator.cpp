@@ -9,7 +9,8 @@ MapGenerator::MapGenerator()
     : m_voronoi(std::make_unique<VoronoiDiagram>())
     , m_objectPlacer(std::make_unique<ObjectPlacer>())
 {
-    m_poiTemplates.loadTemplate("hideout", "ASSETS/MAPS/POI_Templates/hideout.tmx");
+    m_poiTemplates.loadTemplate("hideout", Assets::Maps::HIDEOUT_TEMPLATE);
+    m_poiTemplates.loadTemplate("farm", Assets::Maps::FARM_TEMPLATE);
 }
 
 std::unique_ptr<Map> MapGenerator::generate(const GenerationSettings& settings)

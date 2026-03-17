@@ -6,14 +6,25 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <variant>
 
 class PointOfInterest;
+
+// Convex polygon in template-local space
+struct CollisionPolygon
+{
+    std::vector<sf::Vector2f> points;
+};
+
+// Just swap whichever is needed, might be changed to circle for like trees
+using CollisionShape = std::variant<sf::FloatRect, CollisionPolygon>;
+
 
 struct POITemplate
 {
     std::string name;
     sf::Vector2f size;
-    std::vector<sf::FloatRect> collisionRects;
+    std::vector<CollisionShape> shapes;
 };
 
 class POITemplateManager
@@ -31,7 +42,7 @@ private:
     std::unordered_map<std::string, POITemplate> m_templates;
 
     POITemplate parseTemplate(const tmx::Map& mapData);
-    std::vector<sf::FloatRect> extractCollisionRects(const tmx::Map& mapData);
+    std::vector<CollisionShape> extractCollisionShapes(const tmx::Map& mapData);
 };
 
 #endif

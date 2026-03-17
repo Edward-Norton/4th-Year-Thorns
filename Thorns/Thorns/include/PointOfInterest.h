@@ -8,6 +8,7 @@
 #include "IPositionable.h"
 #include "ICollidable.h"
 #include "SpriteComponent.h"
+#include "POITemplate.h"
 
 /// <summary>
 /// Represents a fixed prefab location that blocks procedural generation
@@ -49,9 +50,17 @@ public:
     // ========== Collision ==========
     sf::FloatRect getBounds() const override;
     bool checkEntityCollision(const sf::FloatRect& entityBounds) const;
+
+    // Shapes like polygons and not just rects
+    void addCollisionShape(const CollisionShape& shape);
+    void clearCollisionShapes();
+    const std::vector<CollisionShape>& getCollisionShapes() const { return m_collisionShapes; }
+
+
+    // Legacy rect collision just in case
     void addCollisionRect(const sf::FloatRect& rect); // This is to add rect for walls and such
-    const std::vector<sf::FloatRect>& getCollisionRects() const { return m_collisionRects; }
     void clearCollisionRects();
+    std::vector<sf::FloatRect> getCollisionRects() const; // just for AABB rects
 
     // ========== Position & Bounds ==========
     sf::Vector2f getPosition() const override { return m_worldPosition; }
@@ -91,7 +100,7 @@ private:
 
     // Collision (multiple rectangles for complex shapes like buildings with walls)
     // PN: All rectangles are in world space coordinates
-    std::vector<sf::FloatRect> m_collisionRects;
+    std::vector<CollisionShape> m_collisionShapes;
 };
 
 #endif

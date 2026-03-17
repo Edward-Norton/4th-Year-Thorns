@@ -46,8 +46,9 @@ void POIConfigRegistry::loadDefaultConfigs()
     POITypeConfig farmConfig;
     farmConfig.name = "Farm";
     farmConfig.spritePath = Assets::Textures::FARM_SPRITE;
-    farmConfig.definitionsPath = Assets::Data::FARM_DEFINITIONS;
-    farmConfig.autoSizeFromSprite = true;
+    farmConfig.templatePath = Assets::Maps::FARM_TEMPLATE;
+    farmConfig.autoSizeFromSprite = false;
+    farmConfig.size = sf::Vector2f(1948.f, 2016.f);
     registerPOIType(PointOfInterest::Type::Farm, farmConfig);
 
     // Village
