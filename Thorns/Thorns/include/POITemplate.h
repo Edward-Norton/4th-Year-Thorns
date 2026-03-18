@@ -16,6 +16,12 @@ struct CollisionPolygon
     std::vector<sf::Vector2f> points;
 };
 
+// Circle Collision
+struct
+{
+    std::vector<sf::Vector2f> points;
+};
+
 // Just swap whichever is needed, might be changed to circle for like trees
 using CollisionShape = std::variant<sf::FloatRect, CollisionPolygon>;
 
