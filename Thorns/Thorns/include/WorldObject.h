@@ -44,13 +44,18 @@ public:
     // ========== ICollidable ==========
     void addCollisionShape(const CollisionShape& shape);
     void clearCollisionShapes();
-    const std::vector<CollisionShape>& getCollisionShapes() const { return m_collisionShapes; }
 
     // ICollidable implementation
     sf::FloatRect getBounds() const override;
 
     // ========== Configuration ==========
     bool loadSpriteFromTexture(const sf::Texture& sharedTexture, const sf::IntRect& textureRect, const sf::Vector2f& size);
+
+    void setCollisionShapes(const std::vector<CollisionShape>* shapes, const sf::Vector2f& templateOrigin);
+
+    bool hasCollisionShapes() const { return m_collisionShapes != nullptr && !m_collisionShapes->empty(); }
+
+    std::vector<CollisionShape> getWorldSpaceShapes() const;
 
     // ========== Queries ==========
     Type getType() const { return m_type; }
@@ -60,7 +65,11 @@ private:
     Type m_type;
     sf::Vector2f m_worldPosition;
     std::unique_ptr<SpriteComponent> m_sprite;
-    std::vector<CollisionShape> m_collisionShapes;
+
+    // Non-owning pointer to the Flyweight shape table (null = no collision)
+    const std::vector<CollisionShape>* m_collisionShapes = nullptr;
+
+    sf::Vector2f m_shapeOffset;
 };
 
 #endif

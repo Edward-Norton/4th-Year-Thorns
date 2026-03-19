@@ -5,6 +5,8 @@ WorldObject::WorldObject(Type type, const sf::Vector2f& worldPos)
     : m_type(type)
     , m_worldPosition(worldPos)
     , m_sprite(nullptr)
+    , m_collisionShapes(nullptr)
+    , m_shapeOffset(0.f, 0.f)
 {
 }
 
@@ -18,24 +20,11 @@ void WorldObject::render(sf::RenderTarget& target) const
 
 void WorldObject::setPosition(const sf::Vector2f& pos)
 {
-    sf::Vector2f offset = pos - m_worldPosition;
+    m_shapeOffset += (pos - m_worldPosition);
     m_worldPosition = pos;
     if (m_sprite)
     {
         m_sprite->setPosition(pos);
-    }
-
-    // Translate collision shapes to match new position
-    for (auto& shape : m_collisionShapes)
-    {
-        std::visit([&](auto& s)
-        {
-                using T = std::decay_t<decltype(s)>;
-                if constexpr (std::is_same_v<T, sf::FloatRect>)
-                    s.position += offset;
-                else if constexpr (std::is_same_v<T, CollisionPolygon>)
-                    for (auto& pt : s.points) pt += offset;
-        }, shape);
     }
 }
 
@@ -70,17 +59,51 @@ bool WorldObject::loadSpriteFromTexture(const sf::Texture& sharedTexture, const 
     return true;
 }
 
+void WorldObject::setCollisionShapes(const std::vector<CollisionShape>* shapes, const sf::Vector2f& templateOrigin)
+{
+    m_collisionShapes = shapes;
+    m_shapeOffset = m_worldPosition - templateOrigin;
+}
+
+std::vector<CollisionShape> WorldObject::getWorldSpaceShapes() const
+{
+    if (!m_collisionShapes)
+        return {};
+
+    std::vector<CollisionShape> result;
+    result.reserve(m_collisionShapes->size());
+
+    for (const auto& shape : *m_collisionShapes)
+    {
+        // Translate each shape by m_shapeOffset into world space
+        std::visit([&](const auto& s)
+        {
+                using T = std::decay_t<decltype(s)>;
+
+                if constexpr (std::is_same_v<T, sf::FloatRect>)
+                {
+                    result.emplace_back(sf::FloatRect(
+                        sf::Vector2f(s.position.x + m_shapeOffset.x,
+                            s.position.y + m_shapeOffset.y),
+                        s.size
+                    ));
+                }
+                else if constexpr (std::is_same_v<T, CollisionPolygon>)
+                {
+                    CollisionPolygon worldPoly;
+                    worldPoly.points.reserve(s.points.size());
+                    for (const auto& pt : s.points)
+                        worldPoly.points.emplace_back(pt.x + m_shapeOffset.x,
+                            pt.y + m_shapeOffset.y);
+                    result.emplace_back(std::move(worldPoly));
+                }
+         }, shape);
+    }
+
+    return result;
+}
+
 bool WorldObject::isValid() const
 {
     return m_sprite && m_sprite->isValid();
-}
-
-void WorldObject::addCollisionShape(const CollisionShape& shape)
-{
-    m_collisionShapes.push_back(shape);
-}
-
-void WorldObject::clearCollisionShapes()
-{
-    m_collisionShapes.clear();
 }

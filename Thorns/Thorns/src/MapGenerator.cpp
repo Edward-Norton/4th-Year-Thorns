@@ -267,7 +267,8 @@ void MapGenerator::phase2_PerlinObjects(Map* map, const GenerationSettings& sett
     {
         if (!m_objectPlacer->initialize(
             Assets::Textures::FOREST_ATLAS,
-            Assets::Data::FOREST_ATLAS_DEFINITIONS))
+            Assets::Data::FOREST_ATLAS_DEFINITIONS,
+            Assets::Maps::WORLD_OBJECTS_TEMPLATE))
         {
             std::cerr << "Failed to initialize ObjectPlacer!\n";
             return;

@@ -30,17 +30,17 @@ public:
     // Check if entity collides with any world object
     bool checkWorldCollision(const sf::FloatRect& entityBounds, const Map* map) const;
 
-    // Check collision with world and return detailed result
-    CollisionResult checkWorldCollisionDetailed(const sf::FloatRect& entityBounds, const Map* map) const;
 
     // World objects
-    CollisionResult checkWorldObjectCollisionDetailed(const sf::FloatRect& entityBounds,
-        const std::vector<std::unique_ptr<WorldObject>>& objects) const;
+    CollisionResult checkWorldCollisionDetailed(const sf::FloatRect& entityBounds, const Map* map) const;
 
     // Check collision against a collection of collidable objects
     template<typename T>
     CollisionResult checkCollisionWith(const sf::FloatRect& entityBounds,
         const std::vector<std::unique_ptr<T>>& objects) const;
+
+    CollisionResult checkCollisionWith(const sf::FloatRect& entityBounds,
+        const std::vector<std::unique_ptr<WorldObject>>& objects) const;
 
     // Resolve collision by calculating correction vector
     sf::Vector2f resolveCollision(const CollisionResult& collision) const;

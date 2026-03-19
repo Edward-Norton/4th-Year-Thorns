@@ -13,6 +13,11 @@ CollisionManager::CollisionManager()
 {
 }
 
+bool CollisionManager::checkWorldCollision(const sf::FloatRect& entityBounds, const Map* map) const
+{
+    return false;
+}
+
 // Broad-phase: skip POI entirely if player AABB misses POI AABB
 // Narrow-phase: sort shapes by distance to player center, test nearest MAX_SHAPES_TO_TEST only
 CollisionManager::CollisionResult CollisionManager::checkWorldCollisionDetailed(
@@ -85,69 +90,6 @@ CollisionManager::CollisionResult CollisionManager::checkWorldCollisionDetailed(
                         std::get<CollisionPolygon>(shapes[idx]).points);
                 else
                     result.penetration = getMinimumTranslationVector(entityBounds, rects[idx]);
-
-                return result;
-            }
-        }
-    }
-
-    return result;
-}
-
-CollisionManager::CollisionResult CollisionManager::checkWorldObjectCollisionDetailed(
-    const sf::FloatRect& entityBounds,
-    const std::vector<std::unique_ptr<WorldObject>>& objects) const
-{
-    CollisionResult result{ false, sf::Vector2f(0.f, 0.f), nullptr };
-
-    sf::Vector2f entityCenter(
-        entityBounds.position.x + entityBounds.size.x / 2.f,
-        entityBounds.position.y + entityBounds.size.y / 2.f
-    );
-
-    for (const auto& obj : objects)
-    {
-        // Broad-phase: skip if player AABB doesn't touch object sprite bounds
-        if (!entityBounds.findIntersection(obj->getBounds()).has_value())
-            continue;
-
-        const auto& shapes = obj->getCollisionShapes();
-
-        // No shapes loaded, fall back to sprite AABB
-        if (shapes.empty())
-        {
-            result.collided = true;
-            result.penetration = getMinimumTranslationVector(entityBounds, obj->getBounds());
-            result.collidedWith = obj.get();
-            return result;
-        }
-
-        // Narrow-phase: test each stored collision shape
-        for (const auto& shape : shapes)
-        {
-            bool hit = std::visit([&](const auto& s) -> bool
-                {
-                    using T = std::decay_t<decltype(s)>;
-                    if constexpr (std::is_same_v<T, sf::FloatRect>)
-                        return entityBounds.findIntersection(s).has_value();
-                    else if constexpr (std::is_same_v<T, CollisionPolygon>)
-                        return aabbVsPolygon(entityBounds, s.points);
-                    return false;
-                }, shape);
-
-            if (hit)
-            {
-                result.collided = true;
-                result.collidedWith = obj.get();
-
-                // Get correct MTV for the shape type
-                bool isPoly = std::holds_alternative<CollisionPolygon>(shape);
-                if (isPoly)
-                    result.penetration = getMTVPolygon(entityBounds,
-                        std::get<CollisionPolygon>(shape).points);
-                else
-                    result.penetration = getMinimumTranslationVector(entityBounds,
-                        std::get<sf::FloatRect>(shape));
 
                 return result;
             }
@@ -321,4 +263,64 @@ sf::Vector2f CollisionManager::getMTVPolygon(const sf::FloatRect& box,
     }
 
     return mtv;
+}
+
+// WorldObject overload: uses TMX-loaded shapes for narrow phase when available
+CollisionManager::CollisionResult CollisionManager::checkCollisionWith(
+    const sf::FloatRect& entityBounds,
+    const std::vector<std::unique_ptr<WorldObject>>& objects) const
+{
+    CollisionResult result{ false, sf::Vector2f(0.f, 0.f), nullptr };
+
+    for (const auto& obj : objects)
+    {
+        // Broad-phase: skip if sprite AABB doesn't intersect
+        if (!entityBounds.findIntersection(obj->getBounds()).has_value())
+            continue;
+
+        if (obj->hasCollisionShapes())
+        {
+            const auto worldShapes = obj->getWorldSpaceShapes();
+
+            for (const auto& shape : worldShapes)
+            {
+                bool hit = std::visit([&](const auto& s) -> bool
+                    {
+                        using T = std::decay_t<decltype(s)>;
+                        if constexpr (std::is_same_v<T, sf::FloatRect>)
+                            return entityBounds.findIntersection(s).has_value();
+                        else if constexpr (std::is_same_v<T, CollisionPolygon>)
+                            return aabbVsPolygon(entityBounds, s.points);
+                        return false;
+                    }, shape);
+
+                if (hit)
+                {
+                    result.collided = true;
+                    result.collidedWith = obj.get();
+
+                    std::visit([&](const auto& s)
+                        {
+                            using T = std::decay_t<decltype(s)>;
+                            if constexpr (std::is_same_v<T, sf::FloatRect>)
+                                result.penetration = getMinimumTranslationVector(entityBounds, s);
+                            else if constexpr (std::is_same_v<T, CollisionPolygon>)
+                                result.penetration = getMTVPolygon(entityBounds, s.points);
+                        }, shape);
+
+                    return result;
+                }
+            }
+        }
+        else
+        {
+            // No TMX shapes for this type, fall back to sprite AABB
+            result.collided = true;
+            result.penetration = getMinimumTranslationVector(entityBounds, obj->getBounds());
+            result.collidedWith = obj.get();
+            return result;
+        }
+    }
+
+    return result;
 }

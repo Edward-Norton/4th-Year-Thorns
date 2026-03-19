@@ -55,7 +55,9 @@ public:
     // ========== Initialization ==========
 
     // Load object atlas and parse object definitions
-    bool initialize(const std::string& atlasPath, const std::string& definitionsPath);
+    bool initialize(const std::string& atlasPath,
+        const std::string& definitionsPath,
+        const std::string& collisionTmxPath = "");
 
     // ========== Object Generation ==========
 
@@ -115,7 +117,7 @@ private:
 
     bool m_initialized;
 
-
+    // Collision
     WorldObjectTemplateManager m_templateManager;
     bool m_templatesLoaded = false;
 };

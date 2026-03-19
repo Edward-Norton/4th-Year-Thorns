@@ -19,7 +19,9 @@ ObjectPlacer::ObjectPlacer()
 /// Forgot to make the atlas shared between all the objects, so each had their own causing massive memory issue. 
 /// This is resolved now by making them all reference the texture rather than owning all, so it was doing 1000x5MB for example
 /// </summary>
-bool ObjectPlacer::initialize(const std::string& atlasPath, const std::string& definitionsPath)
+bool ObjectPlacer::initialize(const std::string& atlasPath, 
+                              const std::string& definitionsPath,
+                              const std::string& collisionTmxPath)
 {
     m_atlasPath = atlasPath;
 
@@ -37,7 +39,7 @@ bool ObjectPlacer::initialize(const std::string& atlasPath, const std::string& d
         m_templatesLoaded = true;
     }
     else
-        std::cerr << "ObjectPlacer: Failed to load world object templates\n";
+        std::cerr << "ObjectPlacer: Failed to load world object templates for TMX collisions\n";
 
 
     // Parse object definitions
@@ -157,6 +159,8 @@ void ObjectPlacer::generateObjects(Map* map, const PlacementSettings& settings, 
         return;
     }
 
+    const sf::Vector2f tmxOrigin(0.f, 0.f);
+
     // Sample every (n)th tile, might change depending on performance later
     const int sampleStep = 2;  // Check every 2nd tile
 
@@ -199,9 +203,13 @@ void ObjectPlacer::generateObjects(Map* map, const PlacementSettings& settings, 
                 {
                     if (m_templatesLoaded)
                     {
-                        std::string tmplName = getCollisionTemplateName(settings.objectType);
-                        if (!tmplName.empty() && m_templateManager.hasTemplate(tmplName))
-                            m_templateManager.applyCollision(object.get(), tmplName);
+                        const auto* shapes = m_templateManager.getShapes(settings.objectType);
+                        if (shapes) {
+                            object->setCollisionShapes(shapes, tmxOrigin);
+                            std::cout << "Object at (" << worldPos.x << "," << worldPos.y
+                                << ") got " << shapes->size() << " shape(s)\n";
+                        }
+
                     }
                     m_objects.push_back(std::move(object));
                     ++objectsPlaced;

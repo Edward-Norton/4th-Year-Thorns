@@ -311,7 +311,8 @@ void Game::updatePlaying(sf::Time deltaTime)
     if (m_mapGenerator.getObjectPlacer())
     {
         const auto& worldObjects = m_mapGenerator.getObjectPlacer()->getObjects();
-        auto objectCollision = m_collisionManager.checkWorldObjectCollisionDetailed(playerBounds, worldObjects);
+        playerBounds = m_player.getBounds();
+        auto objectCollision = m_collisionManager.checkCollisionWith(playerBounds, worldObjects);
 
         if (objectCollision.collided)
         {

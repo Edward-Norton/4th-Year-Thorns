@@ -28,18 +28,18 @@ public:
     // Load all collision shapes from a single TMX file
     bool loadTemplates(const std::string& tmxPath);
 
-    // Get template by object name string (e.g. "Tree_1")
-    const WorldObjectTemplate* getTemplate(const std::string& name) const;
+    const std::vector<CollisionShape>* getShapes(WorldObject::Type type) const;
 
-    bool hasTemplate(const std::string& name) const;
-
-    // Apply stored shapes to a WorldObject
-    void applyCollision(WorldObject* obj, const std::string& templateName);
+    bool hasShapes(WorldObject::Type type) const;
 
 private:
-    std::unordered_map<std::string, WorldObjectTemplate> m_templates;
 
-    std::vector<CollisionShape> extractShapes(const tmx::Map& mapData, const std::string& targetName);
+    static bool nameToType(const std::string& name, WorldObject::Type& outType);
+
+    static bool buildShape(const tmx::Object& obj, CollisionShape& outShape);
+
+    std::unordered_map<WorldObject::Type, std::vector<CollisionShape>> m_shapes;
+
 };
 
 #endif

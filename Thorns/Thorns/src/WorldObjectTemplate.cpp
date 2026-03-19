@@ -15,117 +15,121 @@ bool WorldObjectTemplateManager::loadTemplates(const std::string& tmxPath)
         return false;
     }
 
-    // Find the Collision object group
+    m_shapes.clear();
+
     for (const auto& layer : mapData.getLayers())
     {
         if (layer->getType() != tmx::Layer::Type::Object) continue;
         if (layer->getName() != "Collision")              continue;
 
-        const auto& objectGroup = layer->getLayerAs<tmx::ObjectGroup>();
+        const auto& group = layer->getLayerAs<tmx::ObjectGroup>();
 
-        for (const auto& obj : objectGroup.getObjects())
+        for (const auto& obj : group.getObjects())
         {
-            std::string name = obj.getName();
-            if (name.empty()) continue;
-
-            WorldObjectTemplate tmpl;
-            tmpl.name = name;
-
-            const auto& aabb = obj.getAABB();
-            const float ox = static_cast<float>(aabb.left);
-            const float oy = static_cast<float>(aabb.top);
-            const float ow = static_cast<float>(aabb.width);
-            const float oh = static_cast<float>(aabb.height);
-
-            switch (obj.getShape())
+            WorldObject::Type type;
+            if (!nameToType(obj.getName(), type))
             {
-            case tmx::Object::Shape::Rectangle:
-            {
-              
-                tmpl.shapes.emplace_back(sf::FloatRect(
-                    sf::Vector2f(ox, oy),
-                    sf::Vector2f(ow, oh)
-                ));
-                break;
-            }
-            case tmx::Object::Shape::Ellipse:
-            {
-                tmpl.shapes.emplace_back(sf::FloatRect(
-                    sf::Vector2f(ox, oy),
-                    sf::Vector2f(ow, oh)
-                ));
-                break;
-            }
-            case tmx::Object::Shape::Polygon:
-            case tmx::Object::Shape::Polyline:
-            {
-                CollisionPolygon poly;
-                for (const auto& pt : obj.getPoints())
-                    poly.points.emplace_back(ox + pt.x, oy + pt.y);
-                if (poly.points.size() >= 3)
-                    tmpl.shapes.emplace_back(std::move(poly));
-                break;
-            }
-            default:
-               
-                break;
+                std::cout << "WorldObjectCollisionLoader: Unknown object name '"
+                    << obj.getName() << "', skipping.\n";
+                continue;
             }
 
-            if (!tmpl.shapes.empty())
-                m_templates[name] = std::move(tmpl);
+            CollisionShape shape;
+            if (!buildShape(obj, shape))
+                continue;
+
+            // Append to the type's shape list (one TMX object = one shape)
+            m_shapes[type].push_back(std::move(shape));
         }
     }
 
-    std::cout << "WorldObjectTemplateManager: Loaded " << m_templates.size() << " templates\n";
-    return !m_templates.empty();
-}
-
-const WorldObjectTemplate* WorldObjectTemplateManager::getTemplate(const std::string& name) const
-{
-    auto it = m_templates.find(name);
-    return it != m_templates.end() ? &it->second : nullptr;
-}
-
-bool WorldObjectTemplateManager::hasTemplate(const std::string& name) const
-{
-    return m_templates.find(name) != m_templates.end();
-}
-
-void WorldObjectTemplateManager::applyCollision(WorldObject* obj, const std::string& templateName)
-{
-    const WorldObjectTemplate* tmpl = getTemplate(templateName);
-    if (!tmpl)
+    for (const auto& [type, shapes] : m_shapes)
     {
-        std::cerr << "WorldObjectTemplateManager: Template not found: " << templateName << "\n";
-        return;
+        std::cout << "WorldObjectCollisionLoader: Type " << static_cast<int>(type)
+            << " -> " << shapes.size() << " collision shape(s)\n";
     }
 
-    obj->clearCollisionShapes();
+    return !m_shapes.empty();
+}
 
-    // World pos
-    sf::Vector2f origin = obj->getPosition();
+const std::vector<CollisionShape>* WorldObjectTemplateManager::getShapes(WorldObject::Type type) const
+{
+    auto it = m_shapes.find(type);
+    if (it != m_shapes.end())
+        return &it->second;
+    return nullptr;
+}
 
-    for (const auto& shape : tmpl->shapes)
+bool WorldObjectTemplateManager::hasShapes(WorldObject::Type type) const
+{
+    return m_shapes.count(type) > 0;
+}
+
+bool WorldObjectTemplateManager::nameToType(const std::string& name, WorldObject::Type& outType)
+{
+    // TMX object name -> WorldObject::Type mapping table.
+    // Add rows here when the TMX gains new named objects.
+    static const std::pair<const char*, WorldObject::Type> table[] =
     {
-        std::visit([&](const auto& s)
-            {
-                using T = std::decay_t<decltype(s)>;
+        { "Tree_Stump_Large", WorldObject::Type::LargeRoot     },
+        { "Tree_Stump_Small", WorldObject::Type::SmallRoot     },
+        { "Tree_1",           WorldObject::Type::TreeTop1      },
+        { "Tree_2",           WorldObject::Type::TreeTop2      },
+        // SmallRootBasic shares the same shape as SmallRoot
+        { "Tree_Stump_Small", WorldObject::Type::SmallRootBasic },
+    };
 
-                if constexpr (std::is_same_v<T, sf::FloatRect>)
-                {
-                    obj->addCollisionShape(sf::FloatRect(
-                        sf::Vector2f(origin.x + s.position.x, origin.y + s.position.y),
-                        s.size
-                    ));
-                }
-                else if constexpr (std::is_same_v<T, CollisionPolygon>)
-                {
-                    CollisionPolygon worldPoly;
-                    worldPoly.points.reserve(s.points.size());
-                    for (const auto& pt : s.points)
-                        worldPoly.points.emplace_back(origin.x + pt.x, origin.y + pt.y);
-                    obj->addCollisionShape(std::move(worldPoly));
-                }
-            }, shape);
+    for (const auto& [tmxName, type] : table)
+    {
+        if (name == tmxName)
+        {
+            outType = type;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool WorldObjectTemplateManager::buildShape(const tmx::Object& obj, CollisionShape& outShape)
+{
+    const auto& aabb = obj.getAABB();
+    const float ow = static_cast<float>(aabb.width);
+    const float oh = static_cast<float>(aabb.height);
+
+    switch (obj.getShape())
+    {
+    case tmx::Object::Shape::Rectangle:
+    {
+        outShape = sf::FloatRect(sf::Vector2f(0.f, 0.f), sf::Vector2f(ow, oh));
+        return true;
+    }
+
+    case tmx::Object::Shape::Ellipse:
+    {
+        outShape = sf::FloatRect(sf::Vector2f(0.f, 0.f), sf::Vector2f(ow, oh));
+        return true;
+    }
+
+    case tmx::Object::Shape::Polygon:
+    case tmx::Object::Shape::Polyline:
+    {
+        CollisionPolygon poly;
+        poly.points.reserve(obj.getPoints().size());
+        for (const auto& pt : obj.getPoints())
+            poly.points.emplace_back(static_cast<float>(pt.x),
+                static_cast<float>(pt.y));
+
+        if (poly.points.size() < 3)
+            return false;
+
+        outShape = std::move(poly);
+        return true;
+    }
+
+    default:
+        return false;
     }
 }
+
+
+
