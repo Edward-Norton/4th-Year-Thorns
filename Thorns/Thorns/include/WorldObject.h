@@ -7,6 +7,7 @@
 #include "IRenderable.h"
 #include "IPositionable.h"
 #include "ICollidable.h"
+#include "POITemplate.h"
 
 /// <summary>
 /// Represents a procedurally placed object in the world (trees, rocks, etc.)
@@ -40,6 +41,11 @@ public:
     sf::Vector2f getPosition() const override { return m_worldPosition; }
     void setPosition(const sf::Vector2f& pos) override;
 
+    // ========== ICollidable ==========
+    void addCollisionShape(const CollisionShape& shape);
+    void clearCollisionShapes();
+    const std::vector<CollisionShape>& getCollisionShapes() const { return m_collisionShapes; }
+
     // ICollidable implementation
     sf::FloatRect getBounds() const override;
 
@@ -54,6 +60,7 @@ private:
     Type m_type;
     sf::Vector2f m_worldPosition;
     std::unique_ptr<SpriteComponent> m_sprite;
+    std::vector<CollisionShape> m_collisionShapes;
 };
 
 #endif

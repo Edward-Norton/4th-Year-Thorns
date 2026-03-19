@@ -8,6 +8,7 @@
 #include <SFML/Graphics.hpp>
 #include "PerlinNoise.h"
 #include "WorldObject.h"
+#include "WorldObjectTemplate.h"
 
 class Map;
 
@@ -113,6 +114,10 @@ private:
     std::unordered_map<WorldObject::Type, ObjectDefinition> m_definitions;
 
     bool m_initialized;
+
+
+    WorldObjectTemplateManager m_templateManager;
+    bool m_templatesLoaded = false;
 };
 
 #endif

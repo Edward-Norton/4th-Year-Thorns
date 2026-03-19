@@ -39,6 +39,9 @@ bool ObjectPlacer::initialize(const std::string& atlasPath, const std::string& d
         return false;
     }
 
+    if (m_templateManager.loadTemplates("ASSETS\\MAPS\\OBJECT_TEMPLATES\\world_objects.tmx"))
+        m_templatesLoaded = true;
+
     m_initialized = true;
     std::cout << "ObjectPlacer initialized with " << m_definitions.size() << " object types\n";
     return true;
@@ -174,6 +177,8 @@ void ObjectPlacer::generateObjects(Map* map, const PlacementSettings& settings, 
                 // Load sprite from atlas
                 if (object->loadSpriteFromTexture(m_sharedAtlasTexture, def->textureRect, def->size))
                 {
+                    if (settings.objectType == WorldObject::Type::SmallRoot && m_templatesLoaded)
+                        m_templateManager.applyCollision(object.get(), "Tree_Stump_Small");
                     m_objects.push_back(std::move(object));
                     ++objectsPlaced;
                 }

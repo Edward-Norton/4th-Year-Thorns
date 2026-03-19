@@ -2,6 +2,7 @@
 #include "PointOfInterest.h"
 #include <iostream>
 #include <tmxlite/ObjectGroup.hpp>
+#include "WorldObjectTemplate.h"
 
 POITemplateManager::POITemplateManager()
 {
@@ -34,7 +35,6 @@ bool POITemplateManager::loadTemplate(const std::string& name, const std::string
 
     return true;
 }
-
 
 const POITemplate* POITemplateManager::getTemplate(const std::string& name) const
 {

@@ -213,6 +213,9 @@
     <ClCompile Include="src\POITypeConfig.cpp">
       <Filter>Source Files\World</Filter>
     </ClCompile>
+    <ClCompile Include="src\WorldObjectTemplate.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Enemy.h">
@@ -303,6 +306,9 @@
       <Filter>Header Files\Managers</Filter>
     </ClInclude>
     <ClInclude Include="include\POITypeConfig.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WorldObjectTemplate.h">
       <Filter>Header Files\World</Filter>
     </ClInclude>
   </ItemGroup>

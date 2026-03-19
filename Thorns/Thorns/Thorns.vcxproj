@@ -55,6 +55,7 @@
     <ClCompile Include="src\SpriteComponent.cpp" />
     <ClCompile Include="src\VoronoiDiagram.cpp" />
     <ClCompile Include="src\WorldObject.cpp" />
+    <ClCompile Include="src\WorldObjectTemplate.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\AssetPaths.h" />
@@ -87,6 +88,7 @@
     <ClInclude Include="include\SpriteComponent.h" />
     <ClInclude Include="include\VoronoiDiagram.h" />
     <ClInclude Include="include\WorldObject.h" />
+    <ClInclude Include="include\WorldObjectTemplate.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ASSETS\DATA\forest-atlas-points.txt" />

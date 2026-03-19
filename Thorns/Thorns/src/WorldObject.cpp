@@ -60,3 +60,13 @@ bool WorldObject::isValid() const
 {
     return m_sprite && m_sprite->isValid();
 }
+
+void WorldObject::addCollisionShape(const CollisionShape& shape)
+{
+    m_collisionShapes.push_back(shape);
+}
+
+void WorldObject::clearCollisionShapes()
+{
+    m_collisionShapes.clear();
+}
