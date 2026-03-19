@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <variant>
 #include "WorldObject.h"
-#include "POITemplate.h"  // Reuse CollisionShape
+#include "CollisionType.h"
 
 // Stores collision shapes for one named object type, in template-local space
 struct WorldObjectTemplate

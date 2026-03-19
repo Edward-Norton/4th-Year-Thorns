@@ -6,6 +6,7 @@
 #include "ICollidable.h"
 
 class Map;
+class WorldObject;
 
 /// <summary>
 /// Generic collision detection and resolution system
@@ -31,6 +32,10 @@ public:
 
     // Check collision with world and return detailed result
     CollisionResult checkWorldCollisionDetailed(const sf::FloatRect& entityBounds, const Map* map) const;
+
+    // World objects
+    CollisionResult checkWorldObjectCollisionDetailed(const sf::FloatRect& entityBounds,
+        const std::vector<std::unique_ptr<WorldObject>>& objects) const;
 
     // Check collision against a collection of collidable objects
     template<typename T>

@@ -94,6 +94,69 @@ CollisionManager::CollisionResult CollisionManager::checkWorldCollisionDetailed(
     return result;
 }
 
+CollisionManager::CollisionResult CollisionManager::checkWorldObjectCollisionDetailed(
+    const sf::FloatRect& entityBounds,
+    const std::vector<std::unique_ptr<WorldObject>>& objects) const
+{
+    CollisionResult result{ false, sf::Vector2f(0.f, 0.f), nullptr };
+
+    sf::Vector2f entityCenter(
+        entityBounds.position.x + entityBounds.size.x / 2.f,
+        entityBounds.position.y + entityBounds.size.y / 2.f
+    );
+
+    for (const auto& obj : objects)
+    {
+        // Broad-phase: skip if player AABB doesn't touch object sprite bounds
+        if (!entityBounds.findIntersection(obj->getBounds()).has_value())
+            continue;
+
+        const auto& shapes = obj->getCollisionShapes();
+
+        // No shapes loaded, fall back to sprite AABB
+        if (shapes.empty())
+        {
+            result.collided = true;
+            result.penetration = getMinimumTranslationVector(entityBounds, obj->getBounds());
+            result.collidedWith = obj.get();
+            return result;
+        }
+
+        // Narrow-phase: test each stored collision shape
+        for (const auto& shape : shapes)
+        {
+            bool hit = std::visit([&](const auto& s) -> bool
+                {
+                    using T = std::decay_t<decltype(s)>;
+                    if constexpr (std::is_same_v<T, sf::FloatRect>)
+                        return entityBounds.findIntersection(s).has_value();
+                    else if constexpr (std::is_same_v<T, CollisionPolygon>)
+                        return aabbVsPolygon(entityBounds, s.points);
+                    return false;
+                }, shape);
+
+            if (hit)
+            {
+                result.collided = true;
+                result.collidedWith = obj.get();
+
+                // Get correct MTV for the shape type
+                bool isPoly = std::holds_alternative<CollisionPolygon>(shape);
+                if (isPoly)
+                    result.penetration = getMTVPolygon(entityBounds,
+                        std::get<CollisionPolygon>(shape).points);
+                else
+                    result.penetration = getMinimumTranslationVector(entityBounds,
+                        std::get<sf::FloatRect>(shape));
+
+                return result;
+            }
+        }
+    }
+
+    return result;
+}
+
 sf::Vector2f CollisionManager::resolveCollision(const CollisionResult& collision) const
 {
     if (!collision.collided)

@@ -61,6 +61,7 @@
     <ClInclude Include="include\AssetPaths.h" />
     <ClInclude Include="include\ButtonComponent.h" />
     <ClInclude Include="include\CollisionManager.h" />
+    <ClInclude Include="include\CollisionType.h" />
     <ClInclude Include="include\CursorComponent.h" />
     <ClInclude Include="include\Enemy.h" />
     <ClInclude Include="include\Game.h" />
@@ -95,6 +96,7 @@
     <Text Include="ASSETS\DATA\terrain-atlas-points.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ASSETS\MAPS\OBJECT_TEMPLATES\world_objects.tmx" />
     <None Include="ASSETS\MAPS\POI_TEMPLATES\farm.tmx" />
     <None Include="ASSETS\MAPS\POI_TEMPLATES\hideout.tmx" />
   </ItemGroup>

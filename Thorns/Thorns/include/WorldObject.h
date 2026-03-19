@@ -7,7 +7,7 @@
 #include "IRenderable.h"
 #include "IPositionable.h"
 #include "ICollidable.h"
-#include "POITemplate.h"
+#include "CollisionType.h"
 
 /// <summary>
 /// Represents a procedurally placed object in the world (trees, rocks, etc.)

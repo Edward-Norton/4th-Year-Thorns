@@ -18,8 +18,8 @@ void WorldObject::render(sf::RenderTarget& target) const
 
 void WorldObject::setPosition(const sf::Vector2f& pos)
 {
-    m_worldPosition = pos;
     sf::Vector2f offset = pos - m_worldPosition;
+    m_worldPosition = pos;
     if (m_sprite)
     {
         m_sprite->setPosition(pos);

@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include "AssetPaths.h"
 
 ObjectPlacer::ObjectPlacer()
     : m_perlin(nullptr)
@@ -32,6 +33,13 @@ bool ObjectPlacer::initialize(const std::string& atlasPath, const std::string& d
     m_atlasTextureLoaded = true;
     std::cout << "ObjectPlacer: Loaded shared texture atlas: " << atlasPath << "\n";
 
+    if (m_templateManager.loadTemplates(Assets::Maps::WORLD_OBJECTS_TEMPLATE)) {
+        m_templatesLoaded = true;
+    }
+    else
+        std::cerr << "ObjectPlacer: Failed to load world object templates\n";
+
+
     // Parse object definitions
     if (!parseDefinitions(definitionsPath))
     {
@@ -39,8 +47,6 @@ bool ObjectPlacer::initialize(const std::string& atlasPath, const std::string& d
         return false;
     }
 
-    if (m_templateManager.loadTemplates("ASSETS\\MAPS\\OBJECT_TEMPLATES\\world_objects.tmx"))
-        m_templatesLoaded = true;
 
     m_initialized = true;
     std::cout << "ObjectPlacer initialized with " << m_definitions.size() << " object types\n";
@@ -106,6 +112,20 @@ bool ObjectPlacer::parseDefinitions(const std::string& definitionsPath)
     }
 
     return !m_definitions.empty();
+}
+
+// Maps WorldObject type to the collision shape name in the TMX file
+static std::string getCollisionTemplateName(WorldObject::Type type)
+{
+    switch (type)
+    {
+    case WorldObject::Type::SmallRoot:      return "Tree_Stump_Small";
+    case WorldObject::Type::LargeRoot:      return "Tree_Stump_Large";
+    case WorldObject::Type::TreeTop1:       return "Tree_1";
+    case WorldObject::Type::TreeTop2:       return "Tree_2";
+    case WorldObject::Type::SmallRootBasic: return "Tree_Stump_Small";
+    default:                                return "";
+    }
 }
 
 void ObjectPlacer::generateObjects(Map* map, const PlacementSettings& settings, unsigned int seed)
@@ -177,8 +197,12 @@ void ObjectPlacer::generateObjects(Map* map, const PlacementSettings& settings, 
                 // Load sprite from atlas
                 if (object->loadSpriteFromTexture(m_sharedAtlasTexture, def->textureRect, def->size))
                 {
-                    if (settings.objectType == WorldObject::Type::SmallRoot && m_templatesLoaded)
-                        m_templateManager.applyCollision(object.get(), "Tree_Stump_Small");
+                    if (m_templatesLoaded)
+                    {
+                        std::string tmplName = getCollisionTemplateName(settings.objectType);
+                        if (!tmplName.empty() && m_templateManager.hasTemplate(tmplName))
+                            m_templateManager.applyCollision(object.get(), tmplName);
+                    }
                     m_objects.push_back(std::move(object));
                     ++objectsPlaced;
                 }

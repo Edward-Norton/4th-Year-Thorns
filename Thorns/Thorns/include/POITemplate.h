@@ -7,24 +7,9 @@
 #include <string>
 #include <unordered_map>
 #include <variant>
+#include "CollisionType.h"
 
 class PointOfInterest;
-
-// Convex polygon in template-local space
-struct CollisionPolygon
-{
-    std::vector<sf::Vector2f> points;
-};
-
-// Circle Collision
-struct
-{
-    std::vector<sf::Vector2f> points;
-};
-
-// Just swap whichever is needed, might be changed to circle for like trees
-using CollisionShape = std::variant<sf::FloatRect, CollisionPolygon>;
-
 
 struct POITemplate
 {

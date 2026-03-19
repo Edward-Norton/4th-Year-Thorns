@@ -115,6 +115,9 @@
     <Filter Include="Resource Files\MAP\POI_TEMPLATES">
       <UniqueIdentifier>{a140c2de-0f9e-407c-94f1-42b57ecb4eaf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\MAP\OBJECT_TEMPLATES">
+      <UniqueIdentifier>{4691dadb-9bde-4753-b4f3-487a5e7e82b3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="ASSETS\IMAGES\EnemyShip.png">
@@ -311,6 +314,9 @@
     <ClInclude Include="include\WorldObjectTemplate.h">
       <Filter>Header Files\World</Filter>
     </ClInclude>
+    <ClInclude Include="include\CollisionType.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ASSETS\DATA\forest-atlas-points.txt">
@@ -326,6 +332,9 @@
     </None>
     <None Include="ASSETS\MAPS\POI_TEMPLATES\hideout.tmx">
       <Filter>Resource Files\MAP\POI_TEMPLATES</Filter>
+    </None>
+    <None Include="ASSETS\MAPS\OBJECT_TEMPLATES\world_objects.tmx">
+      <Filter>Resource Files\MAP\OBJECT_TEMPLATES</Filter>
     </None>
   </ItemGroup>
 </Project>

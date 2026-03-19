@@ -48,6 +48,14 @@ bool WorldObjectTemplateManager::loadTemplates(const std::string& tmxPath)
                 ));
                 break;
             }
+            case tmx::Object::Shape::Ellipse:
+            {
+                tmpl.shapes.emplace_back(sf::FloatRect(
+                    sf::Vector2f(ox, oy),
+                    sf::Vector2f(ow, oh)
+                ));
+                break;
+            }
             case tmx::Object::Shape::Polygon:
             case tmx::Object::Shape::Polyline:
             {
