@@ -41,7 +41,7 @@ bool WorldObjectTemplateManager::loadTemplates(const std::string& tmxPath)
             {
             case tmx::Object::Shape::Rectangle:
             {
-                // V1 BUG: stored in template-local space, never offset to world pos
+              
                 tmpl.shapes.emplace_back(sf::FloatRect(
                     sf::Vector2f(ox, oy),
                     sf::Vector2f(ow, oh)
@@ -59,7 +59,7 @@ bool WorldObjectTemplateManager::loadTemplates(const std::string& tmxPath)
                 break;
             }
             default:
-                // V1: ellipses silently dropped
+               
                 break;
             }
 
@@ -94,7 +94,30 @@ void WorldObjectTemplateManager::applyCollision(WorldObject* obj, const std::str
 
     obj->clearCollisionShapes();
 
-    // V1 BUG: shapes are in template-local space, not offset to obj->getPosition()
+    // World pos
+    sf::Vector2f origin = obj->getPosition();
+
     for (const auto& shape : tmpl->shapes)
-        obj->addCollisionShape(shape);
+    {
+        std::visit([&](const auto& s)
+            {
+                using T = std::decay_t<decltype(s)>;
+
+                if constexpr (std::is_same_v<T, sf::FloatRect>)
+                {
+                    obj->addCollisionShape(sf::FloatRect(
+                        sf::Vector2f(origin.x + s.position.x, origin.y + s.position.y),
+                        s.size
+                    ));
+                }
+                else if constexpr (std::is_same_v<T, CollisionPolygon>)
+                {
+                    CollisionPolygon worldPoly;
+                    worldPoly.points.reserve(s.points.size());
+                    for (const auto& pt : s.points)
+                        worldPoly.points.emplace_back(origin.x + pt.x, origin.y + pt.y);
+                    obj->addCollisionShape(std::move(worldPoly));
+                }
+            }, shape);
+    }
 }

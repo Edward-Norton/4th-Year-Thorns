@@ -19,9 +19,23 @@ void WorldObject::render(sf::RenderTarget& target) const
 void WorldObject::setPosition(const sf::Vector2f& pos)
 {
     m_worldPosition = pos;
+    sf::Vector2f offset = pos - m_worldPosition;
     if (m_sprite)
     {
         m_sprite->setPosition(pos);
+    }
+
+    // Translate collision shapes to match new position
+    for (auto& shape : m_collisionShapes)
+    {
+        std::visit([&](auto& s)
+        {
+                using T = std::decay_t<decltype(s)>;
+                if constexpr (std::is_same_v<T, sf::FloatRect>)
+                    s.position += offset;
+                else if constexpr (std::is_same_v<T, CollisionPolygon>)
+                    for (auto& pt : s.points) pt += offset;
+        }, shape);
     }
 }
 

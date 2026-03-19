@@ -33,7 +33,7 @@ public:
 
     bool hasTemplate(const std::string& name) const;
 
-    // Apply stored shapes to a WorldObject (V1: no world-space transform)
+    // Apply stored shapes to a WorldObject
     void applyCollision(WorldObject* obj, const std::string& templateName);
 
 private:
