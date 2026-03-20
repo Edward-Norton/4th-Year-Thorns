@@ -118,6 +118,12 @@
     <Filter Include="Resource Files\MAP\OBJECT_TEMPLATES">
       <UniqueIdentifier>{4691dadb-9bde-4753-b4f3-487a5e7e82b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Components\HUD">
+      <UniqueIdentifier>{0f1ad7ae-0f18-42a1-a99b-a0bda70cae39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\HUD">
+      <UniqueIdentifier>{9e0c8114-0421-4069-8e18-c83e63ef580b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="ASSETS\IMAGES\EnemyShip.png">
@@ -219,6 +225,9 @@
     <ClCompile Include="src\WorldObjectTemplate.cpp">
       <Filter>Source Files\World</Filter>
     </ClCompile>
+    <ClCompile Include="src\HudComponent.cpp">
+      <Filter>Source Files\Components\HUD</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Enemy.h">
@@ -316,6 +325,9 @@
     </ClInclude>
     <ClInclude Include="include\CollisionType.h">
       <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="include\HudComponent.h">
+      <Filter>Header Files\Components\HUD</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

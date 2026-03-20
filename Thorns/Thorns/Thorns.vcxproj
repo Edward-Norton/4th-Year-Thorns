@@ -37,6 +37,7 @@
     <ClCompile Include="src\Enemy.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\GameStateManager.cpp" />
+    <ClCompile Include="src\HudComponent.cpp" />
     <ClCompile Include="src\InputController.cpp" />
     <ClCompile Include="src\Inventory.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -66,6 +67,7 @@
     <ClInclude Include="include\Enemy.h" />
     <ClInclude Include="include\Game.h" />
     <ClInclude Include="include\GameStateManager.h" />
+    <ClInclude Include="include\HudComponent.h" />
     <ClInclude Include="include\ICollidable.h" />
     <ClInclude Include="include\IGameEntity.h" />
     <ClInclude Include="include\InputController.h" />
@@ -167,7 +169,8 @@
 ;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(ProjectDir)lib\tmxlite\tmxlite-d.dll" "$(OutDir)"</Command>
+      <Command>xcopy /y /d "$(ProjectDir)lib\tmxlite\tmxlite-d.dll" "$(OutDir)"
+xcopy /y "$(SFML_SDK)\bin\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
