@@ -1,4 +1,5 @@
 #include "CursorComponent.h"
+#include "HealthComponent.h"
 
 CursorComponent::CursorComponent()
     : m_position(0.f, 0.f)
