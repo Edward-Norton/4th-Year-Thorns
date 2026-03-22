@@ -228,6 +228,9 @@
     <ClCompile Include="src\HudComponent.cpp">
       <Filter>Source Files\Components\HUD</Filter>
     </ClCompile>
+    <ClCompile Include="src\HealthComponent.cpp">
+      <Filter>Source Files\Components\Gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Enemy.h">
@@ -328,6 +331,9 @@
     </ClInclude>
     <ClInclude Include="include\HudComponent.h">
       <Filter>Header Files\Components\HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="include\HealthComponent.h">
+      <Filter>Header Files\Components\Gameplay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

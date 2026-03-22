@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include "IRenderable.h"
+#include "HealthComponent.h"
 
 /// <summary>
 /// Render HUD elements (health bar, stamina, etc.
@@ -11,6 +12,7 @@
 class HUDComponent : public IRenderable
 {
 public:
+    explicit HUDComponent(const HealthComponent& health); // Just to ensure no swap conversion, 
     HUDComponent() = default;
     ~HUDComponent() = default;
 
@@ -30,6 +32,9 @@ private:
         const std::string& label,
         float current,
         float max) const;
+
+    // Data to show
+    const HealthComponent& m_health;
 
     // ========== Font ==========
     sf::Font m_font;

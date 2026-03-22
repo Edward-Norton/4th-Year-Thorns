@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "InputController.h"
 #include "MathUtilities.h"
+#include "AssetPaths.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -14,6 +15,7 @@ Player::Player()
     , m_velocity(0.f, 0.f)
     , m_targetRotation(sf::degrees(0.f))
     , m_currentRotation(sf::degrees(0.f))
+    , m_hud(m_health)
 {
 }
 
@@ -30,6 +32,18 @@ bool Player::initialize(const std::string& texturePath)
     // Initialize cursor
     if (!m_cursor.initialize(8.f))
         return false;
+
+    // Init HUD elements
+    m_health.initialize(100.0f);
+
+    // Hud
+    if (!m_hud.initialize(Assets::Fonts::JERSEY_20))
+    {
+        std::cerr << "Player: HUD font failed to load, health bar will not render\n";
+        // Non-fatal
+    }
+
+    // Inventory
 
     m_inventory.initialize();
 
@@ -50,6 +64,9 @@ void Player::update(sf::Time deltaTime)
 
     // Update rotation to face mouse
     updateRotation();
+
+    // Update Health 
+    m_health.update(deltaTime);
 
     // Update movement physics
     updateMovement(deltaTime);
@@ -93,7 +110,21 @@ void Player::render(sf::RenderTarget& target) const
 {
     if (!m_active) return;
     m_sprite.render(target);
+}
+
+void Player::renderHUD(sf::RenderTarget& target) const
+{
+    m_hud.render(target);
+}
+
+void Player::renderCursor(sf::RenderTarget& target) const
+{
     m_cursor.render(target);
+}
+
+void Player::renderInventory(sf::RenderTarget& target) const
+{
+    m_inventory.render(target);
 }
 
 void Player::updateState()
@@ -237,7 +268,7 @@ void Player::updateRotation()
 
 void Player::updateCursor()
 {
-    m_cursor.update(m_mousePosition);
+    m_cursor.update(m_inputController->getMousePosition());
 }
 
 sf::Vector2f Player::calculateMovementInput() const

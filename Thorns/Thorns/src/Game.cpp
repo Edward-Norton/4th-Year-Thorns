@@ -404,7 +404,9 @@ void Game::render()
 
         // For UI spacing
         m_window.setView(m_uiView);
-        m_player.getInventory().render(m_window);
+        m_player.renderHUD(m_window);
+        m_player.renderInventory(m_window);
+        m_player.renderCursor(m_window);
 
         break;
 

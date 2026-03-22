@@ -7,6 +7,8 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include "Inventory.h"
+#include "HealthComponent.h"
+#include "HudComponent.h"
 
 class InputController;
 
@@ -38,6 +40,9 @@ public:
 
     // ========== IRenderable ==========
     void render(sf::RenderTarget& target) const override;
+    void renderHUD(sf::RenderTarget& target) const;
+    void renderCursor(sf::RenderTarget& target) const;
+    void renderInventory(sf::RenderTarget& target) const;
 
     // ========== IPositionable ==========
     void setPosition(const sf::Vector2f& pos) override;
@@ -62,6 +67,10 @@ public:
     Inventory& getInventory() { return m_inventory; }
     const Inventory& getInventory() const { return m_inventory; }
 
+    // ========== Health ==========
+    HealthComponent& getHealth() { return m_health; }
+    const HealthComponent& getHealth() const { return m_health; }
+
 private:
     // ========== State Machine ==========
     void updateState();
@@ -78,6 +87,8 @@ private:
     SpriteComponent m_sprite;
     CursorComponent m_cursor;
     Inventory m_inventory;
+    HealthComponent m_health;
+    HUDComponent m_hud;
 
     // ========== State ==========
     PlayerState m_currentState;

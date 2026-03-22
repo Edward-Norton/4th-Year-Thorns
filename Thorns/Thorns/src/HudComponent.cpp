@@ -11,6 +11,12 @@ const sf::Color HUDComponent::COLOR_TEXT = sf::Color(220, 220, 220);
 
 
 
+HUDComponent::HUDComponent(const HealthComponent& health)
+    : m_health(health)
+    , m_fontLoaded(false)
+{
+}
+
 bool HUDComponent::initialize(const std::string& fontPath)
 {
     if (!m_font.openFromFile(fontPath))
@@ -24,7 +30,13 @@ void HUDComponent::render(sf::RenderTarget& target) const
 {
     if (!m_fontLoaded)
         return;
-
+    drawBar(target,
+        BAR_Y,
+        m_health.getHealthRatio(),
+        COLOR_HEALTH_FILL,
+        "HP",
+        m_health.getCurrentHealth(),
+        m_health.getMaxHealth());
 }
 
 
