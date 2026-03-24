@@ -322,7 +322,7 @@ void Map::renderDebug(sf::RenderTarget& target) const
     // Draw all tiles in one call
     target.draw(m_vertexArray);
 
-    renderVoronoiBoundaries(target);
+    //renderVoronoiBoundaries(target);
 }
 
 void Map::renderVoronoiBoundaries(sf::RenderTarget& target) const
