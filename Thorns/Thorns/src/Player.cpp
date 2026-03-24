@@ -15,7 +15,7 @@ Player::Player()
     , m_velocity(0.f, 0.f)
     , m_targetRotation(sf::degrees(0.f))
     , m_currentRotation(sf::degrees(0.f))
-    , m_hud(m_health)
+    , m_hud(m_health, m_stamina, m_hunger, m_water)
 {
 }
 
@@ -33,18 +33,26 @@ bool Player::initialize(const std::string& texturePath)
     if (!m_cursor.initialize(8.f))
         return false;
 
+    // ============ STATS ==========
     // Init HUD elements
     m_health.initialize(100.0f);
+
+    // Drain stamina when springing
+    m_stamina.initialize(100.f, 0.f);
+
+    // Hunger drains slowly over time
+    m_hunger.initialize(100.f, 0.5f);
+
+    // Water drains slightly faster than hunger
+    m_water.initialize(100.f, 0.8f);
 
     // Hud
     if (!m_hud.initialize(Assets::Fonts::JERSEY_20))
     {
         std::cerr << "Player: HUD font failed to load, health bar will not render\n";
-        // Non-fatal
     }
 
     // Inventory
-
     m_inventory.initialize();
 
     m_cursor.setColor(sf::Color::Yellow);
@@ -65,8 +73,11 @@ void Player::update(sf::Time deltaTime)
     // Update rotation to face mouse
     updateRotation();
 
-    // Update Health 
+    // ========= Update STATS =========
     m_health.update(deltaTime);
+    m_stamina.update(deltaTime);
+    m_hunger.update(deltaTime);
+    m_water.update(deltaTime);
 
     // Update movement physics
     updateMovement(deltaTime);

@@ -5,14 +5,22 @@
 // ========== Static color definitions ==========
 const sf::Color HUDComponent::COLOR_BAR_BACKGROUND = sf::Color(30, 30, 30, 200);
 const sf::Color HUDComponent::COLOR_BAR_OUTLINE = sf::Color(180, 180, 180, 200);
-const sf::Color HUDComponent::COLOR_HEALTH_FILL = sf::Color(200, 50, 50);
+const sf::Color HUDComponent::COLOR_HEALTH_FILL = sf::Color(200, 50, 50);       // Red
+const sf::Color HUDComponent::COLOR_STAMINA_FILL = sf::Color(220, 220, 220);     // White
+const sf::Color HUDComponent::COLOR_HUNGER_FILL = sf::Color(210, 120, 30);      // Orange
+const sf::Color HUDComponent::COLOR_WATER_FILL = sf::Color(50, 120, 220);      // Blue
 const sf::Color HUDComponent::COLOR_TEXT = sf::Color(220, 220, 220);
 
 
 
-
-HUDComponent::HUDComponent(const HealthComponent& health)
+HUDComponent::HUDComponent(const HealthComponent& health, 
+    const StatComponent& stamina,
+    const StatComponent& hunger,
+    const StatComponent& water)
     : m_health(health)
+    , m_stamina(stamina)
+    , m_hunger(hunger)
+    , m_water(water)
     , m_fontLoaded(false)
 {
 }
@@ -30,6 +38,8 @@ void HUDComponent::render(sf::RenderTarget& target) const
 {
     if (!m_fontLoaded)
         return;
+
+    // Health (Red)
     drawBar(target,
         BAR_Y,
         m_health.getHealthRatio(),
@@ -37,6 +47,30 @@ void HUDComponent::render(sf::RenderTarget& target) const
         "HP",
         m_health.getCurrentHealth(),
         m_health.getMaxHealth());
+
+    // Stamina (White)
+    drawBar(target, 
+        BAR_Y + BAR_SPACING * 1,
+        m_stamina.getRatio(), 
+        COLOR_STAMINA_FILL,
+        "ST", m_stamina.getValue(), 
+        m_stamina.getMaxValue());
+
+    // Hunger (Orange)
+    drawBar(target, 
+        BAR_Y + BAR_SPACING * 2,
+        m_hunger.getRatio(), 
+        COLOR_HUNGER_FILL,
+        "HG", m_hunger.getValue(), 
+        m_hunger.getMaxValue());
+
+    // Water (Blue)
+    drawBar(target, 
+        BAR_Y + BAR_SPACING * 3,
+        m_water.getRatio(), 
+        COLOR_WATER_FILL,
+        "WA", m_water.getValue(), 
+        m_water.getMaxValue());
 }
 
 
@@ -67,7 +101,7 @@ void HUDComponent::drawBar(sf::RenderTarget& target,
         target.draw(fill);
     }
 
-    // Label to the left of the bar ("HP")
+    // Label to the left of the bar ("HP", "ST", "WA", etc)
     sf::Text labelText(m_font);
     labelText.setString(label);
     labelText.setCharacterSize(14);

@@ -67,9 +67,18 @@ public:
     Inventory& getInventory() { return m_inventory; }
     const Inventory& getInventory() const { return m_inventory; }
 
-    // ========== Health ==========
+    // ========== Stats ==========
     HealthComponent& getHealth() { return m_health; }
     const HealthComponent& getHealth() const { return m_health; }
+
+    StatComponent& getStamina() { return m_stamina; }
+    const StatComponent& getStamina() const { return m_stamina; }
+
+    StatComponent& getHunger() { return m_hunger; }
+    const StatComponent& getHunger() const { return m_hunger; }
+
+    StatComponent& getWater() { return m_water; }
+    const StatComponent& getWater() const { return m_water; }
 
 private:
     // ========== State Machine ==========
@@ -87,8 +96,12 @@ private:
     SpriteComponent m_sprite;
     CursorComponent m_cursor;
     Inventory m_inventory;
+    // PN: THE STATS NEED TO BE COMPILED FIRST BEFORE HUD
     HealthComponent m_health;
-    HUDComponent m_hud;
+    StatComponent   m_stamina;
+    StatComponent   m_hunger;
+    StatComponent   m_water;
+    HUDComponent m_hud;   // KEEP BELOW THE STATS DUE TO CONSTRUCTION REF
 
     // ========== State ==========
     PlayerState m_currentState;

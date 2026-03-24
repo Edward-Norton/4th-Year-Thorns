@@ -231,6 +231,9 @@
     <ClCompile Include="src\HealthComponent.cpp">
       <Filter>Source Files\Components\Gameplay</Filter>
     </ClCompile>
+    <ClCompile Include="src\StatComponent.cpp">
+      <Filter>Source Files\Components\Gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Enemy.h">
@@ -333,6 +336,9 @@
       <Filter>Header Files\Components\HUD</Filter>
     </ClInclude>
     <ClInclude Include="include\HealthComponent.h">
+      <Filter>Header Files\Components\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="include\StatComponent.h">
       <Filter>Header Files\Components\Gameplay</Filter>
     </ClInclude>
   </ItemGroup>

@@ -21,7 +21,7 @@ public:
     void initialize(float maxValue, float drainRate = 0.f);
 
     // ========== IUpdatable ==========
-    // Applies auto-drain if drainRate > 0.
+    // Applies auto drain if drainRate > 0.
     void update(sf::Time deltaTime) override;
 
     // ========== Modification ==========
@@ -47,7 +47,7 @@ public:
 private:
     float m_currentValue;
     float m_maxValue;
-    float m_drainRate;   // Units per second - applied in update()
+    float m_drainRate;   // Units per second
 };
 
 #endif

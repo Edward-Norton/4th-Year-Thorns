@@ -1,4 +1,5 @@
 #include "HealthComponent.h"
+#include "StatComponent.h"
 
 HealthComponent::HealthComponent()
     : m_currentHealth(100.f)
