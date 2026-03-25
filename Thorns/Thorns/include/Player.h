@@ -118,11 +118,15 @@ private:
 
     // ========== Movement Parameters ==========
     static constexpr float WALK_SPEED = 150.0f;
-    static constexpr float SPRINT_SPEED = 600.0f;
+    static constexpr float SPRINT_SPEED = 250.0f;
     static constexpr float ROTATION_SPEED = 360.0f;  // Degrees per second
     static constexpr float ACCELERATION = 1200.0f;   // How fast we reach target speed
     static constexpr float DECELERATION = 1800.0f;   // How fast we stop (faster than acceleration)
     static constexpr float FRICTION = 0.85f;         // Velocity dampening each frame (0-1)
+
+    // Stamina drain per second while sprinting, regen per second while walking/idle
+    static constexpr float STAMINA_SPRINT_DRAIN = 15.0f;
+    static constexpr float STAMINA_REGEN = 5.0f;
 };
 
 #endif

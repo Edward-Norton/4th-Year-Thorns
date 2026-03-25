@@ -151,7 +151,9 @@ void Player::updateState()
     // Get raw movement input
     sf::Vector2f moveInput = calculateMovementInput();
     bool isMoving = (moveInput.x != 0.f || moveInput.y != 0.f);
-    bool isSprinting = m_inputController->isPressed(InputAction::Sprint);
+
+    // Sprint requires the key held and stamina remaining
+    bool isSprinting = m_inputController->isPressed(InputAction::Sprint) && !m_stamina.isEmpty();
 
     // Determine new state
     PlayerState newState = m_currentState;
@@ -249,6 +251,15 @@ void Player::updateMovement(sf::Time deltaTime)
             currentSpeed = std::max(0.f, currentSpeed - decel);
             m_velocity = direction * currentSpeed;
         }
+    }
+
+    if (m_currentState == PlayerState::Sprint)
+    {
+        m_stamina.decrease(STAMINA_SPRINT_DRAIN * dt);
+    }
+    else
+    {
+        m_stamina.increase(STAMINA_REGEN * dt);
     }
 
     // Apply velocity to position

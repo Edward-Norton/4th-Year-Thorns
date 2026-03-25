@@ -50,9 +50,10 @@ void Inventory::createSlots()
 
 void Inventory::updateLayout()
 {
+    float panelYLower = 160.0f;
     // Position panel on left side of screen
     m_panelX = PANEL_PADDING;
-    m_panelY = PANEL_PADDING;
+    m_panelY = PANEL_PADDING + panelYLower;
     m_panelWidth = (COLUMNS * SLOT_SIZE) + ((COLUMNS - 1) * SLOT_SPACING) + (PANEL_PADDING * 2);
     m_panelHeight = (ROWS * SLOT_SIZE) + ((ROWS - 1) * SLOT_SPACING) + (PANEL_PADDING * 2);
 
