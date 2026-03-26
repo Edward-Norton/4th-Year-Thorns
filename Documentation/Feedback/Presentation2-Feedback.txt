@@ -1,0 +1,6 @@
+1) Agreed on adding more "gameplay" elements into the game
+2) May need to cut a feature or two based on time
+3) Enemy movement to either be on multithreading for A* or flowfield.
+	* Set clusters or groups of enemies with a leader.
+		* This is to help with only doing collision checks with one for avoidance. The rest follow the leader instead for 		  their computation.
+4) Should try to add more sprites or visual interest to the generation for the showcase day. 
