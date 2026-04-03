@@ -1,0 +1,7 @@
+pistol,0,0,64,64
+fire-axe,0,65,64,64
+food-tin,65,0,64,64
+water-bottle,65,65,64,64
+medkit,0,130,64,64
+bandage,65,130,64,64
+knife,130,0,64,64

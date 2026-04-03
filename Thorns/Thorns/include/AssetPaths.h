@@ -19,6 +19,9 @@ namespace Assets
 
         // Forest Objects
         const std::string FOREST_ATLAS = "ASSETS\\IMAGES\\forest_atlas.png";
+
+        // Items and Objects
+        const std::string ITEMS_ATLAS = "ASSETS\\IMAGES\\items_atlas.png";
         
     }
 
