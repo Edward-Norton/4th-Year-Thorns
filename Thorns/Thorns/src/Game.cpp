@@ -59,11 +59,22 @@ bool Game::initializeGame()
         return false;
     }
 
+    if (!m_itemTypeRegistry.loadDefinitions(Assets::Data::ITEMS_ATLAS_DEFINITIONS))
+    {
+        std::cerr << "Game: Item definitions failed to load\n";
+    }
+
+    if (!m_itemPool.initialize(Assets::Textures::ITEMS_ATLAS))
+    {
+        std::cerr << "Game: Item pool failed to initialize\n";
+    }
+
     // Now that resources are loaded, configure the menus
     setupMenus();
 
     // Generate the starting map
     generateMap();
+
 
     std::cout << "Game initialized successfully!" << std::endl;
     return true;
@@ -136,6 +147,11 @@ void Game::generateMap()
         << m_map->getWorldSize().x << "x" << m_map->getWorldSize().y << " pixels\n";
     std::cout << "TO BE REMOVED: Press 'R' during gameplay to regenerate map with new seed\n";
 
+    m_itemPool.despawnAll();
+
+
+    m_itemPool.spawn(ItemType::Food, mapCenter + sf::Vector2f(100, -400), m_itemTypeRegistry);
+    m_itemPool.spawn(ItemType::Water, mapCenter + sf::Vector2f(150, -400), m_itemTypeRegistry);
 }
 
 void Game::regenerateMap()
@@ -394,6 +410,9 @@ void Game::render()
                 m_mapGenerator.getObjectPlacer()->render(m_window, m_gameView);
             }
         }
+
+        // Item pool
+        m_itemPool.render(m_window, m_gameView);
 
         // To be removed, Layer 3 Voronoi
         m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);

@@ -18,6 +18,7 @@ enum class ItemType
 struct ItemTypeData
 {
     std::string  name;               // Display name shown in inventory
+    std::string  atlasKey;           // Key matching the name column in items_atlas.txt
     sf::IntRect  atlasRect;          // Region inside the shared items atlas
     sf::Vector2f spriteSize;         // World-space render size in pixels
     float        statRestoreAmount;  // Units of the stat restored on use
@@ -31,6 +32,9 @@ public:
     ItemTypeRegistry();
     ~ItemTypeRegistry() = default;
 
+    // Get the definitions from the asset file
+    bool loadDefinitions(const std::string& definitionsPath);
+
     // Retrieve shared data for a type. Returns nullptr if type not registered.
     const ItemTypeData* get(ItemType type) const;
 
@@ -38,8 +42,14 @@ public:
     bool has(ItemType type) const;
 
 private:
+
+    void registerDefaults();
+
     void loadDefaults();
+
     void registerType(ItemType type, const ItemTypeData& data);
+
+    static bool keyToType(const std::string& key, ItemType& outType);
 
     std::unordered_map<ItemType, ItemTypeData> m_data;
 };

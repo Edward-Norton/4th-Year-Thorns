@@ -30,6 +30,7 @@ namespace Assets
     {
         const std::string FOREST_ATLAS_DEFINITIONS = "ASSETS\\DATA\\forest-atlas-points.txt";
         const std::string FARM_DEFINITIONS = "ASSETS\\DATA\\farm-points.txt";
+        const std::string ITEMS_ATLAS_DEFINITIONS = "ASSETS\\DATA\\items_atlas.txt";
     }
 
     // ========== MAPS ==========

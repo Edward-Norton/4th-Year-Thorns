@@ -7,6 +7,7 @@
 #include "IRenderable.h"
 #include "IUpdatable.h"
 #include "SpriteComponent.h"
+#include "ItemType.h"
 
 // Only FW, not modufying data like in settings (pn)
 class InputController;
@@ -16,6 +17,7 @@ struct Item
 {
     std::string name;
     std::string texturePath;
+    ItemType itemType;
     SpriteComponent sprite;
     int quantity = 1;
 };
@@ -47,6 +49,10 @@ public:
 
     // ========== Inventory Management ==========
     bool addItem(const std::string& itemName, const std::string& texturePath, int quantity = 1);
+
+
+    bool addItem(const std::string& itemName, const sf::Texture& atlas, const sf::IntRect& atlasRect, ItemType itemType, int quantity = 1);
+
     bool removeItem(int slotIndex, int quantity = 1);
     void clearSlot(int slotIndex);
     void clearInventory();

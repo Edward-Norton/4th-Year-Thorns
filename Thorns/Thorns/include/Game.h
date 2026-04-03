@@ -13,6 +13,8 @@
 #include "Map.h"
 #include "MapGenerator.h"
 #include "CollisionManager.h"
+#include "WorldItemPool.h"
+#include "ItemType.h"
 
 class Game : IUpdatable
 {
@@ -98,6 +100,10 @@ private:
     MapGenerator m_mapGenerator;
     MapGenerator::GenerationSettings m_mapSettings; // Store settings for when I add saving
     unsigned int m_currentSeed; // Track current seed
+    // World Items
+    WorldItemPool    m_itemPool;
+    ItemTypeRegistry m_itemTypeRegistry;
+
 };
 
 #endif

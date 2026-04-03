@@ -195,6 +195,36 @@ bool Inventory::addItem(const std::string& itemName, const std::string& textureP
     return false;
 }
 
+bool Inventory::addItem(const std::string& itemName, const sf::Texture& atlas, const sf::IntRect& atlasRect, ItemType itemType, int quantity)
+{
+    for (auto& slot : m_slots)
+    {
+        if (!slot.item)
+        {
+            slot.item = std::make_unique<Item>();
+            slot.item->name = itemName;
+            slot.item->texturePath = "";
+            slot.item->itemType = itemType;
+            slot.item->quantity = quantity;
+
+            if (!slot.item->sprite.setSharedTexture(atlas,
+                SLOT_SIZE * 0.8f, SLOT_SIZE * 0.8f, atlasRect))
+            {
+                std::cerr << "Inventory::addItem: setSharedTexture failed for "
+                    << itemName << "\n";
+                slot.item.reset();
+                return false;
+            }
+
+            slot.background.setFillColor(m_filledSlotColor);
+            return true;
+        }
+    }
+
+    std::cout << "Inventory full!\n";
+    return false;
+}
+
 bool Inventory::removeItem(int slotIndex, int quantity)
 {
     if (slotIndex < 0 || slotIndex >= TOTAL_SLOTS)
@@ -256,3 +286,4 @@ bool Inventory::isSlotEmpty(int slotIndex) const
         return true;
     return !m_slots[slotIndex].item;
 }
+
