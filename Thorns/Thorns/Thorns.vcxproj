@@ -41,6 +41,7 @@
     <ClCompile Include="src\HudComponent.cpp" />
     <ClCompile Include="src\InputController.cpp" />
     <ClCompile Include="src\Inventory.cpp" />
+    <ClCompile Include="src\ItemType.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Map.cpp" />
     <ClCompile Include="src\MapGenerator.cpp" />
@@ -57,6 +58,8 @@
     <ClCompile Include="src\SpriteComponent.cpp" />
     <ClCompile Include="src\StatComponent.cpp" />
     <ClCompile Include="src\VoronoiDiagram.cpp" />
+    <ClCompile Include="src\WorldItem.cpp" />
+    <ClCompile Include="src\WorldItemPool.cpp" />
     <ClCompile Include="src\WorldObject.cpp" />
     <ClCompile Include="src\WorldObjectTemplate.cpp" />
   </ItemGroup>
@@ -77,6 +80,7 @@
     <ClInclude Include="include\Inventory.h" />
     <ClInclude Include="include\IPositionable.h" />
     <ClInclude Include="include\IRenderable.h" />
+    <ClInclude Include="include\ItemType.h" />
     <ClInclude Include="include\IUpdatable.h" />
     <ClInclude Include="include\Map.h" />
     <ClInclude Include="include\MapGenerator.h" />
@@ -94,6 +98,8 @@
     <ClInclude Include="include\SpriteComponent.h" />
     <ClInclude Include="include\StatComponent.h" />
     <ClInclude Include="include\VoronoiDiagram.h" />
+    <ClInclude Include="include\WorldItem.h" />
+    <ClInclude Include="include\WorldItemPool.h" />
     <ClInclude Include="include\WorldObject.h" />
     <ClInclude Include="include\WorldObjectTemplate.h" />
   </ItemGroup>

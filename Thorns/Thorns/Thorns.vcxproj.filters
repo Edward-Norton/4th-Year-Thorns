@@ -234,6 +234,15 @@
     <ClCompile Include="src\StatComponent.cpp">
       <Filter>Source Files\Components\Gameplay</Filter>
     </ClCompile>
+    <ClCompile Include="src\ItemType.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WorldItem.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WorldItemPool.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Enemy.h">
@@ -340,6 +349,15 @@
     </ClInclude>
     <ClInclude Include="include\StatComponent.h">
       <Filter>Header Files\Components\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ItemType.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WorldItem.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WorldItemPool.h">
+      <Filter>Header Files\Managers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
