@@ -338,3 +338,9 @@ sf::FloatRect Player::getBounds() const
 {
     return m_sprite.getBounds();
 }
+
+bool Player::collectItem(const ItemTypeData& data, const sf::Texture& atlas)
+{
+    // Delegate to the atlas overload of addItem.
+    return m_inventory.addItem(data.name, atlas, data.atlasRect, data.itemType);
+}

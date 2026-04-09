@@ -337,6 +337,31 @@ void Game::updatePlaying(sf::Time deltaTime)
         }
     }
 
+    // ========== Item Pickup ==========
+    // Radius check to collect items in world
+    {
+        sf::FloatRect playerBounds = m_player.getBounds();
+        auto activeItems = m_itemPool.getActiveItems();
+
+        for (WorldItem* item : activeItems)
+        {
+            if (!playerBounds.findIntersection(item->getBounds()).has_value())
+                continue;
+
+            // Get the flyweight data for this item type
+            const ItemTypeData* data = m_itemTypeRegistry.get(item->getType());
+            if (!data)
+                continue;
+
+            // Player collect item and despawn it
+            if (m_player.collectItem(*data, m_itemPool.getAtlas()))
+            {
+                m_itemPool.despawn(item);
+                std::cout << "Picked up: " << data->name << "\n";
+            }
+        }
+    }
+
     //==============================================================================================<<<<< REMOVE THE BELOW WHEN DONT HAVE TO DEBUG
     // Check for map regeneration (R key)
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R))

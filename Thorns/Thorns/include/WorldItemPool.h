@@ -44,6 +44,8 @@ public:
     // Called each frame by Game for pickup collision checks.
     std::vector<WorldItem*> getActiveItems();
 
+    const sf::Texture& getAtlas() const { return m_atlas; }
+
     int getActiveCount() const;
     bool isInitialized() const { return m_atlasLoaded; }
 

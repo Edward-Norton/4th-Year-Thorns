@@ -14,6 +14,7 @@ void ItemTypeRegistry::registerDefaults()
 
     // ========== FOOD ==========
     ItemTypeData food;
+    food.itemType = ItemType::Food;
     food.name = "Food";
     food.atlasKey = "food-tin";
     food.spriteSize = sf::Vector2f(32.f, 32.f);  // World render size
@@ -23,6 +24,7 @@ void ItemTypeRegistry::registerDefaults()
 
     // ========== WATER ==========
     ItemTypeData water;
+    water.itemType = ItemType::Water;
     water.name = "Water";
     water.atlasKey = "water-bottle";
     water.spriteSize = sf::Vector2f(32.f, 32.f);

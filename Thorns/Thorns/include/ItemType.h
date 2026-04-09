@@ -17,6 +17,7 @@ enum class ItemType
 // All of the items are to use this format, only need it once per object
 struct ItemTypeData
 {
+    ItemType     itemType;
     std::string  name;               // Display name shown in inventory
     std::string  atlasKey;           // Key matching the name column in items_atlas.txt
     sf::IntRect  atlasRect;          // Region inside the shared items atlas
@@ -44,8 +45,6 @@ public:
 private:
 
     void registerDefaults();
-
-    void loadDefaults();
 
     void registerType(ItemType type, const ItemTypeData& data);
 

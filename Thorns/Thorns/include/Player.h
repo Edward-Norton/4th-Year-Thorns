@@ -9,6 +9,7 @@
 #include "Inventory.h"
 #include "HealthComponent.h"
 #include "HudComponent.h"
+#include "ItemType.h"
 
 class InputController;
 
@@ -66,6 +67,7 @@ public:
     // ========== Inventory ==========
     Inventory& getInventory() { return m_inventory; }
     const Inventory& getInventory() const { return m_inventory; }
+    bool collectItem(const ItemTypeData& data, const sf::Texture& atlas);
 
     // ========== Stats ==========
     HealthComponent& getHealth() { return m_health; }
