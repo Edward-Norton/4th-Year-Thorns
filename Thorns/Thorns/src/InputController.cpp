@@ -5,8 +5,8 @@
 
 InputController::InputController()
     : m_mousePosition(0.f, 0.f)
-    , m_mousePressed(false)
-    , m_previousMousePressed(false)
+    , m_leftMousePressed(false)
+    , m_previousLeftMousePressed(false)
     , m_activeDevice(InputDevice::Keyboard)
 {
     initializeDefaultBindings();
@@ -62,7 +62,8 @@ void InputController::update(const sf::Window& window)
     // Example: If W was pressed last frame and this frame,
     //          wasJustPressed() returns false
     std::memcpy(m_previousState, m_currentState, sizeof(m_currentState));
-    m_previousMousePressed = m_mousePressed;
+    m_previousLeftMousePressed = m_leftMousePressed;
+    m_previousRightMousePressed = m_rightMousePressed;
 
     // ===== STEP 2: CLEAR CURRENT STATE =====
     // Reset all actions to false
@@ -161,7 +162,10 @@ void InputController::updateMouse(const sf::Window& window)
         static_cast<float>(pixelPos.y));
 
     // Check left mouse button
-    m_mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+    m_leftMousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+
+    // Check right mouse button
+    m_rightMousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
 }
 
 float InputController::applyDeadzone(float value) const

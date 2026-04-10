@@ -12,7 +12,7 @@ struct CollisionPolygon
 };
 
 // Circle Collision
-struct
+struct CircleShape
 {
     std::vector<sf::Vector2f> points;
 };

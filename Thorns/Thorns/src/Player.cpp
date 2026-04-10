@@ -55,6 +55,9 @@ bool Player::initialize(const std::string& texturePath)
     // Inventory
     m_inventory.initialize();
 
+    // Bind inventory use callback so stats are modifable
+    m_inventory.setOnItemUsed([this](ItemType type) { onItemUsed(type); });
+
     m_cursor.setColor(sf::Color::Yellow);
 
     return true;
@@ -321,6 +324,23 @@ float Player::getCurrentSpeed() const
         return SPRINT_SPEED;
     default:
         return 0.f;
+    }
+}
+
+void Player::onItemUsed(ItemType type)
+{
+    switch (type)
+    {
+    case ItemType::Food:
+        m_hunger.increase(30.f);
+        std::cout << "Ate food. Hunger: " << m_hunger.getValue() << "\n";
+        break;
+    case ItemType::Water:
+        m_water.increase(40.f);
+        std::cout << "Drank water. Water: " << m_water.getValue() << "\n";
+        break;
+    default:
+        break;
     }
 }
 

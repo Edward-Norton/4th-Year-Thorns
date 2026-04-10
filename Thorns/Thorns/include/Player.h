@@ -94,6 +94,9 @@ private:
     sf::Vector2f calculateMovementInput() const;
     float getCurrentSpeed() const;
 
+    // Applies stat restoration when an item is used from inventory
+    void onItemUsed(ItemType type);
+
     // ========== Components ==========
     SpriteComponent m_sprite;
     CursorComponent m_cursor;

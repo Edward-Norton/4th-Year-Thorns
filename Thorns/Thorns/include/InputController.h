@@ -91,10 +91,14 @@ public:
     bool wasJustReleased(InputAction action) const;  // Transitioned from Y to Z this frame
 
     // ========== Mouse Input ==========
-    bool isMousePressed() const { return m_mousePressed; }
+    bool isMousePressed() const { return m_leftMousePressed; }
     bool wasMouseJustPressed() const;
     bool wasMouseJustReleased() const;
     sf::Vector2f getMousePosition() const { return m_mousePosition; }  // Get current mouse position
+
+    bool isRightMousePressed() const { return m_rightMousePressed; }
+    bool wasRightMouseJustPressed() const;
+    bool wasRightMouseJustReleased() const;
 
     // ========== Configuration ==========
     // Runtime key rebinding
@@ -125,8 +129,10 @@ private:
 
     // ========== Mouse State ==========
     sf::Vector2f m_mousePosition;
-    bool m_mousePressed;
-    bool m_previousMousePressed;
+    bool m_leftMousePressed;
+    bool m_previousLeftMousePressed;
+    bool m_rightMousePressed;
+    bool m_previousRightMousePressed;
 
     // ========= Controller State ========
     sf::Vector2f m_rightStickAxis;
@@ -163,12 +169,22 @@ inline bool InputController::wasJustReleased(InputAction action) const
 
 inline bool InputController::wasMouseJustPressed() const
 {
-    return m_mousePressed && !m_previousMousePressed;
+    return m_leftMousePressed && !m_previousLeftMousePressed;
 }
 
 inline bool InputController::wasMouseJustReleased() const
 {
-    return !m_mousePressed && m_previousMousePressed;
+    return !m_leftMousePressed && m_previousLeftMousePressed;
+}
+
+inline bool InputController::wasRightMouseJustPressed() const
+{
+    return m_rightMousePressed && !m_previousRightMousePressed;
+}
+
+inline bool InputController::wasRightMouseJustReleased() const
+{
+    return !m_rightMousePressed && m_previousRightMousePressed;
 }
 
 #endif
