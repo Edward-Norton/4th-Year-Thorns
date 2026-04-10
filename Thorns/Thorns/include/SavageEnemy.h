@@ -2,13 +2,13 @@
 #define SAVAGE_ENEMY_H
 
 #include "SpriteComponent.h"
-#include "IGameEntity.h"
+#include "IEnemy.h"
 #include <SFML/System/Time.hpp>
 
 class Map;
 
 
-class SavageEnemy : public IGameEntity
+class SavageEnemy : public IEnemy
 {
 public:
     // AI behaviour states
