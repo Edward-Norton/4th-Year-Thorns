@@ -144,6 +144,15 @@
     <Image Include="ASSETS\IMAGES\forest_atlas.png">
       <Filter>Resource Files\IMAGES</Filter>
     </Image>
+    <Image Include="ASSETS\IMAGES\chomper.png">
+      <Filter>Resource Files\IMAGES</Filter>
+    </Image>
+    <Image Include="ASSETS\IMAGES\items_atlas.png">
+      <Filter>Resource Files\IMAGES</Filter>
+    </Image>
+    <Image Include="ASSETS\IMAGES\savage.png">
+      <Filter>Resource Files\IMAGES</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Font Include="ASSETS\FONTS\Jersey20-Regular.ttf">

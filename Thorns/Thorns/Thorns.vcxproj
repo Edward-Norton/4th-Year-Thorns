@@ -19,9 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="ASSETS\IMAGES\chomper.png" />
     <Image Include="ASSETS\IMAGES\EnemyShip.png" />
     <Image Include="ASSETS\IMAGES\forest_atlas.png" />
+    <Image Include="ASSETS\IMAGES\items_atlas.png" />
     <Image Include="ASSETS\IMAGES\player_atlas.png" />
+    <Image Include="ASSETS\IMAGES\savage.png" />
     <Image Include="ASSETS\IMAGES\terrain_atlas.png" />
   </ItemGroup>
   <ItemGroup>
