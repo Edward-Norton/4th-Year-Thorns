@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "Player.h"
-#include "Enemy.h"
+#include "SavageEnemy.h"
 #include "InputController.h"
 #include "Menu.h"
 #include "SettingsMenu.h"
@@ -93,7 +93,7 @@ private:
 
     // ========== Game Objects ==========
     Player m_player;
-    Enemy m_enemy;
+    SavageEnemy m_savEnemy;
 
     // ========== World ==========
     std::unique_ptr<Map> m_map;

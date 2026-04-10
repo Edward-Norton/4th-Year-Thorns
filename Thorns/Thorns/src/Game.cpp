@@ -33,7 +33,7 @@ bool Game::initializeGame()
     }
 
     // Initialize enemy entity
-    if (!m_enemy.initialize(Assets::Textures::ENEMY_SHIP))
+    if (!m_savEnemy.initialize(Assets::Textures::SAV_ENEMY))
     {
         std::cerr << "Failed to load enemy!" << std::endl;
         return false;
@@ -152,6 +152,10 @@ void Game::generateMap()
 
     m_itemPool.spawn(ItemType::Food, mapCenter + sf::Vector2f(100, -400), m_itemTypeRegistry);
     m_itemPool.spawn(ItemType::Water, mapCenter + sf::Vector2f(150, -400), m_itemTypeRegistry);
+
+
+    // Enemy spawn test
+    m_savEnemy.setPosition(mapCenter + sf::Vector2f(300.f, 0.f));
 }
 
 void Game::regenerateMap()
@@ -370,7 +374,7 @@ void Game::updatePlaying(sf::Time deltaTime)
     }
 
     // Update other entities
-    m_enemy.update(deltaTime);
+    m_savEnemy.updateWithContext(deltaTime, m_player.getPosition(), m_map.get());
 
     updateCamera();
 }
@@ -415,7 +419,7 @@ void Game::render()
             }
             m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
             m_player.render(m_window);
-            m_enemy.render(m_window);
+            m_savEnemy.render(m_window);
         }
         m_window.setView(m_uiView);
         m_settingsMenu.render(m_window);  // Draw settings over game
@@ -444,7 +448,7 @@ void Game::render()
 
         //Entities
         m_player.render(m_window);
-        m_enemy.render(m_window);
+        m_savEnemy.render(m_window);
 
         // For UI spacing
         m_window.setView(m_uiView);
@@ -468,7 +472,7 @@ void Game::render()
 
             m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
             m_player.render(m_window);
-            m_enemy.render(m_window);
+            m_savEnemy.render(m_window);
         }
 
         m_window.setView(m_uiView);

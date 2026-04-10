@@ -42,6 +42,7 @@
     <ClCompile Include="src\InputController.cpp" />
     <ClCompile Include="src\Inventory.cpp" />
     <ClCompile Include="src\ItemType.cpp" />
+    <ClCompile Include="src\LineOfSight.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Map.cpp" />
     <ClCompile Include="src\MapGenerator.cpp" />
@@ -53,6 +54,7 @@
     <ClCompile Include="src\PointOfInterest.cpp" />
     <ClCompile Include="src\POITemplate.cpp" />
     <ClCompile Include="src\POITypeConfig.cpp" />
+    <ClCompile Include="src\SavageEnemy.cpp" />
     <ClCompile Include="src\ScreenSettings.cpp" />
     <ClCompile Include="src\SettingsMenu.cpp" />
     <ClCompile Include="src\SpriteComponent.cpp" />
@@ -82,6 +84,7 @@
     <ClInclude Include="include\IRenderable.h" />
     <ClInclude Include="include\ItemType.h" />
     <ClInclude Include="include\IUpdatable.h" />
+    <ClInclude Include="include\LineOfSight.h" />
     <ClInclude Include="include\Map.h" />
     <ClInclude Include="include\MapGenerator.h" />
     <ClInclude Include="include\MapTile.h" />
@@ -93,6 +96,7 @@
     <ClInclude Include="include\PointOfInterest.h" />
     <ClInclude Include="include\POITemplate.h" />
     <ClInclude Include="include\POITypeConfig.h" />
+    <ClInclude Include="include\SavageEnemy.h" />
     <ClInclude Include="include\ScreenSettings.h" />
     <ClInclude Include="include\SettingsMenu.h" />
     <ClInclude Include="include\SpriteComponent.h" />

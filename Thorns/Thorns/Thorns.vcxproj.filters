@@ -124,6 +124,12 @@
     <Filter Include="Source Files\Components\HUD">
       <UniqueIdentifier>{9e0c8114-0421-4069-8e18-c83e63ef580b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\AI">
+      <UniqueIdentifier>{42cfaad0-a6ad-414c-8852-c6b3fbdb22a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AI">
+      <UniqueIdentifier>{0a580ec4-7d45-4bbd-a238-0535c2096531}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="ASSETS\IMAGES\EnemyShip.png">
@@ -243,6 +249,12 @@
     <ClCompile Include="src\WorldItemPool.cpp">
       <Filter>Source Files\Managers</Filter>
     </ClCompile>
+    <ClCompile Include="src\LineOfSight.cpp">
+      <Filter>Source Files\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SavageEnemy.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Enemy.h">
@@ -358,6 +370,12 @@
     </ClInclude>
     <ClInclude Include="include\WorldItemPool.h">
       <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LineOfSight.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SavageEnemy.h">
+      <Filter>Header Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

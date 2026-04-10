@@ -8,8 +8,12 @@ namespace Assets
     // ========== TEXTURES ==========
     namespace Textures
     {
+        //Entities
         const std::string PLAYER_ATLAS = "ASSETS\\IMAGES\\player_atlas.png";
         const std::string ENEMY_SHIP = "ASSETS\\IMAGES\\EnemyShip.png";
+        const std::string SAV_ENEMY = "ASSETS\\IMAGES\\savage.png";
+
+        // Terrain
         const std::string TERRAIN_ATLAS = "ASSETS\\IMAGES\\terrain_atlas.png";
 
         // POIS
