@@ -366,13 +366,17 @@ void Inventory::useItem(int slotIndex)
 
     Item* item = m_slots[slotIndex].item.get();
 
+    // Cache name before item is destroyed by removeItem
+    std::string itemName = item->name;
+    ItemType itemType = item->itemType;
+
     // Fire callback so Player can apply stat effects
     if (m_onItemUsed)
         m_onItemUsed(item->itemType);
 
     // Consume one unit, clear slot when quantity hits zero
     removeItem(slotIndex, 1);
-    std::cout << "Used: " << item->name << "\n";
+    std::cout << "Used: " << itemName << "\n";
 }
 
 void Inventory::dropItem(int slotIndex)
