@@ -31,6 +31,7 @@ bool Game::initializeGame()
         std::cerr << "Failed to load player!" << std::endl;
         return false;
     }
+    m_player.getInventory().setRegistry(&m_itemTypeRegistry);
 
     // Enemy Manager
     if (!m_enemyManager.initialize(Assets::Textures::SAV_ENEMY,

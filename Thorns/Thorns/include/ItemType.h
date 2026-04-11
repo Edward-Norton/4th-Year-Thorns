@@ -8,9 +8,25 @@
 // ========== ITEM TYPES ==========
 enum class ItemType
 {
+    // Consumables
     Food,
     Water,
+    FirstAid,    // Restores health fully
+    Bandage,     // Restores partial health
+
+    // Weapons
+    Knife,
+    Axe,
+    Gun,
+
     COUNT
+};
+
+
+enum class ItemUseCategory
+{
+    Consume,   // Remove from inventory after use
+    Equip,     // Keep but use the item
 };
 
 // ========== FLYWEIGHT DATA ==========
@@ -18,11 +34,13 @@ enum class ItemType
 struct ItemTypeData
 {
     ItemType     itemType;
+    ItemUseCategory useCategory = ItemUseCategory::Consume;
     std::string  name;               // Display name shown in inventory
     std::string  atlasKey;           // Key matching the name column in items_atlas.txt
     sf::IntRect  atlasRect;          // Region inside the shared items atlas
     sf::Vector2f spriteSize;         // World-space render size in pixels
     float        statRestoreAmount;  // Units of the stat restored on use
+    float        damage;             // Damage to other entities
     float        pickupRadius;       // Pixel radius at which player triggers collection
 };
 

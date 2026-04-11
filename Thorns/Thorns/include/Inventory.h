@@ -80,6 +80,8 @@ public:
 
     void updateSlotInteraction(const InputController& input);
 
+    void setRegistry(const ItemTypeRegistry* registry) { m_registry = registry; }
+
 
     // ========== Item Use Callback ==========
     void setOnItemUsed(std::function<void(ItemType)> callback) { m_onItemUsed = callback; }
@@ -172,6 +174,9 @@ private:
 
     // ========== Callback ==========
     std::function<void(ItemType)> m_onItemUsed;
+
+    // Item type
+    const ItemTypeRegistry* m_registry = nullptr;
 };
 
 #endif

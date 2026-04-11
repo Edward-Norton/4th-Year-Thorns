@@ -117,6 +117,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ASSETS\DATA\forest-atlas-points.txt" />
+    <Text Include="ASSETS\DATA\items_atlas.txt" />
     <Text Include="ASSETS\DATA\terrain-atlas-points.txt" />
   </ItemGroup>
   <ItemGroup>

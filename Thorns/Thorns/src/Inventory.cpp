@@ -374,8 +374,13 @@ void Inventory::useItem(int slotIndex)
     if (m_onItemUsed)
         m_onItemUsed(item->itemType);
 
+    // Only consume if it's a consumable — weapons stay equipped in slot
+    const ItemTypeData* data = m_registry ? m_registry->get(itemType) : nullptr;
+    bool isConsumable = !data || data->useCategory == ItemUseCategory::Consume;
+
     // Consume one unit, clear slot when quantity hits zero
-    removeItem(slotIndex, 1);
+    if (isConsumable)
+        removeItem(slotIndex, 1);
     std::cout << "Used: " << itemName << "\n";
 }
 

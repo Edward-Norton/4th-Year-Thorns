@@ -409,6 +409,9 @@
     <Text Include="ASSETS\DATA\terrain-atlas-points.txt">
       <Filter>Resource Files\DATA</Filter>
     </Text>
+    <Text Include="ASSETS\DATA\items_atlas.txt">
+      <Filter>Resource Files\DATA</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="ASSETS\MAPS\POI_TEMPLATES\farm.tmx">

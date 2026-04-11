@@ -15,6 +15,7 @@ void ItemTypeRegistry::registerDefaults()
     // ========== FOOD ==========
     ItemTypeData food;
     food.itemType = ItemType::Food;
+    food.useCategory = ItemUseCategory::Consume;
     food.name = "Food";
     food.atlasKey = "food-tin";
     food.spriteSize = sf::Vector2f(32.f, 32.f);  // World render size
@@ -25,12 +26,68 @@ void ItemTypeRegistry::registerDefaults()
     // ========== WATER ==========
     ItemTypeData water;
     water.itemType = ItemType::Water;
+    water.useCategory = ItemUseCategory::Consume;
     water.name = "Water";
     water.atlasKey = "water-bottle";
     water.spriteSize = sf::Vector2f(32.f, 32.f);
     water.statRestoreAmount = 40.f;               // Restores 40 water on use
     water.pickupRadius = 32.f;
     registerType(ItemType::Water, water);
+
+    // ========== FIRST AID ==========
+    ItemTypeData firstAid;
+    firstAid.itemType = ItemType::FirstAid;
+    firstAid.useCategory = ItemUseCategory::Consume;
+    firstAid.name = "First Aid";
+    firstAid.atlasKey = "first-aid";
+    firstAid.spriteSize = sf::Vector2f(32.f, 32.f);
+    firstAid.statRestoreAmount = 100.f;  // Full heal
+    firstAid.pickupRadius = 32.f;
+    registerType(ItemType::FirstAid, firstAid);
+
+    // ========== BANDAGE ==========
+    ItemTypeData bandage;
+    bandage.itemType = ItemType::Bandage;
+    bandage.useCategory = ItemUseCategory::Consume;
+    bandage.name = "Bandage";
+    bandage.atlasKey = "bandage";
+    bandage.spriteSize = sf::Vector2f(32.f, 32.f);
+    bandage.statRestoreAmount = 35.f;
+    bandage.pickupRadius = 32.f;
+    registerType(ItemType::Bandage, bandage);
+
+    // ========== KNIFE ==========
+    ItemTypeData knife;
+    knife.itemType = ItemType::Knife;
+    knife.useCategory = ItemUseCategory::Equip;
+    knife.name = "Knife";
+    knife.atlasKey = "knife";
+    knife.spriteSize = sf::Vector2f(32.f, 32.f);
+    knife.damage = 25.f;
+    knife.pickupRadius = 32.f;
+    registerType(ItemType::Knife, knife);
+
+    // ========== AXE ==========
+    ItemTypeData axe;
+    axe.itemType = ItemType::Axe;
+    axe.useCategory = ItemUseCategory::Equip;
+    axe.name = "Axe";
+    axe.atlasKey = "axe";
+    axe.spriteSize = sf::Vector2f(32.f, 32.f);
+    axe.damage = 50.f;
+    axe.pickupRadius = 32.f;
+    registerType(ItemType::Axe, axe);
+
+    // ========== GUN ==========
+    ItemTypeData gun;
+    gun.itemType = ItemType::Gun;
+    gun.useCategory = ItemUseCategory::Equip;
+    gun.name = "Gun";
+    gun.atlasKey = "gun";
+    gun.spriteSize = sf::Vector2f(32.f, 32.f);
+    gun.damage = 75.f;
+    gun.pickupRadius = 32.f;
+    registerType(ItemType::Gun, gun);
 }
 
 const ItemTypeData* ItemTypeRegistry::get(ItemType type) const
@@ -57,8 +114,13 @@ bool ItemTypeRegistry::keyToType(const std::string& key, ItemType& outType)
     // PN: Need to add the rest when ready
     static const std::pair<const char*, ItemType> table[] =
     {
-        { "food-tin",      ItemType::Food  },
-        { "water-bottle",  ItemType::Water },
+        { "food-tin",      ItemType::Food   },
+        { "water-bottle",  ItemType::Water  },
+        { "first-aid",   ItemType::FirstAid },
+        { "bandage",     ItemType::Bandage  },
+        { "knife",       ItemType::Knife    },
+        { "axe",         ItemType::Axe      },
+        { "gun",         ItemType::Gun      },
     };
 
     for (const auto& [k, t] : table)

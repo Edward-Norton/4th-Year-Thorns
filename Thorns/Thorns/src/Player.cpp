@@ -339,6 +339,19 @@ void Player::onItemUsed(ItemType type)
         m_water.increase(40.f);
         std::cout << "Drank water. Water: " << m_water.getValue() << "\n";
         break;
+    case ItemType::FirstAid:
+        m_health.heal(100.f);
+        std::cout << "Used First Aid. HP: " << m_health.getCurrentHealth() << "\n";
+        break;
+    case ItemType::Bandage:
+        m_health.heal(35.f);
+        std::cout << "Used Bandage. HP: " << m_health.getCurrentHealth() << "\n";
+        break;
+    case ItemType::Knife:
+    case ItemType::Axe:
+    case ItemType::Gun:
+        std::cout << "Equipped weapon (type " << static_cast<int>(type) << ")\n";
+        break;
     default:
         break;
     }
