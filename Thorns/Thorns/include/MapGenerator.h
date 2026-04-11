@@ -93,6 +93,10 @@ public:
     VoronoiDiagram* getVoronoiDiagram() { return m_voronoi.get(); }
     ObjectPlacer* getObjectPlacer() { return m_objectPlacer.get(); }
 
+
+    // Enemy spawning
+    std::vector<sf::Vector2f> getEnemySpawnPoints(int countPerPOI = 2, float spawnRadius = 300.f) const;
+
 private:
     // ========== Generation Phases ==========
     void phase1_Voronoi(Map* map, const GenerationSettings& settings);

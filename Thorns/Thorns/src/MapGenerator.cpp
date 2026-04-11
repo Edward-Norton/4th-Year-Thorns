@@ -118,6 +118,34 @@ void MapGenerator::regenerate(Map* map, const GenerationSettings& settings)
 }
 
 
+std::vector<sf::Vector2f> MapGenerator::getEnemySpawnPoints(int countPerPOI, float spawnRadius) const
+{
+    std::vector<sf::Vector2f> points;
+
+    const auto& sites = m_voronoi->getSites();
+    if (sites.empty()) return points;
+
+
+    // Offset insurance
+    const sf::Vector2f offsets[] = {
+        { spawnRadius,  0.f },
+        { -spawnRadius, 0.f },
+        { 0.f,  spawnRadius },
+        { 0.f, -spawnRadius }
+    };
+
+    int offsetCount = std::min(countPerPOI, 4);
+
+    // PN: Skip 0 due to site being near hideout
+    for (size_t i = 1; i < sites.size(); ++i)
+    {
+        for (int j = 0; j < offsetCount; ++j)
+            points.push_back(sites[i].position + offsets[j]);
+    }
+
+    return points;
+}
+
 // ========================================================================================================
 // Voronoi + Terrain Assignment in ONE LOOP
 // - Was using multiple for loops, so one after another to accomplish result, using 1 for multi use instead. 

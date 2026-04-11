@@ -34,7 +34,7 @@ bool Game::initializeGame()
 
     // Enemy Manager
     if (!m_enemyManager.initialize(Assets::Textures::SAV_ENEMY,
-        Assets::Textures::SAV_ENEMY))
+        Assets::Textures::CHOMP_ENEMY))
     {
         std::cerr << "Failed to initialize enemy manager!\n";
         return false;
@@ -157,8 +157,15 @@ void Game::generateMap()
 
     // Deactivate all enemies then spawn initial set
     m_enemyManager.despawnAll();
-    m_enemyManager.spawnSavage(mapCenter + sf::Vector2f(300.f, 0.f));
-    m_enemyManager.spawnChomper(mapCenter + sf::Vector2f(-300.f, 0.f));
+    auto spawnPoints = m_mapGenerator.getEnemySpawnPoints(2, 100.f); // Spawn near POIs
+    for (size_t i = 0; i < spawnPoints.size(); ++i)
+    {
+        // Alternate between savage and chomper
+        if (i % 2 == 0)
+            m_enemyManager.spawnSavage(spawnPoints[i]);
+        else
+            m_enemyManager.spawnChomper(spawnPoints[i]);
+    }
 }
 
 void Game::regenerateMap()

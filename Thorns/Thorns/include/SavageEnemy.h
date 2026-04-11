@@ -73,7 +73,7 @@ private:
     static constexpr float LOS_RANGE = 550.f;
     static constexpr float ARRIVAL_RADIUS = 24.f;  // Stop moving when this close
 
-    static constexpr float SPRITE_NORTH_OFFSET = -90.f;
+    static constexpr float SPRITE_NORTH_OFFSET = 90.f;
 };
 
 #endif
