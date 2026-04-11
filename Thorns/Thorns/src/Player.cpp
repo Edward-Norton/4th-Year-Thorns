@@ -78,9 +78,12 @@ void Player::update(sf::Time deltaTime)
 
     // ========= Update STATS =========
     m_health.update(deltaTime);
-    m_stamina.update(deltaTime);
-    m_hunger.update(deltaTime);
-    m_water.update(deltaTime);
+    if (m_currentState != PlayerState::InventoryOpen)
+    {
+        m_hunger.update(deltaTime);
+        m_water.update(deltaTime);
+    }
+
 
     // Update movement physics
     updateMovement(deltaTime);

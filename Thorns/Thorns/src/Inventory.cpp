@@ -389,6 +389,8 @@ void Inventory::dropItem(int slotIndex)
     if (slotIndex < 0 || slotIndex >= TOTAL_SLOTS || !m_slots[slotIndex].item)
         return;
 
+    ItemType type = m_slots[slotIndex].item->itemType;
+
     std::cout << "Dropped: " << m_slots[slotIndex].item->name << "\n";
     clearSlot(slotIndex);
 }

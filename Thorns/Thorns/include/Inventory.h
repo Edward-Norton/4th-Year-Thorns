@@ -85,6 +85,9 @@ public:
 
     // ========== Item Use Callback ==========
     void setOnItemUsed(std::function<void(ItemType)> callback) { m_onItemUsed = callback; }
+    // When dropped resapwn it
+    void setOnItemDropped(std::function<void(ItemType, sf::Vector2f)> callback) { m_onItemDropped = callback; }
+
 
     // ========== Inventory Management ==========
     bool addItem(const std::string& itemName, const std::string& texturePath, int quantity = 1);
@@ -174,6 +177,7 @@ private:
 
     // ========== Callback ==========
     std::function<void(ItemType)> m_onItemUsed;
+    std::function<void(ItemType, sf::Vector2f)> m_onItemDropped;
 
     // Item type
     const ItemTypeRegistry* m_registry = nullptr;

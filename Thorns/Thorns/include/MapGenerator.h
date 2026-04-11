@@ -96,6 +96,8 @@ public:
 
     // Enemy spawning
     std::vector<sf::Vector2f> getEnemySpawnPoints(int countPerPOI = 2, float spawnRadius = 300.f) const;
+    // Item Spawning
+    std::vector<sf::Vector2f> getItemSpawnPoints(float spawnRadius = 200.f) const;
 
 private:
     // ========== Generation Phases ==========

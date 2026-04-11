@@ -32,6 +32,11 @@ bool Game::initializeGame()
         return false;
     }
     m_player.getInventory().setRegistry(&m_itemTypeRegistry);
+    m_player.getInventory().setOnItemDropped([this](ItemType type, sf::Vector2f pos)
+    {
+            sf::Vector2f spawnPos = m_player.getPosition() + sf::Vector2f(50.f, 0.f);
+            m_itemPool.spawn(type, spawnPos, m_itemTypeRegistry);
+    });
 
     // Enemy Manager
     if (!m_enemyManager.initialize(Assets::Textures::SAV_ENEMY,
@@ -149,12 +154,6 @@ void Game::generateMap()
         << m_map->getWorldSize().x << "x" << m_map->getWorldSize().y << " pixels\n";
     std::cout << "TO BE REMOVED: Press 'R' during gameplay to regenerate map with new seed\n";
 
-    m_itemPool.despawnAll();
-
-
-    m_itemPool.spawn(ItemType::Food, mapCenter + sf::Vector2f(100, -400), m_itemTypeRegistry);
-    m_itemPool.spawn(ItemType::Water, mapCenter + sf::Vector2f(150, -400), m_itemTypeRegistry);
-
 
     // Deactivate all enemies then spawn initial set
     m_enemyManager.despawnAll();
@@ -166,6 +165,23 @@ void Game::generateMap()
             m_enemyManager.spawnSavage(spawnPoints[i]);
         else
             m_enemyManager.spawnChomper(spawnPoints[i]);
+    }
+
+    m_itemPool.despawnAll();
+    // Spawn weapon/item loot near POI sites
+    auto itemSpawnPoints = m_mapGenerator.getItemSpawnPoints(20.0f);
+
+    // Weapon/health types to cycle through at loot spots
+    const ItemType lootTable[] = {
+        ItemType::Knife, ItemType::Axe, ItemType::Gun,
+        ItemType::FirstAid, ItemType::Bandage
+    };
+    constexpr int lootTableSize = 5;
+
+    for (size_t i = 0; i < itemSpawnPoints.size(); ++i)
+    {
+        ItemType lootType = lootTable[i % lootTableSize];
+        m_itemPool.spawn(lootType, itemSpawnPoints[i], m_itemTypeRegistry);
     }
 }
 
@@ -186,9 +202,34 @@ void Game::regenerateMap()
     mapCenter.y /= 2.f;
     m_player.setPosition(mapCenter);
 
+    // Deactivate all enemies then spawn initial set
     m_enemyManager.despawnAll();
-    m_enemyManager.spawnSavage(mapCenter + sf::Vector2f(300.f, 0.f));
-    m_enemyManager.spawnChomper(mapCenter + sf::Vector2f(-300.f, 0.f));
+    auto spawnPoints = m_mapGenerator.getEnemySpawnPoints(2, 100.f); // Spawn near POIs
+    for (size_t i = 0; i < spawnPoints.size(); ++i)
+    {
+        // Alternate between savage and chomper
+        if (i % 2 == 0)
+            m_enemyManager.spawnSavage(spawnPoints[i]);
+        else
+            m_enemyManager.spawnChomper(spawnPoints[i]);
+    }
+
+    m_itemPool.despawnAll();
+    // Spawn weapon/item loot near POI sites
+    auto itemSpawnPoints = m_mapGenerator.getItemSpawnPoints(20.0f);
+
+    // Weapon/health types to cycle through at loot spots
+    const ItemType lootTable[] = {
+        ItemType::Knife, ItemType::Axe, ItemType::Gun,
+        ItemType::FirstAid, ItemType::Bandage
+    };
+    constexpr int lootTableSize = 5;
+
+    for (size_t i = 0; i < itemSpawnPoints.size(); ++i)
+    {
+        ItemType lootType = lootTable[i % lootTableSize];
+        m_itemPool.spawn(lootType, itemSpawnPoints[i], m_itemTypeRegistry);
+    }
 
     std::cout << "Map regenerated with seed " << m_currentSeed << "!\n";
     std::cout << "======================================\n\n";
