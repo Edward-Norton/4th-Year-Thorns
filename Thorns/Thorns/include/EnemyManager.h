@@ -8,6 +8,7 @@
 #include <SFML/System/Time.hpp>
 #include "SavageEnemy.h"
 #include "ChomperEnemy.h"
+#include "ItemType.h"
 
 class Map;
 class CollisionManager;
@@ -55,6 +56,13 @@ public:
     // ========== Queries ==========
     int getActiveSavageCount()  const;
     int getActiveChomperCount() const;
+
+    // Check if a player attack hits any active enemy.
+    // meleeRange is used for Knife/Axe, Gun uses a ray check.
+    void checkAttackHit(const sf::Vector2f& playerPos,
+        const sf::Vector2f& targetPos,
+        float damage,
+        ItemType weaponType);
 
 private:
     // PN: had to use interface tag for this reason

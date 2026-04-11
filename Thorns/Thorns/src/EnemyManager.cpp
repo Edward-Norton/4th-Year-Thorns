@@ -150,6 +150,73 @@ int EnemyManager::getActiveChomperCount() const
     return count;
 }
 
+void EnemyManager::checkAttackHit(const sf::Vector2f& playerPos, const sf::Vector2f& targetPos, float damage, ItemType weaponType)
+{
+    // Melee: circle check around player. Ranged: distance along attack direction.
+    const bool isMelee = (weaponType == ItemType::Knife || weaponType == ItemType::Axe);
+    const float meleeRange = 80.f;
+    const float gunRange = 800.f;
+    const float hitRadius = 40.f;  // Enemy hit box radius for ray test
+
+    auto tryHitSavage = [&](SavageEnemy& e) -> bool
+        {
+            if (!e.isActive()) return false;
+            sf::Vector2f toEnemy = e.getPosition() - playerPos;
+            float dist = std::sqrt(toEnemy.x * toEnemy.x + toEnemy.y * toEnemy.y);
+
+            if (isMelee)
+            {
+                if (dist <= meleeRange)
+                {
+                    e.takeDamage(damage);
+                    return true;
+                }
+            }
+            else // Gun: check if enemy is near the line from player to target
+            {
+                if (dist > gunRange) return false;
+                sf::Vector2f dir = targetPos - playerPos;
+                float len = std::sqrt(dir.x * dir.x + dir.y * dir.y);
+                if (len < 1.f) return false;
+                dir /= len;
+                // Perpendicular distance from enemy to ray
+                sf::Vector2f perp(-dir.y, dir.x);
+                float perpDist = std::abs(toEnemy.x * perp.x + toEnemy.y * perp.y);
+                if (perpDist <= hitRadius)
+                {
+                    e.takeDamage(damage);
+                    return true;
+                }
+            }
+            return false;
+        };
+
+    for (auto& e : m_savagePool)  tryHitSavage(e);
+
+    // Same logic for chompers
+    for (auto& e : m_chomperPool)
+    {
+        if (!e.isActive()) continue;
+        sf::Vector2f toEnemy = e.getPosition() - playerPos;
+        float dist = std::sqrt(toEnemy.x * toEnemy.x + toEnemy.y * toEnemy.y);
+        if (isMelee && dist <= meleeRange)
+            e.takeDamage(damage);
+        else if (!isMelee)
+        {
+            sf::Vector2f dir = targetPos - playerPos;
+            float len = std::sqrt(dir.x * dir.x + dir.y * dir.y);
+            if (len > 1.f)
+            {
+                dir /= len;
+                sf::Vector2f perp(-dir.y, dir.x);
+                float perpDist = std::abs(toEnemy.x * perp.x + toEnemy.y * perp.y);
+                if (perpDist <= hitRadius && dist <= gunRange)
+                    e.takeDamage(damage);
+            }
+        }
+    }
+}
+
 // Collision
 template<typename TEnemyType>
 void EnemyManager::resolveEnemyCollision(TEnemyType& enemy,

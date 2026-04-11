@@ -156,3 +156,11 @@ void SavageEnemy::render(sf::RenderTarget& target) const
     if (!m_active) return;
     m_sprite.render(target);
 }
+
+void SavageEnemy::takeDamage(float amount)
+{
+    // Simple one-shot kill for now; expand with HealthComponent when ready
+    m_active = false;
+    std::cout << "SavageEnemy killed\n";
+}
+

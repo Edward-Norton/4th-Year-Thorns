@@ -215,3 +215,11 @@ sf::FloatRect ChomperEnemy::getBounds() const
 {
     return m_sprite.getBounds();
 }
+
+
+void ChomperEnemy::takeDamage(float amount)
+{
+    // Simple one-shot kill for now; expand with HealthComponent when ready
+    m_active = false;
+    std::cout << "SavageEnemy killed\n";
+}

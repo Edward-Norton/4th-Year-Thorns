@@ -64,6 +64,8 @@ public:
     AIState getAIState() const { return m_aiState; }
     bool isLeaping()     const { return m_aiState == AIState::Leap; }
 
+    void takeDamage(float amount);
+
 private:
     void updateAI(const sf::Vector2f& playerPos, const Map* map);
     void updateMovement(sf::Time deltaTime);

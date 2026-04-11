@@ -82,6 +82,11 @@ public:
     StatComponent& getWater() { return m_water; }
     const StatComponent& getWater() const { return m_water; }
 
+    // Weapons
+    void equipWeapon(ItemType type);
+    ItemType getEquippedWeapon() const { return m_equippedWeapon; }
+    float attack(const sf::Vector2f& targetWorldPos);
+
 private:
     // ========== State Machine ==========
     void updateState();
@@ -107,6 +112,8 @@ private:
     StatComponent   m_hunger;
     StatComponent   m_water;
     HUDComponent m_hud;   // KEEP BELOW THE STATS DUE TO CONSTRUCTION REF
+
+    ItemType m_equippedWeapon = ItemType::COUNT;
 
     // ========== State ==========
     PlayerState m_currentState;

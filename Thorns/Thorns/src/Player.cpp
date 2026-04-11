@@ -144,6 +144,29 @@ void Player::renderInventory(sf::RenderTarget& target) const
     m_inventory.render(target);
 }
 
+void Player::equipWeapon(ItemType type)
+{
+    m_equippedWeapon = type;
+    std::cout << "Weapon equipped: " << static_cast<int>(type) << "\n";
+}
+
+float Player::attack(const sf::Vector2f& targetWorldPos)
+{
+    if (m_equippedWeapon == ItemType::COUNT)
+    {
+        std::cout << "No weapon equipped\n";
+        return 0.f;
+    }
+
+    static const float damageTable[] = { 0.f, 0.f, 0.f, 0.f, 0.f, 25.f, 50.f, 75.f };
+    // Index matches ItemType enum order: Food=0,Water=1,FirstAid=2,Bandage=3,Knife=4,Axe=5,Gun=6
+    int idx = static_cast<int>(m_equippedWeapon);
+    float dmg = (idx >= 0 && idx < 8) ? damageTable[idx] : 0.f;
+
+    std::cout << "Attack with weapon " << idx << " for " << dmg << " damage\n";
+    return dmg;
+}
+
 void Player::updateState()
 {
     if (!m_inputController) return;
@@ -351,8 +374,11 @@ void Player::onItemUsed(ItemType type)
         std::cout << "Used Bandage. HP: " << m_health.getCurrentHealth() << "\n";
         break;
     case ItemType::Knife:
+        equipWeapon(type);
     case ItemType::Axe:
+        equipWeapon(type);
     case ItemType::Gun:
+        equipWeapon(type);
         std::cout << "Equipped weapon (type " << static_cast<int>(type) << ")\n";
         break;
     default:

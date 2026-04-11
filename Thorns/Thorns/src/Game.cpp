@@ -369,6 +369,20 @@ void Game::updatePlaying(sf::Time deltaTime)
         return;
     }
 
+    // Attack
+    if (m_input.wasMouseJustPressed() &&
+        m_player.getCurrentState() != PlayerState::InventoryOpen)
+    {
+        float dmg = m_player.attack(getMouseWorldPosition());
+        if (dmg > 0.f)
+        {
+            // Pass damage to enemy manager to check hits
+            m_enemyManager.checkAttackHit(m_player.getPosition(),
+                getMouseWorldPosition(), dmg,
+                m_player.getEquippedWeapon());
+        }
+    }
+
     // Update player with input and mouse position
     m_player.updateWithInput(deltaTime, m_input, getMouseWorldPosition());
 
