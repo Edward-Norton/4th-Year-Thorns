@@ -32,10 +32,11 @@ bool Game::initializeGame()
         return false;
     }
 
-    // Initialize enemy entity
-    if (!m_savEnemy.initialize(Assets::Textures::SAV_ENEMY))
+    // Enemy Manager
+    if (!m_enemyManager.initialize(Assets::Textures::SAV_ENEMY,
+        Assets::Textures::SAV_ENEMY))
     {
-        std::cerr << "Failed to load enemy!" << std::endl;
+        std::cerr << "Failed to initialize enemy manager!\n";
         return false;
     }
 
@@ -154,8 +155,10 @@ void Game::generateMap()
     m_itemPool.spawn(ItemType::Water, mapCenter + sf::Vector2f(150, -400), m_itemTypeRegistry);
 
 
-    // Enemy spawn test
-    m_savEnemy.setPosition(mapCenter + sf::Vector2f(300.f, 0.f));
+    // Deactivate all enemies then spawn initial set
+    m_enemyManager.despawnAll();
+    m_enemyManager.spawnSavage(mapCenter + sf::Vector2f(300.f, 0.f));
+    m_enemyManager.spawnChomper(mapCenter + sf::Vector2f(-300.f, 0.f));
 }
 
 void Game::regenerateMap()
@@ -174,6 +177,10 @@ void Game::regenerateMap()
     mapCenter.x /= 2.f;
     mapCenter.y /= 2.f;
     m_player.setPosition(mapCenter);
+
+    m_enemyManager.despawnAll();
+    m_enemyManager.spawnSavage(mapCenter + sf::Vector2f(300.f, 0.f));
+    m_enemyManager.spawnChomper(mapCenter + sf::Vector2f(-300.f, 0.f));
 
     std::cout << "Map regenerated with seed " << m_currentSeed << "!\n";
     std::cout << "======================================\n\n";
@@ -373,8 +380,9 @@ void Game::updatePlaying(sf::Time deltaTime)
         regenerateMap();
     }
 
-    // Update other entities
-    m_savEnemy.updateWithContext(deltaTime, m_player.getPosition(), m_map.get());
+    // Enemy update: AI, movement, and world collision
+    m_enemyManager.updateAll(deltaTime, m_player.getPosition(),
+        m_map.get(), m_collisionManager);
 
     updateCamera();
 }
@@ -419,7 +427,8 @@ void Game::render()
             }
             m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
             m_player.render(m_window);
-            m_savEnemy.render(m_window);
+            m_enemyManager.renderAll(m_window);
+
         }
         m_window.setView(m_uiView);
         m_settingsMenu.render(m_window);  // Draw settings over game
@@ -448,7 +457,7 @@ void Game::render()
 
         //Entities
         m_player.render(m_window);
-        m_savEnemy.render(m_window);
+        m_enemyManager.renderAll(m_window);
 
         // For UI spacing
         m_window.setView(m_uiView);
@@ -472,7 +481,7 @@ void Game::render()
 
             m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
             m_player.render(m_window);
-            m_savEnemy.render(m_window);
+            m_enemyManager.renderAll(m_window);
         }
 
         m_window.setView(m_uiView);

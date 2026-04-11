@@ -35,6 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ButtonComponent.cpp" />
+    <ClCompile Include="src\ChomperEnemy.cpp" />
     <ClCompile Include="src\CollisionManager.cpp" />
     <ClCompile Include="src\CursorComponent.cpp" />
     <ClCompile Include="src\Enemy.cpp" />
@@ -72,6 +73,7 @@
   <ItemGroup>
     <ClInclude Include="include\AssetPaths.h" />
     <ClInclude Include="include\ButtonComponent.h" />
+    <ClInclude Include="include\ChomperEnemy.h" />
     <ClInclude Include="include\CollisionManager.h" />
     <ClInclude Include="include\CollisionType.h" />
     <ClInclude Include="include\CursorComponent.h" />

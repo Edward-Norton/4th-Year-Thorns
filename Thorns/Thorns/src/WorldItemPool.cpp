@@ -1,5 +1,6 @@
 #include "WorldItemPool.h"
 #include <iostream>
+#include "EnemyManager.h"
 
 WorldItemPool::WorldItemPool()
     : m_atlasLoaded(false)

@@ -132,7 +132,7 @@ void SavageEnemy::updateMovement(sf::Time deltaTime)
 
 void SavageEnemy::faceDirection(const sf::Vector2f& direction)
 {
-    float angle = MathUtils::vectorToAngleDegrees(direction);
+    float angle = MathUtils::vectorToAngleDegrees(direction) + SPRITE_NORTH_OFFSET;
     m_sprite.setRotation(sf::degrees(angle));
 }
 

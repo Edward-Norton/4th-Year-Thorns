@@ -44,7 +44,6 @@ public:
         const Map* map) override;
 
     // ========== Collision ==========
-    // Called by EnemyManager each frame after movement to push enemy out of world geometry
     void applyCollisionCorrection(const sf::Vector2f& correction);
 
     // ========== IRenderable ==========
@@ -68,14 +67,13 @@ public:
 private:
     void updateAI(const sf::Vector2f& playerPos, const Map* map);
     void updateMovement(sf::Time deltaTime);
-    // Sprite faces north by default; offset corrects atan2 east-origin to north-origin
     void faceDirection(const sf::Vector2f& direction);
     void beginLeap(const sf::Vector2f& targetPos);
 
     SpriteComponent m_sprite;
-    bool            m_active;
+    bool m_active;
 
-    AIState      m_aiState;
+    AIState m_aiState;
     sf::Vector2f m_lastKnownPlayerPos;
     sf::Vector2f m_velocity;
 
