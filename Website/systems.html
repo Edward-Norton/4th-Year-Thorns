@@ -1,0 +1,260 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>THORNS — Core Systems</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .comp-block {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            margin-top: 2rem;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.82rem;
+        }
+
+        .comp-block-title {
+            color: var(--amber-light);
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .comp-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .comp-entity {
+            color: var(--amber-light);
+            border: 1px solid rgba(200,144,46,0.3);
+            padding: 0.2em 0.6em;
+        }
+
+        .comp-arrow { color: var(--text-dim); }
+
+        .comp-tag {
+            color: var(--green-light);
+            border: 1px solid var(--green-dim);
+            padding: 0.15em 0.5em;
+            font-size: 0.72rem;
+        }
+
+        .comp-note {
+            margin-top: 0.8rem;
+            padding-top: 0.7rem;
+            border-top: 1px solid var(--border);
+            font-family: 'Libre Baskerville', serif;
+            font-size: 0.82rem;
+            font-style: italic;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .iface-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            margin-top: 1.5rem;
+        }
+
+        .iface-table th {
+            text-align: left;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            padding: 0.5rem 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .iface-table td {
+            padding: 0.6rem 0.8rem;
+            border-bottom: 1px solid rgba(42,64,48,0.35);
+            vertical-align: top;
+        }
+
+        .iface-table td:first-child {
+            font-family: 'Courier Prime', monospace;
+            color: var(--green-light);
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+
+        .iface-table td:last-child {
+            color: var(--text-dim);
+            font-size: 0.88rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a class="nav-logo" href="index.html">THORNS</a>
+    <ul class="nav-links">
+        <li><a href="index.html">Overview</a></li>
+        <li><a href="systems.html" class="active">Systems</a></li>
+        <li><a href="patterns.html">Patterns</a></li>
+        <li><a href="generation.html">Generation</a></li>
+        <li><a href="benchmarks.html">Benchmarks</a></li>
+        <li><a href="references.html">References</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+    </ul>
+    <button class="nav-menu-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+
+<div class="page-header alt">
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">THORNS</a>
+            <span>/</span>
+            <span class="current">Core Systems</span>
+        </div>
+        <div class="page-header-label">02 - Architecture</div>
+        <h1>Core Systems</h1>
+        <p class="subtitle">Six systems. Each with a dedicated class or component and a clear responsibility.</p>
+    </div>
+</div>
+
+<!-- COMPOSITION -->
+<section>
+    <div class="container">
+        <div class="reveal">
+            <div class="section-label">Composition over inheritance</div>
+            <h2 class="section-title">How the player entity is built.</h2>
+            <p class="section-body">
+                Player doesn't do anything itself, it owns components that do things. The Player class
+                is an owner and coordinator. Game logic accesses behaviour through the thin interfaces
+                each component implements.
+            </p>
+
+            <div class="comp-block">
+                <div class="comp-block-title">Player : IGameEntity</div>
+                <div class="comp-row">
+                    <span class="comp-entity">Player</span>
+                    <span class="comp-arrow">owns -></span>
+                    <span class="comp-tag">SpriteComponent</span>
+                    <span class="comp-tag">HealthComponent</span>
+                    <span class="comp-tag">StatComponent x3</span>
+                    <span class="comp-tag">Inventory</span>
+                    <span class="comp-tag">HUDComponent</span>
+                    <span class="comp-tag">CursorComponent</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- INTERFACE HIERARCHY -->
+<section class="alt">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-label">Interface design</div>
+            <h2 class="section-title">Four thin interfaces.</h2>
+            <p class="section-body">
+                Every game object derives from one or more of four pure-virtual interfaces.
+                <code>IGameEntity</code> bundles all four for common game objects. Lighter components
+                pick only what they need.
+            </p>
+
+            <table class="iface-table">
+                <thead>
+                    <tr>
+                        <th>Interface</th>
+                        <th>Contract</th>
+                        <th>Used by</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>IRenderable</td>
+                        <td><code>render(sf::RenderTarget&)</code>: any drawable object satisfies this. The game loop never knows what it's drawing.</td>
+                        <td>Player, WorldObject, WorldItem, PointOfInterest, HUDComponent...</td>
+                    </tr>
+                    <tr>
+                        <td>IUpdatable</td>
+                        <td><code>update(sf::Time)</code>: fixed-timestep loop calls this on all registered entities. Each entity is responsible for its own state.</td>
+                        <td>Player, HealthComponent, StatComponent, Enemy types...</td>
+                    </tr>
+                    <tr>
+                        <td>IPositionable</td>
+                        <td><code>getPosition()</code> / <code>setPosition()</code>: enables generic position queries without knowing the concrete type.</td>
+                        <td>Player, WorldObject, WorldItem, PointOfInterest...</td>
+                    </tr>
+                    <tr>
+                        <td>ICollidable</td>
+                        <td><code>getBounds()</code> returns world-space <code>sf::FloatRect</code> for broad-phase collision pre-checks.</td>
+                        <td>Player, WorldObject, WorldItem, PointOfInterest...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- SYSTEMS CATALOGUE -->
+<section>
+    <div class="container">
+        <div class="reveal">
+            <div class="section-label">Systems catalogue</div>
+            <h2 class="section-title">Six systems.</h2>
+        </div>
+
+        <div class="grid-2 reveal">
+            <div class="card">
+                <h3>01: State Management</h3>
+                <p>A Pushdown Automaton in <code>GameStateManager</code> handles MainMenu, Playing, Paused, Settings, and GameOver. The key behaviour: pushing a state saves the current one on a stack. Popping returns to it. This is what lets Settings be opened from both main menu and pause menu and return correctly to the right prior state each time.</p>
+            </div>
+            <div class="card">
+                <h3>02: Collision Detection</h3>
+                <p>Two phases. Broad-phase AABB check first, if the bounding boxes don't overlap, skip everything else. Narrow-phase SAT for convex polygons loaded from <code>.tmx</code> files. Minimum Translation Vector resolution pushes entities cleanly out of geometry. Flyweight-shared collision shapes mean thousands of world objects don't each own a copy of their polygon data.</p>
+                
+            </div>
+            <div class="card">
+                <h3>03: Input Controller</h3>
+                <p>Abstracts keyboard and gamepad behind <code>InputAction</code> enums. <code>wasJustPressed</code> and <code>wasJustReleased</code> are O(1) array lookups using <code>memcpy</code> state snapshots, current frame vs previous frame. Runtime key rebinding stored in <code>std::unordered_map</code> for O(1) lookup.</p>
+                
+            </div>
+            <div class="card">
+                <h3>04: Enemy AI</h3>
+                <p>Two enemy types with state machines. SavageEnemy: Idle -> Chase -> Lost using line-of-sight raycasting. ChomperEnemy adds a Leap state, a velocity-locked lunge with its own cooldown that aborts on wall contact via <code>applyCollisionCorrection()</code>. Both managed by <code>EnemyManager</code> using fixed-size object pools.</p>
+            </div>
+            <div class="card">
+                <h3>05: Inventory and Items</h3>
+                <p>A 2x5 slot grid with drag-and-drop, right-click context menus (Use / Drop), and a Flyweight <code>ItemTypeRegistry</code> that stores one data block per item type. Items in the world use <code>WorldItemPool</code>, 64 pre-allocated slots, activated and deactivated rather than heap-allocated per spawn.</p>
+                
+            </div>
+            <div class="card">
+                <h3>06: Rendering and Camera</h3>
+                <p>Dual SFML views: <code>m_gameView</code> follows the player with map-bounds clamping; <code>m_uiView</code> is fixed to screen space. All UI renders under the fixed view, this is what fixed the HUD drift bug where bars were moving with the camera. Frustum culling on tiles, POIs, world objects, and items.</p>
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-meta">
+        Computer Games Development · SE607 · Year IV<br>
+        Edward Norton · C00286807 · SETU Carlow · 2026<br>
+        Contacts:<br> 
+        Email: edwardnorton2003@gmail.com <br>
+        GitHub: <a href="https://github.com/Edward-Norton">Edward-Norton</a> <br>
+        Phone: (+353) 83 854 4337
+    </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

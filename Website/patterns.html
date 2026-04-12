@@ -1,0 +1,271 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>THORNS — Design Patterns</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .pattern-entry {
+            border-top: 1px solid var(--border);
+            padding: 2rem 0;
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 1.5rem;
+        }
+
+        .pattern-entry:last-child { border-bottom: 1px solid var(--border); }
+
+        .pattern-num {
+            font-family: 'Courier Prime', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--green-dim);
+            padding-top: 0.1rem;
+        }
+
+        .pattern-body h3 {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.1rem;
+            color: var(--green-light);
+            margin-bottom: 0.3rem;
+        }
+
+        .pattern-source {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin-bottom: 0.7rem;
+            display: block;
+        }
+
+        .pattern-body p {
+            font-size: 0.95rem;
+            color: var(--text);
+            line-height: 1.75;
+            margin-bottom: 0.6rem;
+        }
+
+        .pattern-where {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            background: rgba(42,64,48,0.3);
+            border-left: 2px solid var(--green-dim);
+            padding: 0.4rem 0.7rem;
+            margin-top: 0.6rem;
+        }
+
+        @media (max-width: 600px) {
+            .pattern-entry { grid-template-columns: 50px 1fr; gap: 1rem; }
+            .pattern-num { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a class="nav-logo" href="index.html">THORNS</a>
+    <ul class="nav-links">
+        <li><a href="index.html">Overview</a></li>
+        <li><a href="systems.html">Systems</a></li>
+        <li><a href="patterns.html" class="active">Patterns</a></li>
+        <li><a href="generation.html">Generation</a></li>
+        <li><a href="benchmarks.html">Benchmarks</a></li>
+        <li><a href="references.html">References</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+    </ul>
+    <button class="nav-menu-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+
+<div class="page-header alt">
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">THORNS</a>
+            <span>/</span>
+            <span class="current">Design Patterns</span>
+        </div>
+        <div class="page-header-label">03 — Architecture</div>
+        <h1>Design Patterns</h1>
+        <p class="subtitle">Seven patterns from Nystrom (2014). </p>
+    </div>
+</div>
+
+<!-- INTRO -->
+<section>
+    <div class="container">
+        <div class="reveal">
+            <p class="section-body">
+                Primary reference: Nystrom, R. (2014). <em>Game Programming Patterns.</em>
+                Available at <a href="https://gameprogrammingpatterns.com" target="_blank">gameprogrammingpatterns.com</a>.
+                Translations from Gang of Four (Gamma et al., 1994) into game-specific contexts.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- PATTERN LIST -->
+<section class="alt">
+    <div class="container">
+
+        <div class="pattern-entry reveal">
+            <div class="pattern-num">01</div>
+            <div class="pattern-body">
+                <h3>Component</h3>
+                <span class="pattern-source">Nystrom, Ch. 14 - Component</span>
+                <p>
+                    The problem this solves: a "god class" Player that does everything directly becomes unmaintainable fast.
+                    Instead, Player behaviour is split into independent components: <code>SpriteComponent</code>,
+                    <code>HealthComponent</code>, <code>StatComponent</code> (x3 for stamina, hunger, water),
+                    <code>Inventory</code>, <code>HUDComponent</code>, <code>CursorComponent</code>. None of
+                    these inherit from Player.
+                </p>
+                <p>
+                    The practical benefit: during development, the HUD, inventory, and stat bars were all
+                    modified independently without touching the Player class. Adding hunger and water was just
+                    adding two more StatComponent instances. Sprite component it used in multiple places such as Player, enemies, world items, without any inheritance or shared base class.
+                </p>
+            </div>
+        </div>
+
+        <div class="pattern-entry reveal">
+            <div class="pattern-num">02</div>
+            <div class="pattern-body">
+                <h3>Flyweight</h3>
+                <span class="pattern-source">Nystrom, Ch. 3 - Flyweight</span>
+                <p>
+                    Two applications. First: <code>WorldObjectTemplateManager</code> stores one
+                    <code>std::vector&lt;CollisionShape&gt;</code> per world object type. Each placed tree or
+                    stump holds a non-owning pointer to that shared list plus a <code>sf::Vector2f</code> offset.
+                    A 128x128 map with several thousand objects uses the same memory as a single instance's shape data.
+                </p>
+                <p>
+                    Second: <code>ItemTypeRegistry</code> stores one <code>ItemTypeData</code> block per item type.
+                    Every Food item in the world shares the same atlas rect, sprite size, and stat restore amount.
+                    The world item just holds the type enum and position.
+                </p>
+                <p>
+                    This helped performance as I was having memory issues. 
+                    The game was crashing when I tried to place a few hundred world objects with their own shape data, 
+                    and the item pool was also causing issues when I tried to spawn more than a handful of items. 
+                    After applying Flyweight, I could place more of world objects and spawn dozens of items without any memory problems.
+                </p>
+            </div>
+        </div>
+
+        <div class="pattern-entry reveal">
+            <div class="pattern-num">03</div>
+            <div class="pattern-body">
+                <h3>Spatial Partition</h3>
+                <span class="pattern-source">Nystrom, Ch. 20 - Spatial Partition</span>
+                <p>
+                    The problem: assigning every tile to its nearest Voronoi site by checking all sites is O(n²).
+                    On an 80x80 map with 20 sites, that's 128,000 distance calculations per generation.
+                </p>
+                <p>
+                    The fix: a hash-cell spatial grid divides the world into cells. Each tile queries only the
+                    3x3 cell neighbourhood around its position, O(k) where k is the small number of sites in
+                    nearby cells. This took generation time from 84ms to 11ms at the 80x80 test size.
+                    That's the 7.7x speedup in the benchmarks, and it's directly attributable to this pattern.
+                </p>
+            </div>
+        </div>
+
+        <div class="pattern-entry reveal">
+            <div class="pattern-num">04</div>
+            <div class="pattern-body">
+                <h3>Observer (Pull Variant)</h3>
+                <span class="pattern-source">Nystrom, Ch. 4 — Observer</span>
+                <p>
+                    The HUD needs to display stat values without being tightly coupled to the stat components.
+                    The standard push-based Observer (stat broadcasts a change, HUD subscribes) adds callbacks
+                    and event queuing overhead that isn't needed here.
+                </p>
+                <p>
+                    Instead: <code>HUDComponent</code> holds <code>const&</code> references to
+                    <code>HealthComponent</code> and three <code>StatComponent</code> instances.
+                    At render time it calls <code>getHealthRatio()</code> and <code>getRatio()</code>.
+                    The HUD pulls current values when it needs them. Stat logic knows nothing about rendering.
+                </p>
+            </div>
+        </div>
+
+        <div class="pattern-entry reveal">
+            <div class="pattern-num">05</div>
+            <div class="pattern-body">
+                <h3>State / Pushdown Automaton</h3>
+                <span class="pattern-source">Nystrom, Ch. 7 - State (Pushdown variant)</span>
+                <p>
+                    <code>GameStateManager</code> uses a <code>std::stack&lt;GameState&gt;</code>.
+                    <code>pushState()</code> saves the current state on the stack and transitions to a new one.
+                    <code>popState()</code> restores the previous state. <code>changeState()</code> clears the stack.
+                </p>
+                <p>
+                    The specific behaviour this enables: Settings can be opened from both the main menu and
+                    the pause menu, and popping returns correctly to whichever one opened it.
+                    A simple state variable can't do that, you'd need to track the prior state separately anyway.
+                </p>
+            </div>
+        </div>
+
+        <div class="pattern-entry reveal">
+            <div class="pattern-num">06</div>
+            <div class="pattern-body">
+                <h3>Command</h3>
+                <span class="pattern-source">Nystrom, Ch. 2 - Command</span>
+                <p>
+                    <code>InputController</code> maps <code>InputAction</code> enums to physical keys.
+                    Every piece of game logic queries <code>InputAction::Sprint</code>,
+                    not <code>sf::Keyboard::Key::LShift</code>. Rebinding a key in the settings
+                    menu propagates immediately to all query sites without touching any game logic code.
+                </p>
+                <p>
+                    <code>wasJustPressed()</code> and <code>wasJustReleased()</code> compare the current
+                    frame's state array against a snapshot of the previous frame's state copied via
+                    <code>memcpy</code>. Both are O(1) array index lookups.
+                </p>
+            </div>
+        </div>
+
+        <div class="pattern-entry reveal">
+            <div class="pattern-num">07</div>
+            <div class="pattern-body">
+                <h3>Update Method</h3>
+                <span class="pattern-source">Nystrom, Ch. 10 - Update Method</span>
+                <p>
+                    <code>IUpdatable</code> provides a single <code>update(sf::Time)</code> contract.
+                    The fixed-timestep game loop calls update on every entity at 60Hz.
+                    Each entity manages its own state, the loop never inspects type or casts.
+                </p>
+                <p>
+                    Component updates cascade naturally: <code>Player::update()</code> calls
+                    <code>m_health.update(dt)</code>, <code>m_hunger.update(dt)</code> etc. The drain rates
+                    (hunger: 0.5 units/s, water: 0.8 units/s) are set on each <code>StatComponent</code>
+                    and applied automatically in their own update, Player doesn't need to know the rate.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-meta">
+        Computer Games Development · SE607 · Year IV<br>
+        Edward Norton · C00286807 · SETU Carlow · 2026<br>
+        Contacts:<br> 
+        Email: edwardnorton2003@gmail.com <br>
+        GitHub: <a href="https://github.com/Edward-Norton">Edward-Norton</a> <br>
+        Phone: (+353) 83 854 4337
+    </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

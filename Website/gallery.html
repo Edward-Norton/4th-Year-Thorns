@@ -1,0 +1,660 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>THORNS — Gallery</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ===== LIGHTBOX ===== */
+        .lightbox-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            background: rgba(5, 10, 5, 0.96);
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            cursor: zoom-out;
+        }
+
+        .lightbox-overlay.open {
+            display: flex;
+        }
+
+        .lightbox-inner {
+            position: relative;
+            max-width: 1100px;
+            max-height: 90vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lightbox-img {
+            width: 100%;
+            max-height: 80vh;       
+            display: block;
+            object-fit: contain;   
+            border: 1px solid var(--border);
+        }
+
+        .lightbox-caption {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.78rem;
+            letter-spacing: 0.06em;
+            color: var(--text-dim);
+            margin-top: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lightbox-caption span { color: var(--green-light); }
+
+        .lightbox-close {
+            position: absolute;
+            top: -2.2rem;
+            right: 0;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .lightbox-close:hover { color: var(--green-light); }
+
+        .lightbox-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .lightbox-nav button {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            background: none;
+            border: 1px solid var(--border);
+            padding: 0.3em 0.8em;
+            cursor: pointer;
+        }
+
+        .lightbox-nav button:hover {
+            color: var(--green-light);
+            border-color: var(--green-dim);
+        }
+
+        /* ===== CATEGORY LABEL ===== */
+        .gallery-category {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--amber);
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.2rem;
+            margin-top: 2.5rem;
+        }
+
+        .gallery-category:first-of-type { margin-top: 0; }
+
+        /* ===== SCREENSHOT GRID ===== */
+        .shot-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        /* First section: one wide + two small */
+        .shot-grid.layout-a {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+        }
+
+        .shot-grid.layout-a .shot-wide {
+            grid-column: 1 / -1;
+        }
+
+        /* Second section: three equal */
+        .shot-grid.layout-b {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        /* Third section: two equal */
+        .shot-grid.layout-c {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        /* Fourth section: 2+1 asymmetric */
+        .shot-grid.layout-d {
+            grid-template-columns: 2fr 1fr;
+        }
+
+        @media (max-width: 800px) {
+            .shot-grid.layout-a,
+            .shot-grid.layout-b,
+            .shot-grid.layout-c,
+            .shot-grid.layout-d {
+                grid-template-columns: 1fr;
+            }
+            .shot-grid.layout-a .shot-wide { grid-column: 1; }
+        }
+
+        /* ===== SCREENSHOT CARD ===== */
+        .shot {
+            position: relative;
+            border: 1px solid var(--border);
+            background: var(--card);
+            cursor: zoom-in;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .shot:hover .shot-overlay {
+            opacity: 1;
+        }
+
+        .shot-frame {
+            position: relative;
+            background: #050d05;
+            flex: 1;
+        }
+
+        .shot-frame img {
+            width: 100%;
+            display: block;
+            max-height: 420px;
+            object-fit: contain;   
+            object-position: center;
+            background: #050d05;    
+            vertical-align: bottom;
+        }
+
+        .shot-placeholder {
+            width: 100%;
+            min-height: 160px;       
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #060e06;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .shot-placeholder-inner {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .shot-placeholder-tag {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--green-dim);
+            border: 1px solid var(--green-dim);
+            padding: 0.2em 0.6em;
+            display: inline-block;
+            margin-bottom: 0.6rem;
+        }
+
+        .shot-placeholder-hint {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.68rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        /* Hover overlay */
+        .shot-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(13, 26, 13, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .shot-overlay-label {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--green-light);
+            border: 1px solid var(--green-dim);
+            padding: 0.3em 0.9em;
+        }
+
+        /* Caption bar */
+        .shot-meta {
+            padding: 0.65rem 0.9rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .shot-title {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.8rem;
+            color: var(--text-head);
+            margin-bottom: 0.15rem;
+        }
+
+        .shot-desc {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        /* ===== NOTE BLOCK ===== */
+        .gallery-note {
+            background: rgba(42,64,48,0.15);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green-dim);
+            padding: 0.9rem 1.1rem;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            letter-spacing: 0.02em;
+            line-height: 1.7;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a class="nav-logo" href="index.html">THORNS</a>
+    <ul class="nav-links">
+        <li><a href="index.html">Overview</a></li>
+        <li><a href="systems.html">Systems</a></li>
+        <li><a href="patterns.html">Patterns</a></li>
+        <li><a href="generation.html">Generation</a></li>
+        <li><a href="benchmarks.html">Benchmarks</a></li>
+        <li><a href="references.html">References</a></li>
+        <li><a href="gallery.html" class="active">Gallery</a></li>
+    </ul>
+    <button class="nav-menu-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+
+<div class="page-header alt">
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">THORNS</a>
+            <span>/</span>
+            <span class="current">Gallery</span>
+        </div>
+        <div class="page-header-label">07 - Screenshots</div>
+        <h1>Gallery</h1>
+        <p class="subtitle">In-engine captures. </p>
+    </div>
+</div>
+
+<!-- WORLD -->
+<section>
+    <div class="container">
+        <div class="reveal">
+            <div class="gallery-category">World and terrain</div>
+
+            <div class="shot-grid layout-a">
+
+                <!-- Wide: full world view -->
+                <div class="shot shot-wide" data-index="0" data-title="World overview" data-desc="128x128 tile map. Terrain atlas tiles, Voronoi region boundaries visible as white lines. Hideout structure at centre.">
+                    <div class="shot-frame">
+                        <img src="screenshots/world_overview.png" alt="World overview" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="shot-placeholder" style="display:none">
+                            <div class="shot-placeholder-inner">
+                                <div class="shot-placeholder-tag">world_overview.png</div>
+                                <div class="shot-placeholder-hint">Full map view: terrain + Voronoi boundaries + hideout structure</div>
+                            </div>
+                        </div>
+                        <div class="shot-overlay"><span class="shot-overlay-label">View</span></div>
+                    </div>
+                    <div class="shot-meta">
+                        <div class="shot-title">World Overview</div>
+                        <div class="shot-desc">128x128 tile map with terrain atlas, Voronoi region boundaries, and the player hideout at centre.</div>
+                    </div>
+                </div>
+
+                <!-- Terrain close-up -->
+                <div class="shot" data-index="1" data-title="Terrain tiles" data-desc="Grass terrain from the shared atlas. One sf::Texture, one SpriteComponent repositioned per tile. No per-tile texture allocation.">
+                    <div class="shot-frame">
+                        <img src="screenshots/terrain_tiles.png" alt="Terrain tiles" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="shot-placeholder" style="display:none">
+                            <div class="shot-placeholder-inner">
+                                <div class="shot-placeholder-tag">terrain_tiles.png</div>
+                                <div class="shot-placeholder-hint">Ground-level terrain tile detail</div>
+                            </div>
+                        </div>
+                        <div class="shot-overlay"><span class="shot-overlay-label">View</span></div>
+                    </div>
+                    <div class="shot-meta">
+                        <div class="shot-title">Terrain Tiles</div>
+                        <div class="shot-desc">Shared atlas rendering: one texture repositioned per tile, no per-tile allocation.</div>
+                    </div>
+                </div>
+
+                <!-- POI closeup -->
+                <div class="shot" data-index="2" data-title="Farm POI" data-desc="Farm point of interest. 1948×2016px sprite. Collision polygons loaded from a Tiled .tmx template.">
+                    <div class="shot-frame">
+                        <img src="screenshots/farm_poi.png" alt="Farm POI" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="shot-placeholder" style="display:none">
+                            <div class="shot-placeholder-inner">
+                                <div class="shot-placeholder-tag">farm_poi.png</div>
+                                <div class="shot-placeholder-hint">Farm POI: furthest-site placement, TMX collision template</div>
+                            </div>
+                        </div>
+                        <div class="shot-overlay"><span class="shot-overlay-label">View</span></div>
+                    </div>
+                    <div class="shot-meta">
+                        <div class="shot-title">Farm POI</div>
+                        <div class="shot-desc">1948x2016px. Placed at the Voronoi site furthest from the player hideout.</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- VORONOI DEBUG -->
+<section class="alt">
+    <div class="container">
+        <div class="reveal">
+            <div class="gallery-category">Voronoi debug view</div>
+
+            <div class="shot-grid layout-b">
+                <div class="shot" data-index="4" data-title="Voronoi boundary lines" data-desc="White lines drawn between tiles belonging to different regions.">
+                    <div class="shot-frame">
+                        <img src="screenshots/voronoi_boundaries.png" alt="Voronoi boundaries" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="shot-placeholder" style="display:none">
+                            <div class="shot-placeholder-inner">
+                                <div class="shot-placeholder-tag">voronoi_boundaries.png</div>
+                                <div class="shot-placeholder-hint">Region boundary lines: debug only.</div>
+                            </div>
+                        </div>
+                        <div class="shot-overlay"><span class="shot-overlay-label">View</span></div>
+                    </div>
+                    <div class="shot-meta">
+                        <div class="shot-title">Boundary Lines</div>
+                        <div class="shot-desc">Debug renderer drawing region edges.</div>
+                    </div>
+                </div>
+
+                <div class="shot" data-index="5" data-title="Site seeds: Poisson placement" data-desc="Green circles mark Voronoi site positions generated by Bridson's Poisson disk sampling. Minimum spacing derived from map area ÷ site count.">
+                    <div class="shot-frame">
+                        <img src="screenshots/voronoi_sites.png" alt="Voronoi sites" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="shot-placeholder" style="display:none">
+                            <div class="shot-placeholder-inner">
+                                <div class="shot-placeholder-tag">voronoi_sites.png</div>
+                                <div class="shot-placeholder-hint">Poisson disk sites — circles mark seed positions</div>
+                            </div>
+                        </div>
+                        <div class="shot-overlay"><span class="shot-overlay-label">View</span></div>
+                    </div>
+                    <div class="shot-meta">
+                        <div class="shot-title">Poisson Site Seeds</div>
+                        <div class="shot-desc">Circles mark Voronoi sites generated by Bridson's algorithm.</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ITEMS AND INVENTORY -->
+<section>
+    <div class="container">
+        <div class="reveal">
+            <div class="gallery-category">Items and inventory</div>
+
+            <div class="shot-grid layout-c">
+
+                <div class="shot" data-index="6" data-title="World items" data-desc="Pickup items spawned near Voronoi sites. Knife, Axe, Gun, First Aid, Bandage cycling through the loot table. Each item shares one atlas texture via WorldItemPool.">
+                    <div class="shot-frame">
+                        <img src="screenshots/world_items.png" alt="World items" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="shot-placeholder" style="display:none">
+                            <div class="shot-placeholder-inner">
+                                <div class="shot-placeholder-tag">world_items.png</div>
+                                <div class="shot-placeholder-hint">Pickup items in world — atlas shared, pool activated per spawn</div>
+                            </div>
+                        </div>
+                        <div class="shot-overlay"><span class="shot-overlay-label">View</span></div>
+                    </div>
+                    <div class="shot-meta">
+                        <div class="shot-title">World Items</div>
+                        <div class="shot-desc">Knife, Axe, Gun, First Aid, Bandage spawned near POI sites. All share one atlas texture via WorldItemPool.</div>
+                    </div>
+                </div>
+
+                <div class="shot" data-index="7" data-title="Inventory panel" data-desc="2×5 slot grid. Left-click to use, right-click for context menu (Use / Drop), hold and drag to rearrange. Item quantity drawn bottom-right of slot.">
+                    <div class="shot-frame">
+                        <img src="screenshots/inventory.png" alt="Inventory" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="shot-placeholder" style="display:none">
+                            <div class="shot-placeholder-inner">
+                                <div class="shot-placeholder-tag">inventory.png</div>
+                                <div class="shot-placeholder-hint">2×5 inventory — drag/drop, context menu, quantity display</div>
+                            </div>
+                        </div>
+                        <div class="shot-overlay"><span class="shot-overlay-label">View</span></div>
+                    </div>
+                    <div class="shot-meta">
+                        <div class="shot-title">Inventory Panel</div>
+                        <div class="shot-desc">2×5 slot grid with drag-and-drop, right-click context menu, and slot quantity labels.</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HUD AND PLAYER -->
+<section class="alt">
+    <div class="container">
+        <div class="reveal">
+            <div class="gallery-category">HUD and player</div>
+
+            <div class="shot-grid layout-d">
+
+                <div class="shot" data-index="8" data-title="HUD — stat bars" data-desc="Four status bars: HP (red), Stamina (white), Hunger (orange), Water (blue).">
+                    <div class="shot-frame">
+                        <img src="screenshots/hud_bars.png" alt="HUD stat bars" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="shot-placeholder" style="display:none">
+                            <div class="shot-placeholder-inner">
+                                <div class="shot-placeholder-tag">hud_bars.png</div>
+                                <div class="shot-placeholder-hint">HP / Stamina / Hunger / Water bars — Observer pull variant</div>
+                            </div>
+                        </div>
+                        <div class="shot-overlay"><span class="shot-overlay-label">View</span></div>
+                    </div>
+                    <div class="shot-meta">
+                        <div class="shot-title">Stat Bars (HUD)</div>
+                        <div class="shot-desc">HP · Stamina · Hunger · Water. Observer pull variant — reads at render time, no event system.</div>
+                    </div>
+                </div>
+
+                <div class="shot" data-index="9" data-title="Player sprite and cursor" data-desc="Player sprite from atlas, rotates to face the custom crosshair cursor. OS cursor hidden during gameplay, restored in menus.">
+                    <div class="shot-frame">
+                        <img src="screenshots/player_cursor.png" alt="Player and cursor" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="shot-placeholder" style="display:none">
+                            <div class="shot-placeholder-inner">
+                                <div class="shot-placeholder-tag">player_cursor.png</div>
+                                <div class="shot-placeholder-hint">Player sprite + custom crosshair cursor</div>
+                            </div>
+                        </div>
+                        <div class="shot-overlay"><span class="shot-overlay-label">View</span></div>
+                    </div>
+                    <div class="shot-meta">
+                        <div class="shot-title">Player and Cursor</div>
+                        <div class="shot-desc">Sprite rotates to face the crosshair. OS cursor hidden during gameplay.</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- OBJECT PLACEMENT -->
+<section>
+    <div class="container">
+        <div class="reveal">
+            <div class="gallery-category">Perlin noise object placement</div>
+
+            <div class="shot-grid layout-c">
+
+                <div class="shot" data-index="10" data-title="Forest objects placed" data-desc="Tree stumps and roots placed via octave Perlin noise.">
+                    <div class="shot-frame">
+                        <img src="screenshots/perlin_objects.png" alt="Perlin objects" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="shot-placeholder" style="display:none">
+                            <div class="shot-placeholder-inner">
+                                <div class="shot-placeholder-tag">perlin_objects.png</div>
+                                <div class="shot-placeholder-hint">Tree stumps / roots</div>
+                            </div>
+                        </div>
+                        <div class="shot-overlay"><span class="shot-overlay-label">View</span></div>
+                    </div>
+                    <div class="shot-meta">
+                        <div class="shot-title">Object Placement</div>
+                        <div class="shot-desc">Octave Perlin noise, threshold 0.65. Sampled every 2nd tile. Shared atlas and Flyweight collision shapes.</div>
+                    </div>
+                </div>
+
+                <div class="shot" data-index="11" data-title="Hideout with exclusion zone" data-desc="Player hideout at map centre. Surrounding area clear of Voronoi sites and Perlin objects due to the POI exclusion zone applied before generation.">
+                    <div class="shot-frame">
+                        <img src="screenshots/hideout_zone.png" alt="Hideout exclusion zone" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="shot-placeholder" style="display:none">
+                            <div class="shot-placeholder-inner">
+                                <div class="shot-placeholder-tag">hideout_zone.png</div>
+                                <div class="shot-placeholder-hint">Hideout + clear zone — exclusion radius keeps generation away</div>
+                            </div>
+                        </div>
+                        <div class="shot-overlay"><span class="shot-overlay-label">View</span></div>
+                    </div>
+                    <div class="shot-meta">
+                        <div class="shot-title">Hideout Exclusion Zone</div>
+                        <div class="shot-desc">Voronoi sites and Perlin objects both respect the 400px exclusion radius around the hideout.</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lightbox" role="dialog" aria-modal="true" aria-label="Screenshot viewer">
+    <div class="lightbox-inner">
+        <button class="lightbox-close" id="lbClose">ESC / close</button>
+        <img class="lightbox-img" id="lbImg" src="" alt="">
+        <div class="lightbox-caption">
+            <div>
+                <span id="lbTitle"></span>
+                <br><span id="lbDesc" style="color: var(--text-dim); font-size:0.72rem; font-family:'Libre Baskerville',serif; font-style:italic;"></span>
+            </div>
+            <div class="lightbox-nav">
+                <button id="lbPrev"><- Prev</button>
+                <button id="lbNext">Next -></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-meta">
+        Computer Games Development · SE607 · Year IV<br>
+        Edward Norton · C00286807 · SETU Carlow · 2026<br>
+        Contacts:<br> 
+        Email: edwardnorton2003@gmail.com <br>
+        GitHub: <a href="https://github.com/Edward-Norton">Edward-Norton</a> <br>
+        Phone: (+353) 83 854 4337
+    </div>
+</footer>
+
+<script src="main.js"></script>
+<script>
+/* ===== GALLERY LIGHTBOX ===== */
+(function () {
+    'use strict';
+
+    const overlay  = document.getElementById('lightbox');
+    const lbImg    = document.getElementById('lbImg');
+    const lbTitle  = document.getElementById('lbTitle');
+    const lbDesc   = document.getElementById('lbDesc');
+    const lbClose  = document.getElementById('lbClose');
+    const lbPrev   = document.getElementById('lbPrev');
+    const lbNext   = document.getElementById('lbNext');
+
+    // Build ordered list of all shot cards
+    const shots = Array.from(document.querySelectorAll('.shot'));
+    let current = 0;
+
+    function openAt(index) {
+        const shot  = shots[index];
+        const img   = shot.querySelector('img');
+        const src   = img ? img.getAttribute('src') : '';
+        const alt   = img ? img.getAttribute('alt') : '';
+
+        // Only open lightbox if there's a real image (not just a placeholder)
+        lbImg.src   = src || '';
+        lbImg.alt   = alt || '';
+        lbTitle.textContent = shot.dataset.title || '';
+        lbDesc.textContent  = shot.dataset.desc  || '';
+
+        current = index;
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function close() {
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+        lbImg.src = '';
+    }
+
+    function prev() { openAt((current - 1 + shots.length) % shots.length); }
+    function next() { openAt((current + 1) % shots.length); }
+
+    // Attach click handlers to each shot card
+    shots.forEach((shot, i) => {
+        shot.addEventListener('click', () => openAt(i));
+    });
+
+    lbClose.addEventListener('click', close);
+    lbPrev.addEventListener('click', (e) => { e.stopPropagation(); prev(); });
+    lbNext.addEventListener('click', (e) => { e.stopPropagation(); next(); });
+
+    // Click backdrop to close
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) close();
+    });
+
+    // Keyboard: Escape to close, arrows to navigate
+    document.addEventListener('keydown', (e) => {
+        if (!overlay.classList.contains('open')) return;
+        if (e.key === 'Escape')      close();
+        if (e.key === 'ArrowLeft')   prev();
+        if (e.key === 'ArrowRight')  next();
+    });
+})();
+</script>
+</body>
+</html>

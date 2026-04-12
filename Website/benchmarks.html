@@ -1,0 +1,266 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>THORNS — Benchmarks</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .big-number {
+            font-family: 'Courier Prime', monospace;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            color: var(--green-light);
+            line-height: 1;
+            display: block;
+        }
+
+        .big-number-label {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-top: 0.3rem;
+            display: block;
+        }
+
+        .big-number-desc {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            font-style: italic;
+            margin-top: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .numbers-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            border: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .number-item {
+            padding: 2rem 1.5rem;
+            border-right: 1px solid var(--border);
+        }
+
+        .number-item:last-child { border-right: none; }
+
+        .hotspot-note {
+            background: rgba(200,144,46,0.08);
+            border: 1px solid rgba(200,144,46,0.25);
+            border-left: 3px solid var(--amber);
+            padding: 1rem 1.2rem;
+            font-size: 0.88rem;
+            color: var(--text-dim);
+            font-style: italic;
+            margin-top: 1.5rem;
+            line-height: 1.7;
+        }
+
+        .bench-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-top: 2.5rem;
+        }
+
+        @media (max-width: 800px) {
+            .bench-layout { grid-template-columns: 1fr; gap: 2rem; }
+            .numbers-row { grid-template-columns: 1fr; }
+            .number-item { border-right: none; border-bottom: 1px solid var(--border); }
+            .number-item:last-child { border-bottom: none; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a class="nav-logo" href="index.html">THORNS</a>
+    <ul class="nav-links">
+        <li><a href="index.html">Overview</a></li>
+        <li><a href="systems.html">Systems</a></li>
+        <li><a href="patterns.html">Patterns</a></li>
+        <li><a href="generation.html">Generation</a></li>
+        <li><a href="benchmarks.html" class="active">Benchmarks</a></li>
+        <li><a href="references.html">References</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+    </ul>
+    <button class="nav-menu-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+
+<div class="page-header alt">
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">THORNS</a>
+            <span>/</span>
+            <span class="current">Benchmarks</span>
+        </div>
+        <div class="page-header-label">05 — Performance</div>
+        <h1>Performance Results</h1>
+        <p class="subtitle">Measured with Visual Studio Diagnostics.</p>
+    </div>
+</div>
+
+<!-- KEY NUMBERS -->
+<section>
+    <div class="container">
+        <div class="reveal">
+            <div class="section-label">Key results</div>
+            <h2 class="section-title">The numbers that matter.</h2>
+            <p class="section-body">
+                All data captured using Visual Studio CPU profiler and memory diagnostics over a 27 second
+                gameplay session. Generation timing measured using <code>std::chrono</code> with console output.
+            </p>
+        </div>
+
+        <div class="numbers-row reveal">
+            <div class="number-item">
+                <span class="big-number">7.7x</span>
+                <span class="big-number-label">Generation speedup</span>
+                <p class="big-number-desc">Switching from rejection sampling to Poisson disk + spatial hash grid. 84ms -> 11ms on an 80x80 tile map. Direct result of the Spatial Partition pattern.</p>
+            </div>
+            <div class="number-item">
+                <span class="big-number">54 MB</span>
+                <span class="big-number-label">Peak memory</span>
+                <p class="big-number-desc">Flat across the 27 second session. No observed growth, confirming no memory leaks during normal gameplay. The Flyweight pattern keeping shared collision data to one allocation per type helps here.</p>
+            </div>
+            <div class="number-item">
+                <span class="big-number">91.34%</span>
+                <span class="big-number-label">Render cost</span>
+                <p class="big-number-desc">Of total CPU time in the profiled session, rendering accounts for 91.34%. Game logic and AI: 8.66%.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CPU BREAKDOWN -->
+<section class="alt">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-label">CPU profile - 27 second session</div>
+            <h2 class="section-title">Where the time goes.</h2>
+        </div>
+
+        <div class="bench-layout reveal">
+            <div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Function</th>
+                            <th>% CPU</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Game::render (total)</td><td>91.34%</td><td style="color:var(--text-dim);font-size:0.8rem;"></td></tr>
+                        <tr><td>Map::render</td><td>50.17%</td><td style="color:var(--text-dim);font-size:0.8rem;">terrain tiles</td></tr>
+                        <tr class="amber-row"><td>VoronoiDiagram::renderDebug</td><td>28.93%</td><td style="color:var(--amber);font-size:0.8rem;">dev only</td></tr>
+                        <tr><td>Other render calls</td><td>12.24%</td><td style="color:var(--text-dim);font-size:0.8rem;"></td></tr>
+                        <tr class="highlight"><td>Game logic and AI</td><td>8.66%</td><td style="color:var(--text-dim);font-size:0.8rem;">small</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="hotspot-note">
+                    The 28.93% from <code>VoronoiDiagram::renderDebug</code> is a development-only renderer
+                    that draws boundary lines between every Voronoi region. It's on in debug builds to check
+                    region assignment. Disabling it in a release build removes that overhead entirely.
+                    This was found by profiling - it wasn't obvious before running the tool.
+                </div>
+            </div>
+
+            <div>
+                <div class="bar-wrap">
+                    <div class="bar-item">
+                        <div class="bar-label"><span>Map::render</span><span>50.17%</span></div>
+                        <div class="bar-track"><div class="bar-fill" style="width:50.17%"></div></div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label"><span>Voronoi renderDebug</span><span>28.93%</span></div>
+                        <div class="bar-track"><div class="bar-fill amber" style="width:28.93%"></div></div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label"><span>Other render</span><span>12.24%</span></div>
+                        <div class="bar-track"><div class="bar-fill dim" style="width:12.24%"></div></div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label"><span>Game logic and AI</span><span>8.66%</span></div>
+                        <div class="bar-track"><div class="bar-fill faint" style="width:8.66%"></div></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Algorithm</th>
+                                <th>Time</th>
+                                <th>Complexity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Rejection Sampling</td><td>84 ms</td><td>O(n²)</td></tr>
+                            <tr class="highlight"><td>Poisson + Spatial Grid</td><td>11 ms</td><td>O(k) per tile</td></tr>
+                            <tr class="highlight"><td>Runtime regeneration</td><td>10 ms</td><td>In-place reset</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FLYWEIGHT MEMORY -->
+<section>
+    <div class="container">
+        <div class="reveal">
+            <div class="section-label">Memory analysis</div>
+            <h2 class="section-title">Flyweight impact on memory.</h2>
+            <p class="section-body">
+                The Flyweight pattern's memory benefit is in the collision system. Without it,
+                each world object placed by Perlin noise would own its own copy of the collision shape data.
+                With a 128x128 map and Perlin noise placing objects at density, that's potentially thousands of copies.
+            </p>
+        </div>
+
+        <div class="grid-3 reveal">
+            <div class="card">
+                <h3>Without Flyweight</h3>
+                <p>Each world object owns its collision shapes. 1,000 tree stumps = 1,000 separate <code>vector&lt;CollisionShape&gt;</code> allocations, each containing the same polygon data.</p>
+                <span class="card-tag">O(n) memory per object type</span>
+            </div>
+            <div class="card">
+                <h3>With Flyweight</h3>
+                <p><code>WorldObjectTemplateManager</code> stores one list per type. Each instance stores a non owning pointer and an offset. 1,000 tree stumps = 1 shared list + 1,000 <code>sf::Vector2f</code> offsets.</p>
+                <span class="card-tag">O(1) memory per object type</span>
+            </div>
+            <div class="card">
+                <h3>Atlas Sharing</h3>
+                <p>All world objects share a single <code>sf::Texture</code> atlas via <code>setSharedTexture()</code>. One GPU texture for all forest objects. Same pattern used for item world sprites and inventory sprites.</p>
+                <span class="card-tag">1 texture for all object types</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-meta">
+        Computer Games Development · SE607 · Year IV<br>
+        Edward Norton · C00286807 · SETU Carlow · 2026<br>
+        Contacts:<br> 
+        Email: edwardnorton2003@gmail.com <br>
+        GitHub: <a href="https://github.com/Edward-Norton">Edward-Norton</a> <br>
+        Phone: (+353) 83 854 4337
+    </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

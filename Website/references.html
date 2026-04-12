@@ -1,0 +1,247 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>THORNS - References</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .ref-category {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin: 2.5rem 0 0.8rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ref-category:first-child { margin-top: 0; }
+
+        .ref-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+
+        .ref-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 1rem 1.2rem;
+        }
+
+        .ref-item cite {
+            display: block;
+            font-style: italic;
+            color: var(--text);
+            font-size: 0.9rem;
+            line-height: 1.65;
+            margin-bottom: 0.35rem;
+        }
+
+        .ref-item a {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.72rem;
+            color: var(--green-light);
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .tech-item {
+            border: 1px solid var(--border);
+            background: var(--card);
+            padding: 1.2rem;
+        }
+
+        .tech-name {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.9rem;
+            color: var(--green-light);
+            margin-bottom: 0.4rem;
+        }
+
+        .tech-desc {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 900px) { .tech-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 500px)  { .tech-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a class="nav-logo" href="index.html">THORNS</a>
+    <ul class="nav-links">
+        <li><a href="index.html">Overview</a></li>
+        <li><a href="systems.html">Systems</a></li>
+        <li><a href="patterns.html">Patterns</a></li>
+        <li><a href="generation.html">Generation</a></li>
+        <li><a href="benchmarks.html">Benchmarks</a></li>
+        <li><a href="references.html" class="active">References</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+    </ul>
+    <button class="nav-menu-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+
+<div class="page-header alt">
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">THORNS</a>
+            <span>/</span>
+            <span class="current">References &amp; Tech</span>
+        </div>
+        <div class="page-header-label">06 — Academic</div>
+        <h1>References &amp; Technology</h1>
+        <p class="subtitle">Academic sources, algorithm attributions, and the tech stack.</p>
+    </div>
+</div>
+
+<!-- TECH STACK -->
+<section>
+    <div class="container">
+        <div class="reveal">
+            <div class="section-label">Technology stack</div>
+            <h2 class="section-title">What it's built on.</h2>
+            <p class="section-body">
+                C++17 and SFML 3.0. The rationale for both is in the project report, SFML's View system
+                provided clean world/screen space separation; C++17's <code>std::variant</code> and
+                <code>std::visit</code> enabled type-safe dispatch without virtual calls in the collision system.
+            </p>
+        </div>
+
+        <div class="tech-grid reveal">
+            <div class="tech-item">
+                <div class="tech-name">C++17</div>
+                <div class="tech-desc">std::variant, std::visit, std::unique_ptr, RAII, Rule of Zero</div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-name">SFML 3.0</div>
+                <div class="tech-desc">Windowing, rendering, input. View system for world/screen space separation.</div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-name">tmxlite</div>
+                <div class="tech-desc">Header-only .tmx loader. Loads Tiled collision templates for POIs and world objects.</div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-name">CMake</div>
+                <div class="tech-desc">Build configuration and dependency management.</div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-name">Tiled Editor</div>
+                <div class="tech-desc">Authored POI and world object collision polygons. Exported as .tmx files.</div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-name">Visual Studio</div>
+                <div class="tech-desc">CPU profiler and memory diagnostics used for all benchmarking data.</div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-name">Poisson + Voronoi</div>
+                <div class="tech-desc">Bridson (2007) disk sampling with spatial hash grid. Custom implementation.</div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-name">Perlin Noise</div>
+                <div class="tech-desc">Perlin improved (2002) with octave/persistence. Custom implementation.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- REFERENCES -->
+<section class="alt">
+    <div class="container">
+        <div class="reveal" style="max-width: 800px;">
+            <div class="section-label">Academic references</div>
+            <h2 class="section-title">Sources cited.</h2>
+
+            <div class="ref-category">Primary design reference</div>
+            <div class="ref-list">
+                <div class="ref-item">
+                    <cite>Nystrom, R. (2014). Game Programming Patterns. Genever Benning.</cite>
+                    <a href="https://gameprogrammingpatterns.com" target="_blank">gameprogrammingpatterns.com</a>
+                </div>
+            </div>
+
+            <div class="ref-category">Algorithms and mathematics</div>
+            <div class="ref-list">
+                <div class="ref-item">
+                    <cite>Bridson, R. (2007). Fast Poisson Disk Sampling in Arbitrary Dimensions. SIGGRAPH Sketches.</cite>
+                    <a href="https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf" target="_blank">cs.ubc.ca/~rbridson</a>
+                </div>
+                <div class="ref-item">
+                    <cite>Perlin, K. (1985). An Image Synthesizer. ACM SIGGRAPH Computer Graphics, 19(3), pp.287-296. Improved reference implementation, NYU, 2002.</cite>
+                    <p>Please note the link is private, access may be required.</p>
+                    <a href="http://mrl.nyu.edu/~perlin/paper445.pdf" target="_blank">mrl.nyu.edu/~perlin</a>
+                </div>
+            </div>
+
+            <div class="ref-category">Software engineering</div>
+            <div class="ref-list">
+                <div class="ref-item">
+                    <cite>Gamma, E., Helm, R., Johnson, R. and Vlissides, J. (1994). Design Patterns: Elements of Reusable Object-Oriented Software. Addison-Wesley.</cite>
+                </div>
+            </div>
+
+            <div class="ref-category">Libraries</div>
+            <div class="ref-list">
+                <div class="ref-item">
+                    <cite>SFML Development Team. SFML 3.0 — Simple and Fast Multimedia Library.</cite>
+                    <a href="https://www.sfml-dev.org" target="_blank">sfml-dev.org</a>
+                </div>
+                <div class="ref-item">
+                    <cite>fallahn. tmxlite — lightweight C++14 header-only Tiled map loader.</cite>
+                    <a href="https://github.com/fallahn/tmxlite" target="_blank">github.com/fallahn/tmxlite</a>
+                </div>
+            </div>
+
+            <div class="ref-category">Online resources</div>
+            <div class="ref-list">
+                <div class="ref-item">
+                    <cite>Leatherbee. (2018). Terrain Generation 3: Voronoi Diagrams.</cite>
+                    <a href="https://leatherbee.org/index.php/2018/10/06/terrain-generation-3-voronoi-diagrams/" target="_blank">leatherbee.org</a>
+                </div>
+                <div class="ref-item">
+                    <cite>Sebastian Lague. (2018). Poisson Disk Sampling visualisation. YouTube.</cite>
+                    <a href="https://youtu.be/jofUe3Kjag4" target="_blank">youtu.be/jofUe3Kjag4</a>
+                </div>
+                <div class="ref-item">
+                    <cite>TheCherno. (2022). std::unordered_map Key Lookup. YouTube.</cite>
+                    <a href="https://youtu.be/KiB0vRi2wlc" target="_blank">youtu.be/KiB0vRi2wlc</a>
+                </div>
+                <div class="ref-item">
+                    <cite>GeeksForGeeks. (2024). Voronoi Diagram. DSA.</cite>
+                    <a href="https://www.geeksforgeeks.org/dsa/voronoi-diagram/" target="_blank">geeksforgeeks.org</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-meta">
+        Computer Games Development · SE607 · Year IV<br>
+        Edward Norton · C00286807 · SETU Carlow · 2026<br>
+        Contacts:<br> 
+        Email: edwardnorton2003@gmail.com <br>
+        GitHub: <a href="https://github.com/Edward-Norton">Edward-Norton</a> <br>
+        Phone: (+353) 83 854 4337
+    </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

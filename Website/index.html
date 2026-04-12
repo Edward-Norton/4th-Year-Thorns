@@ -1,0 +1,485 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>THORNS — C++17 Survival Game</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        #hero {
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 5rem 1.5rem 4rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero-inner { max-width: 720px; }
+
+        .hero-label {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .hero-title {
+            font-family: 'Courier Prime', monospace;
+            font-size: clamp(3.5rem, 12vw, 7rem);
+            font-weight: 700;
+            color: var(--text-head);
+            letter-spacing: 0.08em;
+            line-height: 1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-sub {
+            font-size: 1.05rem;
+            font-style: italic;
+            color: var(--text-dim);
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+        }
+
+        .hero-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .tag {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.67rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            padding: 0.25em 0.7em;
+        }
+
+        .tag.green { color: var(--green-light); border-color: var(--green-dim); }
+        .tag.amber { color: var(--amber); border-color: rgba(200,144,46,0.4); }
+
+        .hero-btns {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.78rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 0.65em 1.6em;
+            border: 1px solid;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--green-dim);
+            border-color: var(--green);
+            color: var(--text-head);
+        }
+
+        .btn-primary:hover {
+            background: var(--green);
+            color: var(--bg);
+            text-decoration: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border-color: var(--border);
+            color: var(--text-dim);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--green);
+            color: var(--green-light);
+            text-decoration: none;
+        }
+
+        /* Quick intro note */
+        .honest-note {
+            background: var(--card);
+            border-left: 3px solid var(--amber);
+            padding: 1rem 1.2rem;
+            font-size: 0.92rem;
+            color: var(--text-dim);
+            font-style: italic;
+            margin-top: 2rem;
+            line-height: 1.7;
+        }
+
+        /* Stat strip */
+        .stat-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border-top: 1px solid var(--border);
+            border-left: 1px solid var(--border);
+        }
+
+        .stat-item {
+            padding: 1.5rem 1.2rem;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-num {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--green-light);
+            display: block;
+            line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.63rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        @media (max-width: 700px) {
+            .stat-strip { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* ===== INSPIRATION SECTION ===== */
+
+        .inspo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.2rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 800px) { .inspo-grid { grid-template-columns: 1fr; } }
+
+        .inspo-card {
+            border: 1px solid var(--border);
+            background: var(--card);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Coloured top bar per game */
+        .inspo-card::before {
+            content: '';
+            display: block;
+            height: 3px;
+        }
+
+        .inspo-card.darkwood::before  { background: #5a3a1a; }
+        .inspo-card.stalker::before   { background: #4a5a2a; }
+        .inspo-card.mooncrash::before { background: #2a3a5a; }
+
+        .inspo-head {
+            padding: 1.2rem 1.2rem 0;
+        }
+
+        .inspo-label {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+
+        .inspo-card.darkwood  .inspo-label { color: #c8702e; }
+        .inspo-card.stalker   .inspo-label { color: #90a84a; }
+        .inspo-card.mooncrash .inspo-label { color: #5a90c8; }
+
+        .inspo-title {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-head);
+            margin-bottom: 0.2rem;
+        }
+
+        .inspo-year {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.68rem;
+            color: var(--text-dim);
+        }
+
+        .inspo-body {
+            padding: 0.9rem 1.2rem 1.2rem;
+            font-size: 0.9rem;
+            color: var(--text);
+            line-height: 1.75;
+        }
+
+        .inspo-footer {
+            border-top: 1px solid var(--border);
+            padding: 0.7rem 1.2rem;
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a class="nav-logo" href="index.html">THORNS</a>
+    <ul class="nav-links">
+        <li><a href="index.html" class="active">Overview</a></li>
+        <li><a href="systems.html">Systems</a></li>
+        <li><a href="patterns.html">Patterns</a></li>
+        <li><a href="generation.html">Generation</a></li>
+        <li><a href="benchmarks.html">Benchmarks</a></li>
+        <li><a href="references.html">References</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+    </ul>
+    <button class="nav-menu-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+    <div class="hero-inner">
+        <span class="hero-label">C++17 · SFML 3.0 · SETU Carlow - Year IV · 2026</span>
+        <h1 class="hero-title">THORNS</h1>
+        <p class="hero-sub">A top-down 2D survival game.</p>
+        <div class="hero-tags">
+            <span class="tag green">Component Architecture</span>
+            <span class="tag green">Procedural Generation</span>
+            <span class="tag green">SAT Collision</span>
+            <span class="tag green">Flyweight</span>
+            <span class="tag green">Spatial Partition</span>
+        </div>
+        <div class="hero-btns">
+            <a href="systems.html" class="btn btn-primary">View Systems</a>
+            <a href="patterns.html" class="btn btn-outline">Design Patterns</a>
+        </div>
+    </div>
+</section>
+
+<!-- WHAT IT IS -->
+<section>
+    <div class="container">
+        <div class="reveal">
+            <div class="section-label">Overview</div>
+            <h2 class="section-title">Fourth Year Project Architecture</h2>
+            <p class="section-body">
+                Thorns is a top-down 2D survival game built in C++17 with SFML 3.0. The research question
+                was simple: can the Game Programming Patterns catalogue (Nystrom, 2014) be applied
+                systematically to produce a demonstrably better-structured codebase.
+            </p>
+            <p class="section-body">
+                Seven patterns were implemented, each chosen to solve a specific, real problem in the code,
+                not just to tick boxes. The project also implements a multi-phase procedural generation
+                pipeline and a SAT polygon collision system with profiled performance results.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- OVERVIEW CARDS -->
+<section class="alt">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-label">Project scope</div>
+            <h2 class="section-title">What's in it.</h2>
+        </div>
+
+        <div class="grid-3 reveal">
+            <div class="card">
+                <h3>Component Architecture</h3>
+                <p>Player is composed from independent components: SpriteComponent, HealthComponent, StatComponent (x3), Inventory, HUDComponent, CursorComponent. Nothing inherits from Player. Adding a feature touches only the relevant component.</p>
+            </div>
+            <div class="card">
+                <h3>Procedural Generation</h3>
+                <p>A two-phase pipeline. Phase 1 uses Voronoi regionalization with Bridson's Poisson disk sampling for site placement. Phase 2 applies octave Perlin noise for world object placement. Phases 3 and 4 (Cellular Automata, Dijkstra) were cut during development.</p>
+            </div>
+            <div class="card">
+                <h3>Polygon Collision</h3>
+                <p>AABB broad-phase pre-check followed by SAT narrow-phase for convex polygons loaded from Tiled <code>.tmx</code> files. Collision shape data is Flyweight-shared, thousands of world objects reference one shape.</p>
+            </div>
+        </div>
+
+        <div class="grid-3 reveal" style="margin-top: 1.2rem;">
+            <div class="card">
+                <h3>State Management</h3>
+                <p>A Pushdown Automaton in GameStateManager handles five states. Push/pop semantics let Settings overlay correctly from both the main menu and the pause menu, returning to the right prior state each time.</p>
+            </div>
+            <div class="card">
+                <h3>Input Abstraction</h3>
+                <p>InputController maps InputAction enums to physical keys. Game logic queries InputAction::Sprint, never sf::Keyboard::Key::LShift. Full runtime rebinding via the Settings menu. wasJustPressed/Released handled via memcpy state snapshots.</p>
+            </div>
+            <div class="card">
+                <h3>Enemy AI</h3>
+                <p>Two enemy types, each with a state machine. SavageEnemy: Idle -> Chase -> Lost. ChomperEnemy adds a Leap state, a velocity locked lunge that aborts on wall contact. Both use line-of-sight raycasting. Incomplete but functional.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- INSPIRATION -->
+<section>
+    <div class="container">
+        <div class="reveal">
+            <div class="section-label">Initial inspiration</div>
+            <h2 class="section-title">Games that shaped the direction.</h2>
+            <p class="section-body">
+                Three games informed what Thorns is trying to be. Not in mechanics copied wholesale,
+                but in the feeling each one creates, the atmosphere, the tension, the way the world
+                feels like it belongs to something other than the player.
+            </p>
+        </div>
+
+        <div class="inspo-grid reveal">
+
+            <!-- Darkwood -->
+            <div class="inspo-card darkwood">
+                <div class="inspo-head">
+                    <span class="inspo-label">Visual and gameplay reference</span>
+                    <div class="inspo-title">Darkwood</div>
+                    <div class="inspo-year">Acid Wizard Studio - 2017</div>
+                </div>
+                <div class="inspo-body">
+                    The primary visual and tonal reference. Darkwood's top-down perspective, muted palette,
+                    and oppressive forest atmosphere are the clearest influence on Thorns' art direction
+                    and camera approach. The way it uses daylight as safety and darkness as threat,
+                    something Thorns was intended to implement with its own day/night cycle.
+                </div>
+            </div>
+
+            <!-- STALKER -->
+            <div class="inspo-card stalker">
+                <div class="inspo-head">
+                    <span class="inspo-label">Tone and world design</span>
+                    <div class="inspo-title">S.T.A.L.K.E.R.</div>
+                    <div class="inspo-year">GSC Game World — 2007</div>
+                </div>
+                <div class="inspo-body">
+                    The tonal reference. Not the mechanics, but the way S.T.A.L.K.E.R. creates a world that feels lived-in and reactive, 
+                    where the player is a small part of a larger ecosystem.
+                    The procedural generation was intended to support a similar sense of place
+                    not handcrafted setpieces, 
+                    but emergent moments from the interaction of systems and player choice.
+                </div>
+            </div>
+
+            <!-- Prey: Mooncrash -->
+            <div class="inspo-card mooncrash">
+                <div class="inspo-head">
+                    <span class="inspo-label">Procedural generation reference</span>
+                    <div class="inspo-title">Prey: Mooncrash</div>
+                    <div class="inspo-year">Arkane Studios — 2018</div>
+                </div>
+                <div class="inspo-body">
+                    The generation reference. Mooncrash demonstrated that procedural variability can co-exist
+                    with authored, fixed-location structures, the station layout is fixed, but item placement,
+                    enemy positions, and objectives shift each run. Thorns' approach to generation follows the
+                    same logic: the hideout is always at the centre, POIs are always at Voronoi sites,
+                    but the exact positions, loot distribution, and enemy spawns vary with the seed.
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- WHAT WENT RIGHT / WRONG -->
+<section class="mid">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-label">Retrospective</div>
+            <h2 class="section-title">What went right and what didn't.</h2>
+        </div>
+
+        <div class="grid-2 reveal">
+            <div>
+                <h3 style="color: var(--green-light); margin-bottom: 1rem;">What went right</h3>
+                <p>The architectural foundation was established early and stayed stable throughout. The interface hierarchy was flexible enough to accommodate everything added during development without modification, which is the whole point of doing it that way.</p>
+                <p>The profiling workflow produced clear, actionable data. Identifying <code>VoronoiDiagram::renderDebug</code> as a 28.93% CPU hotspot wasn't obvious before running the profiler. The TMX-based collision template system made adjusting collision shapes straightforward without recompilation.</p>
+                <p>The view separation fix (m_gameView vs m_uiView) solved a whole class of HUD drift bugs cleanly. Identifying the root cause and applying a structural fix was more satisfying than hacking around it.</p>
+            </div>
+            <div>
+                <h3 style="color: var(--amber-light); margin-bottom: 1rem;">What went wrong</h3>
+                <p>The enemy system took longer than expected and ended up incomplete. In hindsight, a simpler enemy, just directional movement and contact damage, should have been done earlier as a proof of the IGameEntity interface. The architectural groundwork was there, the time wasn't.</p>
+                <p>There's an anonymous struct in <code>CollisionType.h</code> that's a leftover from an abandoned circle collision type. A reminder that exploratory code should live on a branch, not main.</p>
+                <p>The first attempt at map rendering created 16,384 individual sprites for a 128x128 map, producing a 25,000ms generation time.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- QUICK LINKS -->
+<section>
+    <div class="container">
+        <div class="reveal">
+            <div class="section-label">Navigate</div>
+            <h2 class="section-title">Sections.</h2>
+        </div>
+        <div class="grid-2 reveal" style="margin-top: 1.5rem;">
+            <a href="systems.html" style="text-decoration: none;">
+                <div class="card" style="cursor: pointer;">
+                    <h3>Core Systems -></h3>
+                    <p>State management, collision, input, rendering, inventory, enemy AI. What each system does and how they connect.</p>
+                </div>
+            </a>
+            <a href="patterns.html" style="text-decoration: none;">
+                <div class="card" style="cursor: pointer;">
+                    <h3>Design Patterns -></h3>
+                    <p>Seven patterns from the Nystrom catalogue, each with the specific problem it solves and where it lives in the codebase.</p>
+                </div>
+            </a>
+            <a href="generation.html" style="text-decoration: none;">
+                <div class="card" style="cursor: pointer;">
+                    <h3>Procedural Generation -></h3>
+                    <p>The four-phase pipeline. Voronoi, Poisson disk, Perlin noise, and the two phases that aren't implemented yet.</p>
+                </div>
+            </a>
+            <a href="benchmarks.html" style="text-decoration: none;">
+                <div class="card" style="cursor: pointer;">
+                    <h3>Benchmarks -></h3>
+                    <p>Profiling data from a 27-second session. Generation timing comparison, CPU breakdown, memory results.</p>
+                </div>
+            </a>
+            <a href="gallery.html" style="text-decoration: none;">
+                <div class="card" style="cursor: pointer;">
+                    <h3>Gallery -></h3>
+                    <p>In-engine screenshots. World view, Voronoi debug, items, inventory, HUD. Click any image to open the lightbox viewer.</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-meta">
+        Computer Games Development · SE607 · Year IV<br>
+        Edward Norton · C00286807 · SETU Carlow · 2026<br>
+        Contacts:<br> 
+        Email: edwardnorton2003@gmail.com <br>
+        GitHub: <a href="https://github.com/Edward-Norton">Edward-Norton</a> <br>
+        Phone: (+353) 83 854 4337
+    </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

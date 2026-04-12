@@ -1,0 +1,271 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>THORNS — Procedural Generation</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .status-badge {
+            display: inline;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.15em 0.5em;
+            border: 1px solid;
+            vertical-align: middle;
+            margin-left: 0.5rem;
+        }
+
+        .status-badge.done {
+            color: var(--green-light);
+            border-color: var(--green-dim);
+        }
+
+        .status-badge.planned {
+            color: var(--amber);
+            border-color: rgba(200,144,46,0.4);
+        }
+
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .compare-box {
+            border: 1px solid var(--border);
+            background: var(--card);
+            padding: 1.5rem;
+        }
+
+        .compare-box.winner { border-color: var(--green-dim); }
+
+        .compare-box h4 {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.95rem;
+            margin-bottom: 0.6rem;
+            color: var(--text-head);
+        }
+
+        .compare-box.winner h4 { color: var(--green-light); }
+
+        .compare-stat {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 0.8rem;
+        }
+
+        .compare-box.winner .compare-stat { color: var(--green-light); }
+        .compare-box:not(.winner) .compare-stat { color: var(--amber); }
+
+        .compare-note {
+            font-size: 0.72rem;
+            font-family: 'Courier Prime', monospace;
+            color: var(--text-dim);
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 600px) {
+            .compare-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a class="nav-logo" href="index.html">THORNS</a>
+    <ul class="nav-links">
+        <li><a href="index.html">Overview</a></li>
+        <li><a href="systems.html">Systems</a></li>
+        <li><a href="patterns.html">Patterns</a></li>
+        <li><a href="generation.html" class="active">Generation</a></li>
+        <li><a href="benchmarks.html">Benchmarks</a></li>
+        <li><a href="references.html">References</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+    </ul>
+    <button class="nav-menu-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+
+<div class="page-header alt">
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">THORNS</a>
+            <span>/</span>
+            <span class="current">Procedural Generation</span>
+        </div>
+        <div class="page-header-label">04 — World Building</div>
+        <h1>Procedural Generation</h1>
+        <p class="subtitle">A four-phase pipeline orchestrated by MapGenerator. Phases 1 and 2 are implemented.</p>
+    </div>
+</div>
+
+<!-- PIPELINE -->
+<section>
+    <div class="container">
+        <div class="reveal">
+            <div class="section-label">Generation pipeline</div>
+            <h2 class="section-title">Phase by phase.</h2>
+            <p class="section-body">
+                Map generation runs at startup and on regeneration (R key in debug builds).
+                Each phase builds on the output of the previous one.
+                The pipeline is designed so phases 3 and 4 could have been implement, but due to time constraints only the first two were completed.
+            </p>
+        </div>
+
+        <div class="pipeline reveal">
+            <div class="pipeline-step">
+                <div class="step-num">01</div>
+                <div class="step-content">
+                    <h3>Voronoi Regionalization <span class="status-badge done">Done</span></h3>
+                    <p>
+                        Bridson's Poisson disk sampling algorithm (2007) places seed sites with a minimum
+                        separation distance derived from map area ÷ site count. This prevents site clustering
+                        while allowing the Poisson algorithm to fill the space properly.
+                        A spatial hash grid then assigns every tile to its nearest site in O(k) per tile
+                        rather than O(n). Each region gets a unique ID used for terrain assignment and POI placement.
+                    </p>
+                   
+                </div>
+            </div>
+
+            <div class="pipeline-step">
+                <div class="step-num">02</div>
+                <div class="step-content">
+                    <h3>Perlin Noise Object Placement <span class="status-badge done">Done</span></h3>
+                    <p>
+                        Perlin's improved noise (2002) is sampled at every 2nd tile with configurable
+                        frequency, octave count, and persistence. Tiles above the placement threshold get
+                        a world object, tree stump, root, tree canopy. POI exclusion zones and terrain type
+                        filtering prevent objects overlapping structures.
+                        Frequency, octaves, and threshold are all tunable in <code>MapGenerator::GenerationSettings</code>.
+                    </p>
+
+                </div>
+            </div>
+
+            <div class="pipeline-step">
+                <div class="step-num">03</div>
+                <div class="step-content">
+                    <h3>Cellular Automata <span class="status-badge planned">Planned</span></h3>
+                    <p>
+                        A terrain smoothing pass to remove isolated tiles and create more organic region edges.
+                        Stubbed in <code>MapGenerator::generate()</code>, the phase is called but
+                        does nothing. Would run after Perlin phase.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pipeline-step">
+                <div class="step-num">04</div>
+                <div class="step-content">
+                    <h3>Connectivity Check <span class="status-badge planned">Planned</span></h3>
+                    <p>
+                        Dijkstra flood fill from the player hideout to verify all POIs are reachable.
+                        Stubbed in the same place.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ALGORITHM COMPARISON -->
+<section class="alt">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-label">Algorithm comparison</div>
+            <h2 class="section-title">Why Poisson replaced rejection sampling.</h2>
+            <p class="section-body">
+                The original site placement used rejection sampling, generate a random position,
+                check it against all existing sites, discard if too close, try again.
+                It works, but it degrades badly as the map fills up.
+                The replacement: Bridson's Poisson disk sampling with a spatial grid, is still in the
+                codebase as <code>generateSitesRejection()</code> for comparison. It's not called in production.
+            </p>
+        </div>
+
+        <div class="compare-grid reveal">
+            <div class="compare-box">
+                <h4>Rejection Sampling (original)</h4>
+                <p style="font-size:0.9rem; color: var(--text-dim); line-height:1.6;">
+                    Generates random positions and discards those that violate minimum distance.
+                    Each new attempt checks against all existing sites. Gets slower the more sites are placed.
+                </p>
+                <div class="compare-stat">84 ms</div>
+                <div class="compare-note">O(n²) — 80x80 tile map</div>
+            </div>
+            <div class="compare-box winner">
+                <h4>Poisson Disk Sampling (current)</h4>
+                <p style="font-size:0.9rem; color: var(--text-dim); line-height:1.6;">
+                    Bridson (2007) uses an active list and background grid to guarantee minimum separation
+                    in expected O(n) time. Implementing it correctly required careful study of the paper
+                    and a fair bit of debugging.
+                </p>
+                <div class="compare-stat">11 ms</div>
+                <div class="compare-note">O(k) per tile</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- POI SYSTEM -->
+<section>
+    <div class="container">
+        <div class="reveal">
+            <div class="section-label">Points of Interest</div>
+            <h2 class="section-title">Fixed anchors in a procedural world.</h2>
+            <p class="section-body">
+                The player hideout is placed at map centre before generation starts.
+                Voronoi sites and Perlin noise placement both respect POI exclusion zones.
+                The site placement step explicitly avoids generating sites within 400px of the hideout.
+            </p>
+            <p class="section-body">
+                Farm and village POIs are placed at the Voronoi sites furthest from the hideout,
+                this is done by sorting sites by distance before placement, so the nearest sites
+                are never picked for POIs.
+            </p>
+        </div>
+
+        <div class="grid-3 reveal">
+            <div class="card">
+                <h3>Player Hideout</h3>
+                <p>Always at map centre. Collision polygons loaded from a <code>.tmx</code> Tiled template file. Exclusion radius keeps Voronoi sites away from it so the player spawn area is clear.</p>
+                
+            </div>
+            <div class="card">
+                <h3>Farms</h3>
+                <p>Up to 2 per map, configurable. Placed at the furthest available Voronoi sites. Large sprite, 1948x2016px, with collision from a Tiled template.</p>
+                
+            </div>
+            <div class="card amber-accent">
+                <h3>Villages (not yet)</h3>
+                <p>Config registered, sprite and template paths empty. The POIConfigRegistry entry is there, it just has no art yet. Adding content means filling in those fields, the generation logic doesn't need changing.</p>
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-meta">
+        Computer Games Development · SE607 · Year IV<br>
+        Edward Norton · C00286807 · SETU Carlow · 2026<br>
+        Contacts:<br> 
+        Email: edwardnorton2003@gmail.com <br>
+        GitHub: <a href="https://github.com/Edward-Norton">Edward-Norton</a> <br>
+        Phone: (+353) 83 854 4337
+    </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>
