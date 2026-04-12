@@ -189,6 +189,14 @@ void Game::generateMap()
         ItemType lootType = lootTable[i % lootTableSize];
         m_itemPool.spawn(lootType, itemSpawnPoints[i], m_itemTypeRegistry);
     }
+
+    m_itemPool.spawn(ItemType::Food, mapCenter + sf::Vector2f(100, -400), m_itemTypeRegistry);
+    m_itemPool.spawn(ItemType::Water, mapCenter + sf::Vector2f(150, -400), m_itemTypeRegistry);
+    m_itemPool.spawn(ItemType::Bandage, mapCenter + sf::Vector2f(200, -400), m_itemTypeRegistry);
+    m_itemPool.spawn(ItemType::FirstAid, mapCenter + sf::Vector2f(250, -400), m_itemTypeRegistry);
+    m_itemPool.spawn(ItemType::Knife, mapCenter + sf::Vector2f(300, -400), m_itemTypeRegistry);
+    m_itemPool.spawn(ItemType::Axe, mapCenter + sf::Vector2f(350, -400), m_itemTypeRegistry);
+    m_itemPool.spawn(ItemType::Gun , mapCenter + sf::Vector2f(400, -400), m_itemTypeRegistry);
 }
 
 void Game::regenerateMap()

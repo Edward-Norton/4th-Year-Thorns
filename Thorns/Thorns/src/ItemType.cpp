@@ -39,7 +39,7 @@ void ItemTypeRegistry::registerDefaults()
     firstAid.itemType = ItemType::FirstAid;
     firstAid.useCategory = ItemUseCategory::Consume;
     firstAid.name = "First Aid";
-    firstAid.atlasKey = "first-aid";
+    firstAid.atlasKey = "medkit";
     firstAid.spriteSize = sf::Vector2f(32.f, 32.f);
     firstAid.statRestoreAmount = 100.f;  // Full heal
     firstAid.pickupRadius = 32.f;
@@ -72,7 +72,7 @@ void ItemTypeRegistry::registerDefaults()
     axe.itemType = ItemType::Axe;
     axe.useCategory = ItemUseCategory::Equip;
     axe.name = "Axe";
-    axe.atlasKey = "axe";
+    axe.atlasKey = "fire-axe";
     axe.spriteSize = sf::Vector2f(32.f, 32.f);
     axe.damage = 50.f;
     axe.pickupRadius = 32.f;
@@ -83,7 +83,7 @@ void ItemTypeRegistry::registerDefaults()
     gun.itemType = ItemType::Gun;
     gun.useCategory = ItemUseCategory::Equip;
     gun.name = "Gun";
-    gun.atlasKey = "gun";
+    gun.atlasKey = "pistol";
     gun.spriteSize = sf::Vector2f(32.f, 32.f);
     gun.damage = 75.f;
     gun.pickupRadius = 32.f;
@@ -116,11 +116,11 @@ bool ItemTypeRegistry::keyToType(const std::string& key, ItemType& outType)
     {
         { "food-tin",      ItemType::Food   },
         { "water-bottle",  ItemType::Water  },
-        { "first-aid",   ItemType::FirstAid },
+        { "medkit",   ItemType::FirstAid },
         { "bandage",     ItemType::Bandage  },
         { "knife",       ItemType::Knife    },
-        { "axe",         ItemType::Axe      },
-        { "gun",         ItemType::Gun      },
+        { "fire-axe",         ItemType::Axe      },
+        { "pistol",         ItemType::Gun      },
     };
 
     for (const auto& [k, t] : table)
