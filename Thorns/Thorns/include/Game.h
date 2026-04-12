@@ -23,34 +23,33 @@ public:
     Game();
     ~Game();
 
-    // Main game loop - runs until window closes
+    
     void run();
 
 private:
-    // ========== Core Loop ==========
-    void processEvents();              // Handle window events (close, mouse, keys)
-    void update(sf::Time deltaTime) override;   // Update game logic at fixed timestep
-    void render();                     // Render current game state
+    
+    void processEvents();              
+    void update(sf::Time deltaTime) override;   
+    void render();                     
 
-    // ========== Initialization ==========
-    bool initializeGame();    // Load all resources and setup game objects
-    void setupMenus();        // Configure menu items and callbacks
+    
+    bool initializeGame();    
+    void setupMenus();        
 
-
-    // ========== State Callbacks ==========
-    // Called automatically by GameStateManager when states change
+    
+    
     void onStateEnter(GameState state);
     void onStateExit(GameState state);
 
-    // ========== State Update Methods ==========
-    // Each state has its own update logic
+    
+    
     void updateMainMenu();
     void updateSettings();
     void updatePlaying(sf::Time deltaTime);
     void updatePaused();
 
-    // ========== Menu Action Callbacks ==========
-    // These are bound to menu buttons via lambdas
+    
+    
     void onStartGame();
     void onOpenSettings();
     void onResumeGame();
@@ -59,50 +58,50 @@ private:
     void onBackFromSettings();
     void onApplySettings();
 
-    // ========== Map ==========
-    void generateMap();         // Called during game init also
-    void regenerateMap();     // Regenerate map with new seed during runtime
+    
+    void generateMap();         
+    void regenerateMap();     
 
-    // ========== Camera ========== (might make class later PN)
+    
     void updateCamera();
     sf::Vector2f clampCameraToMapBounds(const sf::Vector2f& targetPos);
 
-    // ========== Utility ==========
+    
     sf::Vector2f getMousePosition() const;
     sf::Vector2f getMouseWorldPosition() const;
 
-    // ========== SFML Window ==========
+    
     sf::RenderWindow m_window;
-    sf::View m_gameView;        // Game play camera
-    sf::View m_uiView;          // Ui set to different view 
+    sf::View m_gameView;        
+    sf::View m_uiView;          
 
-    // ========== Game State ==========
-    bool m_exitGame;      // Set to true to close window
-    bool m_gameValid;     // False if initialization failed
-    bool m_mousePressed;  // Track left mouse button state
+    
+    bool m_exitGame;      
+    bool m_gameValid;     
+    bool m_mousePressed;  
 
-    // ========== Systems ==========
-    GameStateManager m_stateManager;  // Manages state transitions
-    CollisionManager m_collisionManager;    // Manages Collision between objects and entities. 
-    InputController m_input;          // Handles keyboard/gamepad input
-    ScreenSettings m_screenSettings;  // Manages resolution and fullscreen
+    
+    GameStateManager m_stateManager;  
+    CollisionManager m_collisionManager;    
+    InputController m_input;          
+    ScreenSettings m_screenSettings;  
 
-    // ========== UI ==========
+    
     Menu m_mainMenu;
     Menu m_pauseMenu;
     SettingsMenu m_settingsMenu;
     DayTimerComponent m_dayTimer;
 
-    // ========== Game Objects ==========
+    
     Player m_player;
     EnemyManager m_enemyManager;
 
-    // ========== World ==========
+    
     std::unique_ptr<Map> m_map;
     MapGenerator m_mapGenerator;
-    MapGenerator::GenerationSettings m_mapSettings; // Store settings for when I add saving
-    unsigned int m_currentSeed; // Track current seed
-    // World Items
+    MapGenerator::GenerationSettings m_mapSettings; 
+    unsigned int m_currentSeed; 
+    
     WorldItemPool    m_itemPool;
     ItemTypeRegistry m_itemTypeRegistry;
 

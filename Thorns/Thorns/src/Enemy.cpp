@@ -10,7 +10,7 @@ bool Enemy::initialize(const std::string& texturePath)
     if (!m_sprite.loadTexture(texturePath, 64.f, 64.f))
         return false;
 
-    // Set initial position
+    
     m_sprite.setPosition(sf::Vector2f{ 300.f, 50.f });
 
     return true;
@@ -18,7 +18,7 @@ bool Enemy::initialize(const std::string& texturePath)
 
 void Enemy::update(sf::Time deltaTime)
 {
-    // Move enemy down at constant speed
+    
     sf::Vector2f movement{ 0.f, m_speed * deltaTime.asSeconds() };
     m_sprite.move(movement);
 

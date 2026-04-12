@@ -6,9 +6,6 @@
 #include "IPositionable.h"
 #include "ICollidable.h"
 
-/// <summary>
-/// Most game entities will need these interfaces
-/// </summary>
 class IGameEntity : public IUpdatable,
     public IRenderable,
     public IPositionable,

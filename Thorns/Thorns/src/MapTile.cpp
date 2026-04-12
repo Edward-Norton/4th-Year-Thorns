@@ -7,7 +7,6 @@ MapTile::MapTile()
 {
 }
 
-// Just for debug sprites will replace this
 sf::Color MapTile::getDebugColor() const
 {
     switch (m_terrainType)
@@ -15,20 +14,20 @@ sf::Color MapTile::getDebugColor() const
     case TerrainType::UNKNOWN:
         return sf::Color::Black;
     case TerrainType::Grass:
-        return sf::Color(100, 200, 100); // Light green
+        return sf::Color(100, 200, 100); 
     case TerrainType::Forest:
-        return sf::Color(50, 150, 50);   // Medium green
+        return sf::Color(50, 150, 50);   
     case TerrainType::DeepForest:
-        return sf::Color(20, 100, 20);   // Dark green
+        return sf::Color(20, 100, 20);   
     case TerrainType::Dirt:
-        return sf::Color(139, 90, 43);   // Brown
+        return sf::Color(139, 90, 43);   
     case TerrainType::Water:
-        return sf::Color(50, 100, 200);  // Blue
+        return sf::Color(50, 100, 200);  
     case TerrainType::Stone:
-        return sf::Color(128, 128, 128); // Gray
+        return sf::Color(128, 128, 128); 
     case TerrainType::POI_Collision:
-        return sf::Color(200, 50, 50);   // Red
+        return sf::Color(200, 50, 50);   
     default:
-        return sf::Color::Magenta;        // Error color
+        return sf::Color::Magenta;        
     }
 }

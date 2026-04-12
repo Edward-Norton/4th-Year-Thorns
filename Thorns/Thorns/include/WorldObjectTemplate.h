@@ -10,22 +10,19 @@
 #include "WorldObject.h"
 #include "CollisionType.h"
 
-// Stores collision shapes for one named object type, in template-local space
 struct WorldObjectTemplate
 {
     std::string name;
     std::vector<CollisionShape> shapes;
 };
 
-// Loads and stores WorldObject collision templates from a TMX file
-// Mirrors POITemplateManager for world objects
 class WorldObjectTemplateManager
 {
 public:
     WorldObjectTemplateManager();
     ~WorldObjectTemplateManager() = default;
 
-    // Load all collision shapes from a single TMX file
+    
     bool loadTemplates(const std::string& tmxPath);
 
     const std::vector<CollisionShape>* getShapes(WorldObject::Type type) const;

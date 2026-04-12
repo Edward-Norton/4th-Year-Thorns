@@ -27,13 +27,13 @@ bool SettingsMenu::initialize(const std::string& fontPath, InputController* inpu
     m_inputController = inputController;
     m_screenSettings = screenSettings;
 
-    // Create title
+    
     m_titleText = std::make_unique<sf::Text>(m_font);
     m_titleText->setString("SETTINGS");
     m_titleText->setCharacterSize(40);
     m_titleText->setFillColor(sf::Color::White);
 
-    // Create section headers
+    
     m_keyBindingsHeader = std::make_unique<sf::Text>(m_font);
     m_keyBindingsHeader->setString("KEY BINDINGS");
     m_keyBindingsHeader->setCharacterSize(30);
@@ -44,11 +44,11 @@ bool SettingsMenu::initialize(const std::string& fontPath, InputController* inpu
     m_videoHeader->setCharacterSize(30);
     m_videoHeader->setFillColor(sf::Color(200, 200, 200));
 
-    // Build UI sections
+    
     createKeyBindingSection();
     createVideoSection();
 
-    // Initial layout for 1920x1080
+    
     updateLayout(1920, 1080);
 
     return true;
@@ -92,7 +92,7 @@ void SettingsMenu::createKeyBindingSection()
 
 void SettingsMenu::createVideoSection()
 {
-    // Resolution label
+    
     m_resolutionLabel = std::make_unique<sf::Text>(m_font);
     m_resolutionLabel->setString("Resolution:");
     m_resolutionLabel->setCharacterSize(24);
@@ -102,7 +102,7 @@ void SettingsMenu::createVideoSection()
     m_resolutionValue->setCharacterSize(24);
     m_resolutionValue->setFillColor(sf::Color::Yellow);
 
-    // Resolution navigation buttons
+    
     m_resolutionPrevBtn = std::make_unique<ButtonComponent>();
     m_resolutionPrevBtn->initialize(m_font, "<");
     m_resolutionPrevBtn->setSize(sf::Vector2f(50.f, 40.f));
@@ -113,7 +113,7 @@ void SettingsMenu::createVideoSection()
     m_resolutionNextBtn->setSize(sf::Vector2f(50.f, 40.f));
     m_resolutionNextBtn->setCallback([this]() { onResolutionNext(); });
 
-    // Fullscreen toggle
+    
     m_fullscreenLabel = std::make_unique<sf::Text>(m_font);
     m_fullscreenLabel->setString("Fullscreen:");
     m_fullscreenLabel->setCharacterSize(24);
@@ -124,7 +124,7 @@ void SettingsMenu::createVideoSection()
     m_fullscreenToggleBtn->setSize(sf::Vector2f(100.f, 40.f));
     m_fullscreenToggleBtn->setCallback([this]() { onFullscreenToggle(); });
 
-    // Apply and Back buttons
+    
     m_applyButton = std::make_unique<ButtonComponent>();
     m_applyButton->initialize(m_font, "Apply");
     m_applyButton->setSize(sf::Vector2f(BUTTON_WIDTH, BUTTON_HEIGHT));
@@ -144,15 +144,15 @@ void SettingsMenu::createVideoSection()
 
 void SettingsMenu::updateLayout(unsigned int screenWidth, unsigned int screenHeight)
 {
-    // Calculate positions relative to screen size
+    
     float centerX = screenWidth * 0.4f;
     m_startX = centerX - BUTTON_WIDTH / 2.0f;
     m_startY = screenHeight * 0.08f;
 
-    // Title
+    
     m_titleText->setPosition(sf::Vector2f(centerX - 100.f, m_startY));
 
-    // Key bindings section
+    
     m_keyBindingsY = m_startY + 80.f;
     m_keyBindingsHeader->setPosition(sf::Vector2f(m_startX, m_keyBindingsY));
 
@@ -164,25 +164,25 @@ void SettingsMenu::updateLayout(unsigned int screenWidth, unsigned int screenHei
         currentY += BUTTON_HEIGHT + BUTTON_SPACING;
     }
 
-    // Video settings section
+    
     m_videoSettingsY = currentY + SECTION_SPACING;
     m_videoHeader->setPosition(sf::Vector2f(m_startX, m_videoSettingsY));
 
     currentY = m_videoSettingsY + 50.f;
 
-    // Resolution row
+    
     m_resolutionLabel->setPosition(sf::Vector2f(m_startX, currentY + 10.f));
     m_resolutionPrevBtn->setPosition(sf::Vector2f(m_startX + 150.f, currentY));
     m_resolutionValue->setPosition(sf::Vector2f(m_startX + 210.f, currentY + 10.f));
     m_resolutionNextBtn->setPosition(sf::Vector2f(m_startX + 350.f, currentY));
     currentY += 60.f;
 
-    // Fullscreen row
+    
     m_fullscreenLabel->setPosition(sf::Vector2f(m_startX, currentY + 10.f));
     m_fullscreenToggleBtn->setPosition(sf::Vector2f(m_startX + 150.f, currentY));
     currentY += 80.f;
 
-    // Bottom buttons
+    
     m_applyButton->setPosition(sf::Vector2f(m_startX, currentY));
     m_backButton->setPosition(sf::Vector2f(m_startX, currentY + BUTTON_HEIGHT + 15.f));
 }
@@ -192,13 +192,13 @@ void SettingsMenu::update(const sf::Vector2f& mousePos, bool mousePressed)
     if (!m_visible || m_waitingForKey)
         return;
 
-    // Update key binding buttons
+    
     for (auto& row : m_keyBindingRows)
     {
         row.button->update(mousePos, mousePressed);
     }
 
-    // Update video setting buttons
+    
     m_resolutionPrevBtn->update(mousePos, mousePressed);
     m_resolutionNextBtn->update(mousePos, mousePressed);
     m_fullscreenToggleBtn->update(mousePos, mousePressed);
@@ -229,15 +229,15 @@ void SettingsMenu::render(sf::RenderTarget& target) const
     if (!m_visible)
         return;
 
-    // Dark overlay
+    
     sf::RectangleShape background(sf::Vector2f(target.getSize()));
     background.setFillColor(sf::Color(0, 0, 0, 200));
     target.draw(background);
 
-    // Title
+    
     target.draw(*m_titleText);
 
-    // Key bindings section
+    
     target.draw(*m_keyBindingsHeader);
     for (const auto& row : m_keyBindingRows)
     {
@@ -245,7 +245,7 @@ void SettingsMenu::render(sf::RenderTarget& target) const
         target.draw(*row.keyLabel);
     }
 
-    // Video settings section
+    
     target.draw(*m_videoHeader);
     target.draw(*m_resolutionLabel);
     target.draw(*m_resolutionValue);
@@ -255,11 +255,11 @@ void SettingsMenu::render(sf::RenderTarget& target) const
     target.draw(*m_fullscreenLabel);
     m_fullscreenToggleBtn->render(target);
 
-    // Bottom buttons
+    
     m_applyButton->render(target);
     m_backButton->render(target);
 
-    // Waiting for key prompt
+    
     if (m_waitingForKey)
     {
         sf::Text waitText(m_font);
@@ -297,11 +297,11 @@ void SettingsMenu::updateVideoLabels()
     if (!m_screenSettings)
         return;
 
-    // Update resolution display
+    
     const auto& res = m_screenSettings->getCurrentResolution();
     m_resolutionValue->setString(res.displayName);
 
-    // Update fullscreen button
+    
     m_fullscreenToggleBtn->setText(m_screenSettings->isFullscreen() ? "ON" : "OFF");
 }
 

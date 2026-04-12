@@ -5,8 +5,6 @@
 #include <cmath>
 #include <algorithm>
 
-
-// Try and only test needed shapes, not check every minor one
 static constexpr int MAX_SHAPES_TO_TEST = 3;
 
 CollisionManager::CollisionManager()
@@ -18,8 +16,6 @@ bool CollisionManager::checkWorldCollision(const sf::FloatRect& entityBounds, co
     return false;
 }
 
-// Broad-phase: skip POI entirely if player AABB misses POI AABB
-// Narrow-phase: sort shapes by distance to player center, test nearest MAX_SHAPES_TO_TEST only
 CollisionManager::CollisionResult CollisionManager::checkWorldCollisionDetailed(
     const sf::FloatRect& entityBounds, const Map* map) const
 {
@@ -35,14 +31,14 @@ CollisionManager::CollisionResult CollisionManager::checkWorldCollisionDetailed(
     {
         if (!poi->isBlocking()) continue;
 
-        // Broad-phase: skip if player not overlapping POI overall bounds
+        
         if (!entityBounds.findIntersection(poi->getBounds()).has_value())
             continue;
 
         const auto& shapes = poi->getCollisionShapes();
         if (shapes.empty()) continue;
 
-        // Build (distance-squared, index) pairs using shape AABBs for sorting
+        
         const auto rects = poi->getCollisionRects();
         std::vector<std::pair<float, size_t>> shapeDists;
         shapeDists.reserve(shapes.size());
@@ -64,7 +60,7 @@ CollisionManager::CollisionResult CollisionManager::checkWorldCollisionDetailed(
             shapeDists.end(),
             [](const auto& a, const auto& b) { return a.first < b.first; });
 
-        // Narrow phase: test only nearest shapes
+        
         for (int i = 0; i < testCount; ++i)
         {
             size_t idx = shapeDists[i].second;
@@ -104,7 +100,7 @@ sf::Vector2f CollisionManager::resolveCollision(const CollisionResult& collision
     if (!collision.collided)
         return sf::Vector2f(0.f, 0.f);
 
-    return collision.penetration; // MTV
+    return collision.penetration; 
 }
 
 bool CollisionManager::aabbVsPolygon(const sf::FloatRect& box,
@@ -133,7 +129,7 @@ bool CollisionManager::aabbVsPolygon(const sf::FloatRect& box,
             return { minP, maxP };
         };
 
-    // AABB axes + one normal per polygon edge
+    
     std::vector<sf::Vector2f> axes;
     axes.reserve(2 + points.size());
     axes.emplace_back(1.f, 0.f);
@@ -156,27 +152,23 @@ bool CollisionManager::aabbVsPolygon(const sf::FloatRect& box,
         auto [polyMin, polyMax] = project(points.data(), static_cast<int>(points.size()), axis);
 
         if (boxMax < polyMin || polyMax < boxMin)
-            return false; // Separating axis found — no collision
+            return false; 
     }
 
-    return true; // No separating axis — shapes overlap
+    return true; 
 }
 
-// Just to document this for the doc later
-// So this is using MTV using SAT (Seperating Axis Theorem
-// Due to only being AABBs for now only the X and Y are used
-// MTV is the shortest vector to seperate the boxes due to collision overlap
 sf::Vector2f CollisionManager::getMinimumTranslationVector(
     const sf::FloatRect& a, const sf::FloatRect& b) const
 {
-    // Get the centers
+    
     sf::Vector2f aCenter(a.position.x + a.size.x / 2.f, a.position.y + a.size.y / 2.f);
     sf::Vector2f bCenter(b.position.x + b.size.x / 2.f, b.position.y + b.size.y / 2.f);
 
-    // The different
+    
     sf::Vector2f delta = aCenter - bCenter;
 
-    // Overlapping distance
+    
     float overlapX = (a.size.x + b.size.x) / 2.f - std::abs(delta.x);
     float overlapY = (a.size.y + b.size.y) / 2.f - std::abs(delta.y);
 
@@ -190,7 +182,6 @@ sf::Vector2f CollisionManager::getMinimumTranslationVector(
     }
 }
 
-// Same SAT loop as aabbVsPolygon but tracks minimum overlap axis for resolution vector
 sf::Vector2f CollisionManager::getMTVPolygon(const sf::FloatRect& box,
     const std::vector<sf::Vector2f>& points) const
 {
@@ -255,7 +246,7 @@ sf::Vector2f CollisionManager::getMTVPolygon(const sf::FloatRect& box,
             minOverlap = overlap;
             mtv = axis * overlap;
 
-            // Ensure MTV pushes box away from polygon centroid
+            
             sf::Vector2f dir = boxCenter - polyCentroid;
             if ((dir.x * mtv.x + dir.y * mtv.y) < 0.f)
                 mtv = -mtv;
@@ -265,7 +256,6 @@ sf::Vector2f CollisionManager::getMTVPolygon(const sf::FloatRect& box,
     return mtv;
 }
 
-// WorldObject overload: uses TMX-loaded shapes for narrow phase when available
 CollisionManager::CollisionResult CollisionManager::checkCollisionWith(
     const sf::FloatRect& entityBounds,
     const std::vector<std::unique_ptr<WorldObject>>& objects) const
@@ -274,7 +264,7 @@ CollisionManager::CollisionResult CollisionManager::checkCollisionWith(
 
     for (const auto& obj : objects)
     {
-        // Broad-phase: skip if sprite AABB doesn't intersect
+        
         if (!entityBounds.findIntersection(obj->getBounds()).has_value())
             continue;
 
@@ -314,7 +304,7 @@ CollisionManager::CollisionResult CollisionManager::checkCollisionWith(
         }
         else
         {
-            // No TMX shapes for this type, fall back to sprite AABB
+            
             result.collided = true;
             result.penetration = getMinimumTranslationVector(entityBounds, obj->getBounds());
             result.collidedWith = obj.get();

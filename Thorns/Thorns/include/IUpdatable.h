@@ -3,9 +3,6 @@
 
 #include <SFML/System/Time.hpp>
 
-/// <summary>
-/// Objects that need per-frame updates
-/// </summary>
 class IUpdatable
 {
 public:

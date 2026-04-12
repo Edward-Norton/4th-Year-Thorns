@@ -3,9 +3,6 @@
 
 #include <SFML/System/Vector2.hpp>
 
-/// <summary>
-/// Objects that have a position in world space
-/// </summary>
 class IPositionable
 {
 public:

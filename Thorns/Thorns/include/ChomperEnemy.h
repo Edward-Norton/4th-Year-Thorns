@@ -8,15 +8,6 @@
 class Map;
 class CollisionManager;
 
-/// <summary>
-/// Chomper enemy type.
-/// 
-/// AI States:
-///   Idle   -> no target visible, stationary
-///   Chase  -> target in LOS, walks toward it
-///   Leap   -> within leap range, launches a fast lunge attack
-///   Lost   -> target left LOS, holds last known position briefly
-/// </summary>
 class ChomperEnemy : public IEnemy
 {
 public:
@@ -24,43 +15,43 @@ public:
     {
         Idle,
         Chase,
-        Leap,   // Active lunge in flight
+        Leap,   
         Lost
     };
 
     ChomperEnemy();
     ~ChomperEnemy() = default;
 
-    // ========== Initialization ==========
-    // atlasPath: shared sprite sheet for the chomper
+    
+    
     bool initialize(const std::string& atlasPath);
 
-    // ========== IUpdatable ==========
+    
     void update(sf::Time deltaTime) override;
 
-    // ========== IEnemy ==========
+    
     void updateWithContext(sf::Time deltaTime,
         const sf::Vector2f& playerPos,
         const Map* map) override;
 
-    // ========== Collision ==========
+    
     void applyCollisionCorrection(const sf::Vector2f& correction);
 
-    // ========== IRenderable ==========
+    
     void render(sf::RenderTarget& target) const override;
 
-    // ========== IPositionable ==========
+    
     void setPosition(const sf::Vector2f& pos) override;
     sf::Vector2f getPosition() const override;
 
-    // ========== ICollidable ==========
+    
     sf::FloatRect getBounds() const override;
 
-    // ========== IGameEntity ==========
+    
     bool isActive() const override { return m_active; }
     void setActive(bool active) override { m_active = active; }
 
-    // ========== Queries ==========
+    
     AIState getAIState() const { return m_aiState; }
     bool isLeaping()     const { return m_aiState == AIState::Leap; }
 
@@ -79,20 +70,20 @@ private:
     sf::Vector2f m_lastKnownPlayerPos;
     sf::Vector2f m_velocity;
 
-    // Lost-state timer
+    
     float m_lostTimer;
     static constexpr float LOST_DURATION = 1.8f;
 
-    // Leap state
-    sf::Vector2f m_leapDirection;      // Normalised direction locked at leap start
-    float        m_leapTimer;          // Elapsed time in current leap
-    float        m_leapCooldownTimer;  // Time until next leap is allowed
+    
+    sf::Vector2f m_leapDirection;      
+    float        m_leapTimer;          
+    float        m_leapCooldownTimer;  
 
     static constexpr float CHASE_SPEED = 90.f;
     static constexpr float LEAP_SPEED = 420.f;
-    static constexpr float LEAP_RANGE = 220.f;  // Distance that triggers a leap
-    static constexpr float LEAP_DURATION = 0.35f;  // Seconds leap lasts
-    static constexpr float LEAP_COOLDOWN = 3.0f;   // Seconds between leaps
+    static constexpr float LEAP_RANGE = 220.f;  
+    static constexpr float LEAP_DURATION = 0.35f;  
+    static constexpr float LEAP_COOLDOWN = 3.0f;   
     static constexpr float LOS_RANGE = 500.f;
     static constexpr float ARRIVAL_RADIUS = 20.f;
 

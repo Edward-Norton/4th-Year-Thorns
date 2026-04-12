@@ -29,21 +29,19 @@ bool ChomperEnemy::initialize(const std::string& atlasPath)
     return true;
 }
 
-// Basic update for test
 void ChomperEnemy::update(sf::Time deltaTime)
 {
     if (!m_active) return;
     updateMovement(deltaTime);
 }
 
-// Update with map and player
 void ChomperEnemy::updateWithContext(sf::Time deltaTime,
     const sf::Vector2f& playerPos,
     const Map* map)
 {
     if (!m_active) return;
 
-    // Tick leap cooldown regardless of AI state
+    
     if (m_leapCooldownTimer > 0.f)
         m_leapCooldownTimer -= deltaTime.asSeconds();
 
@@ -53,7 +51,7 @@ void ChomperEnemy::updateWithContext(sf::Time deltaTime,
 
 void ChomperEnemy::applyCollisionCorrection(const sf::Vector2f& correction)
 {
-    // If leaping into a wall, abort the leap
+    
     if (m_aiState == AIState::Leap && (correction.x != 0.f || correction.y != 0.f))
     {
         m_aiState = AIState::Chase;
@@ -64,7 +62,6 @@ void ChomperEnemy::applyCollisionCorrection(const sf::Vector2f& correction)
     m_sprite.move(correction);
 }
 
-// AI state machine
 void ChomperEnemy::updateAI(const sf::Vector2f& playerPos, const Map* map)
 {
     bool canSee = LineOfSight::hasLineOfSight(
@@ -96,7 +93,7 @@ void ChomperEnemy::updateAI(const sf::Vector2f& playerPos, const Map* map)
         sf::Vector2f dir = playerPos - m_sprite.getPosition();
         float dist = MathUtils::magnitude(dir);
 
-        // Check if close enough and cooldown expired to leap
+        
         if (dist <= LEAP_RANGE && m_leapCooldownTimer <= 0.f)
         {
             beginLeap(playerPos);
@@ -117,7 +114,7 @@ void ChomperEnemy::updateAI(const sf::Vector2f& playerPos, const Map* map)
 
     case AIState::Leap:
     {
-        // Leap travels along fixed direction until duration expires
+        
         m_leapTimer += (1.f / 60.f);
 
         if (m_leapTimer >= LEAP_DURATION)
@@ -173,7 +170,7 @@ void ChomperEnemy::updateMovement(sf::Time deltaTime)
 
 void ChomperEnemy::faceDirection(const sf::Vector2f& direction)
 {
-    // For facing right direction due to atlas direction
+    
     float angle = MathUtils::vectorToAngleDegrees(direction) + SPRITE_NORTH_OFFSET;
     m_sprite.setRotation(sf::degrees(angle));
 }
@@ -193,7 +190,6 @@ void ChomperEnemy::beginLeap(const sf::Vector2f& targetPos)
     faceDirection(dir);
     std::cout << "ChomperEnemy: Leap!\n";
 }
-
 
 void ChomperEnemy::render(sf::RenderTarget& target) const
 {
@@ -216,10 +212,9 @@ sf::FloatRect ChomperEnemy::getBounds() const
     return m_sprite.getBounds();
 }
 
-
 void ChomperEnemy::takeDamage(float amount)
 {
-    // Simple one-shot kill for now; expand with HealthComponent when ready
+    
     m_active = false;
     std::cout << "SavageEnemy killed\n";
 }

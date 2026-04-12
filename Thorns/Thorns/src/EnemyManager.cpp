@@ -8,11 +8,10 @@ EnemyManager::EnemyManager()
 {
 }
 
-// Initialization
 bool EnemyManager::initialize(const std::string& savageAtlasPath,
     const std::string& chomperAtlasPath)
 {
-    // Pre-warm every pool slot so textures are loaded once
+    
     for (auto& enemy : m_savagePool)
     {
         if (!enemy.initialize(savageAtlasPath))
@@ -20,7 +19,7 @@ bool EnemyManager::initialize(const std::string& savageAtlasPath,
             std::cerr << "EnemyManager: Failed to initialize SavageEnemy pool slot\n";
             return false;
         }
-        enemy.setActive(false);  // All slots start inactive
+        enemy.setActive(false);  
     }
 
     for (auto& enemy : m_chomperPool)
@@ -40,9 +39,6 @@ bool EnemyManager::initialize(const std::string& savageAtlasPath,
     return true;
 }
 
-// ========================================
-// Spawning
-// ========================================
 SavageEnemy* EnemyManager::spawnSavage(const sf::Vector2f& worldPos)
 {
     for (auto& enemy : m_savagePool)
@@ -89,10 +85,6 @@ void EnemyManager::despawnAll()
     for (auto& e : m_chomperPool) e.setActive(false);
 }
 
-// ========================================
-// Per-frame update
-// Order: AI + movement first, then collision so enemies never rest inside geometry
-// ========================================
 void EnemyManager::updateAll(sf::Time deltaTime,
     const sf::Vector2f& playerPos,
     const Map* map,
@@ -110,13 +102,13 @@ void EnemyManager::updateAll(sf::Time deltaTime,
         if (!enemy.isActive()) continue;
         enemy.updateWithContext(deltaTime, playerPos, map);
 
-        // ChomperEnemy has its own applyCollisionCorrection to abort leaps on wall hit
+        
         sf::FloatRect bounds = enemy.getBounds();
         auto worldResult = collisionManager.checkWorldCollisionDetailed(bounds, map);
         if (worldResult.collided)
             enemy.applyCollisionCorrection(collisionManager.resolveCollision(worldResult));
 
-        // Object collision
+        
         if (map)
         {
 
@@ -133,7 +125,6 @@ void EnemyManager::renderAll(sf::RenderTarget& target) const
         if (enemy.isActive()) enemy.render(target);
 }
 
-// Queries
 int EnemyManager::getActiveSavageCount() const
 {
     int count = 0;
@@ -152,11 +143,11 @@ int EnemyManager::getActiveChomperCount() const
 
 void EnemyManager::checkAttackHit(const sf::Vector2f& playerPos, const sf::Vector2f& targetPos, float damage, ItemType weaponType)
 {
-    // Melee: circle check around player. Ranged: distance along attack direction.
+    
     const bool isMelee = (weaponType == ItemType::Knife || weaponType == ItemType::Axe);
     const float meleeRange = 80.f;
     const float gunRange = 800.f;
-    const float hitRadius = 40.f;  // Enemy hit box radius for ray test
+    const float hitRadius = 40.f;  
 
     auto tryHitSavage = [&](SavageEnemy& e) -> bool
         {
@@ -172,14 +163,14 @@ void EnemyManager::checkAttackHit(const sf::Vector2f& playerPos, const sf::Vecto
                     return true;
                 }
             }
-            else // Gun: check if enemy is near the line from player to target
+            else 
             {
                 if (dist > gunRange) return false;
                 sf::Vector2f dir = targetPos - playerPos;
                 float len = std::sqrt(dir.x * dir.x + dir.y * dir.y);
                 if (len < 1.f) return false;
                 dir /= len;
-                // Perpendicular distance from enemy to ray
+                
                 sf::Vector2f perp(-dir.y, dir.x);
                 float perpDist = std::abs(toEnemy.x * perp.x + toEnemy.y * perp.y);
                 if (perpDist <= hitRadius)
@@ -193,7 +184,7 @@ void EnemyManager::checkAttackHit(const sf::Vector2f& playerPos, const sf::Vecto
 
     for (auto& e : m_savagePool)  tryHitSavage(e);
 
-    // Same logic for chompers
+    
     for (auto& e : m_chomperPool)
     {
         if (!e.isActive()) continue;
@@ -217,7 +208,6 @@ void EnemyManager::checkAttackHit(const sf::Vector2f& playerPos, const sf::Vecto
     }
 }
 
-// Collision
 template<typename TEnemyType>
 void EnemyManager::resolveEnemyCollision(TEnemyType& enemy,
     const Map* map,

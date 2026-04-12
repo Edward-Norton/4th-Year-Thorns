@@ -3,9 +3,6 @@
 
 #include <SFML/Graphics/RenderTarget.hpp>
 
-/// <summary>
-/// Objects that can be drawn to screen
-/// </summary>
 class IRenderable
 {
 public:

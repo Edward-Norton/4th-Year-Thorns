@@ -19,7 +19,7 @@ namespace LineOfSight
         if (dist > maxRange) return false;
         if (dist < 1.f)      return true;
 
-        // Step one tile width at a time along the ray
+        
         float tileSize = map->getTileSize();
         int steps = static_cast<int>(dist / (tileSize * 0.5f)) + 1;
 

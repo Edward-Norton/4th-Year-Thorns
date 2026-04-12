@@ -3,9 +3,6 @@
 
 #include <SFML/Graphics/Rect.hpp>
 
-/// <summary>
-/// Objects that can collide with other objects
-/// </summary>
 class ICollidable
 {
 public:

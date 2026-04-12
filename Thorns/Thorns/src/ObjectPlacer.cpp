@@ -14,11 +14,6 @@ ObjectPlacer::ObjectPlacer()
 {
 }
 
-// Documentation notes:
-/// <summary>
-/// Forgot to make the atlas shared between all the objects, so each had their own causing massive memory issue. 
-/// This is resolved now by making them all reference the texture rather than owning all, so it was doing 1000x5MB for example
-/// </summary>
 bool ObjectPlacer::initialize(const std::string& atlasPath, 
                               const std::string& definitionsPath,
                               const std::string& collisionTmxPath)
@@ -41,14 +36,12 @@ bool ObjectPlacer::initialize(const std::string& atlasPath,
     else
         std::cerr << "ObjectPlacer: Failed to load world object templates for TMX collisions\n";
 
-
-    // Parse object definitions
+    
     if (!parseDefinitions(definitionsPath))
     {
         std::cerr << "ObjectPlacer: Failed to parse definitions from " << definitionsPath << "\n";
         return false;
     }
-
 
     m_initialized = true;
     std::cout << "ObjectPlacer initialized with " << m_definitions.size() << " object types\n";
@@ -67,11 +60,11 @@ bool ObjectPlacer::parseDefinitions(const std::string& definitionsPath)
     std::string line;
     while (std::getline(file, line))
     {
-        // Skip empty lines
+        
         if (line.empty())
             continue;
 
-        // Parse format: Name,X,Y,Width,Height
+        
         std::stringstream ss(line);
         std::string name;
         int x, y, width, height;
@@ -80,7 +73,7 @@ bool ObjectPlacer::parseDefinitions(const std::string& definitionsPath)
         std::getline(ss, name, ',');
         ss >> x >> comma >> y >> comma >> width >> comma >> height;
 
-        // Map name to type
+        
         WorldObject::Type type;
         if (name == "SmallRoot")
             type = WorldObject::Type::SmallRoot;
@@ -98,12 +91,12 @@ bool ObjectPlacer::parseDefinitions(const std::string& definitionsPath)
             continue;
         }
 
-        // Store definition
+        
         ObjectDefinition def;
         def.name = name;
         def.textureRect = sf::IntRect(sf::Vector2i(x, y), sf::Vector2i(width, height));
 
-        // Scale down large objects to fit in world better
+        
         float scale = 0.5f;
         def.size = sf::Vector2f(width * scale, height * scale);
 
@@ -116,7 +109,6 @@ bool ObjectPlacer::parseDefinitions(const std::string& definitionsPath)
     return !m_definitions.empty();
 }
 
-// Maps WorldObject type to the collision shape name in the TMX file
 static std::string getCollisionTemplateName(WorldObject::Type type)
 {
     switch (type)
@@ -138,10 +130,10 @@ void ObjectPlacer::generateObjects(Map* map, const PlacementSettings& settings, 
         return;
     }
 
-    // Clear existing objects
+    
     clearObjects();
 
-    // Initialize Perlin noise with seed
+    
     m_perlin = std::make_unique<PerlinNoise>(seed);
 
     std::cout << "\n--- Phase 2: Perlin Noise Object Placement ---\n";
@@ -151,7 +143,7 @@ void ObjectPlacer::generateObjects(Map* map, const PlacementSettings& settings, 
     std::cout << "  Threshold: " << settings.placementThreshold << "\n";
     std::cout << "  Object Type: " << static_cast<int>(settings.objectType) << "\n";
 
-    // Get object definition
+    
     const ObjectDefinition* def = getDefinition(settings.objectType);
     if (!def)
     {
@@ -161,30 +153,30 @@ void ObjectPlacer::generateObjects(Map* map, const PlacementSettings& settings, 
 
     const sf::Vector2f tmxOrigin(0.f, 0.f);
 
-    // Sample every (n)th tile, might change depending on performance later
-    const int sampleStep = 2;  // Check every 2nd tile
+    
+    const int sampleStep = 2;  
 
     int width = map->getWidth();
     int height = map->getHeight();
     int objectsPlaced = 0;
     int tilesChecked = 0;
 
-    // Iterate through map tiles
+    
     for (int y = 0; y < height; y += sampleStep)
     {
         for (int x = 0; x < width; x += sampleStep)
         {
             ++tilesChecked;
 
-            // Get world position (center of tile)
+            
             sf::Vector2f worldPos = map->tileToWorld(x, y);
 
-            // Check if this location is valid for placement
+            
             if (!isValidPlacement(worldPos, map, settings))
                 continue;
 
-            // Generate noise value at this position
-            // Apply frequency to zoom in/out
+            
+            
             double noiseValue = m_perlin->octaveNoise2D(
                 worldPos.x * settings.frequency,
                 worldPos.y * settings.frequency,
@@ -192,13 +184,13 @@ void ObjectPlacer::generateObjects(Map* map, const PlacementSettings& settings, 
                 settings.persistence
             );
 
-            // Check threshold
+            
             if (noiseValue > settings.placementThreshold)
             {
-                // Create object
+                
                 auto object = std::make_unique<WorldObject>(settings.objectType, worldPos);
 
-                // Load sprite from atlas
+                
                 if (object->loadSpriteFromTexture(m_sharedAtlasTexture, def->textureRect, def->size))
                 {
                     if (m_templatesLoaded)
@@ -235,7 +227,7 @@ void ObjectPlacer::render(sf::RenderTarget& target, const sf::View& view) const
     if (m_objects.empty())
         return;
 
-    // Get view frustum for culling
+    
     sf::Vector2f viewCenter = view.getCenter();
     sf::Vector2f viewSize = view.getSize();
     sf::FloatRect viewBounds(
@@ -243,20 +235,20 @@ void ObjectPlacer::render(sf::RenderTarget& target, const sf::View& view) const
         viewSize
     );
 
-    // Add padding for partially visible objects
+    
     const float padding = 256.f;
     viewBounds.position.x -= padding;
     viewBounds.position.y -= padding;
     viewBounds.size.x += padding * 2.f;
     viewBounds.size.y += padding * 2.f;
 
-    // Render only visible objects
+    
     int rendered = 0;
     for (const auto& object : m_objects)
     {
         sf::FloatRect objBounds = object->getBounds();
 
-        // Frustum culling
+        
         if (viewBounds.findIntersection(objBounds).has_value())
         {
             object->render(target);
@@ -267,13 +259,13 @@ void ObjectPlacer::render(sf::RenderTarget& target, const sf::View& view) const
 
 void ObjectPlacer::renderDebug(sf::RenderTarget& target, const sf::View& view) const
 {
-    // Draw circles at object positions for debugging
+    
     for (const auto& object : m_objects)
     {
         sf::CircleShape circle(8.f);
         circle.setOrigin(sf::Vector2f(8.f, 8.f));
         circle.setPosition(object->getPosition());
-        circle.setFillColor(sf::Color(255, 165, 0, 150));  // Orange, semi-transparent
+        circle.setFillColor(sf::Color(255, 165, 0, 150));  
         circle.setOutlineColor(sf::Color::White);
         circle.setOutlineThickness(1.f);
         target.draw(circle);
@@ -282,16 +274,16 @@ void ObjectPlacer::renderDebug(sf::RenderTarget& target, const sf::View& view) c
 
 bool ObjectPlacer::isValidPlacement(const sf::Vector2f& worldPos, Map* map, const PlacementSettings& settings) const
 {
-    // Get tile at this position
+    
     const MapTile* tile = map->getTileAtWorldPos(worldPos);
     if (!tile)
         return false;
 
-    // Check if in POI area
+    
     if (settings.respectPOIs && map->isInsidePOI(worldPos))
         return false;
 
-    // Check terrain type
+    
     if (settings.grassOnly)
     {
         MapTile::TerrainType terrain = tile->getTerrainType();
@@ -299,7 +291,7 @@ bool ObjectPlacer::isValidPlacement(const sf::Vector2f& worldPos, Map* map, cons
             return false;
     }
 
-    // Check if tile is walkable (don't place on walls, water, etc.)
+    
     if (!tile->isWalkable())
         return false;
 
@@ -314,60 +306,3 @@ const ObjectPlacer::ObjectDefinition* ObjectPlacer::getDefinition(WorldObject::T
     return nullptr;
 }
 
-// ========================================================================================================
-// IMPLEMENTATION NOTES
-// ========================================================================================================
-/*
- * PERLIN NOISE OBJECT PLACEMENT STRATEGY:
- *
- * 1. Sample Grid:
- *    - Check every 2nd tile (sampleStep = 2) for performance
- *    - Can adjust based on object density needs
- *
- * 2. Noise Evaluation:
- *    - Calculate noise at tile center position
- *    - Multiply by frequency to control pattern size
- *    - Use octaves for detail variation
- *
- * 3. Threshold Check:
- *    - Only place object if noise > threshold
- *    - Higher threshold = sparser placement
- *    - Lower threshold = denser placement
- *
- * 4. Validation:
- *    - Respect POI exclusion zones
- *    - Only place on specific terrain types
- *    - Ensure tile is walkable
- *
- * PARAMETER TUNING GUIDE:
- *
- * For forest trees:
- * - frequency: 0.05 - 0.08 (large organic clusters)
- * - octaves: 2-3 (some variation)
- * - threshold: 0.6-0.7 (moderate density)
- *
- * For grass/flowers:
- * - frequency: 0.2 - 0.5 (small scattered patches)
- * - octaves: 1-2 (less variation needed)
- * - threshold: 0.5-0.6 (higher density)
- *
- * For rocks/boulders:
- * - frequency: 0.1 - 0.15 (medium clusters)
- * - octaves: 2 (some detail)
- * - threshold: 0.7-0.8 (very sparse)
- *
- * PERFORMANCE CONSIDERATIONS:
- *
- * - sampleStep reduces tiles checked (step=2 means 75% reduction)
- * - Octave noise takes ~2-4x longer than single noise
- * - Frustum culling prevents rendering off-screen objects
- * - All objects share same texture atlas (single texture bind)
- *
- * ALTERNATIVE APPROACHES:
- *
- * If Perlin noise gives too "blobby" patterns, consider:
- * - Poisson disc sampling (more even distribution)
- * - Voronoi-based placement (one object per region)
- * - Jittered grid (regular with random offset)
- * - Hybrid: Perlin for density, Poisson for exact positions
- */

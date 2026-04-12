@@ -11,13 +11,13 @@ POIConfigRegistry::POIConfigRegistry()
 
 void POIConfigRegistry::registerPOIType(PointOfInterest::Type type, const POITypeConfig& config)
 {
-    // Store to map
+    
     m_configs[type] = config;
 }
 
 const POITypeConfig* POIConfigRegistry::getConfig(PointOfInterest::Type type) const
 {
-    // Get it and fnd it
+    
     auto it = m_configs.find(type);
     if (it != m_configs.end())
         return &it->second;
@@ -26,14 +26,13 @@ const POITypeConfig* POIConfigRegistry::getConfig(PointOfInterest::Type type) co
 
 bool POIConfigRegistry::hasConfig(PointOfInterest::Type type) const
 {
-    // Checker
+    
     return m_configs.find(type) != m_configs.end();
 }
 
-// This is to provide a config for the POI template later. 
 void POIConfigRegistry::loadDefaultConfigs()
 {   
-    // Hideout
+    
     POITypeConfig hideoutConfig;
     hideoutConfig.name = "Hideout";
     hideoutConfig.spritePath = Assets::Textures::HIDEOUT_SPRITE;
@@ -42,7 +41,7 @@ void POIConfigRegistry::loadDefaultConfigs()
     hideoutConfig.size = sf::Vector2f(481.0f, 419.0f);
     registerPOIType(PointOfInterest::Type::PlayerHideout, hideoutConfig);
 
-    // Farm
+    
     POITypeConfig farmConfig;
     farmConfig.name = "Farm";
     farmConfig.spritePath = Assets::Textures::FARM_SPRITE;
@@ -51,7 +50,7 @@ void POIConfigRegistry::loadDefaultConfigs()
     farmConfig.size = sf::Vector2f(1948.f, 2016.f);
     registerPOIType(PointOfInterest::Type::Farm, farmConfig);
 
-    // Village
+    
     POITypeConfig villageConfig;
     villageConfig.name = "Village";
     villageConfig.spritePath = "";  
@@ -60,8 +59,8 @@ void POIConfigRegistry::loadDefaultConfigs()
     villageConfig.size = sf::Vector2f(500.0f, 500.0f);
     registerPOIType(PointOfInterest::Type::Village, villageConfig);
 
-    // This to try and auto size the tile areas needed based ont he above sizes. 
-    // Found it annoying doing it each time and hopefully make implementation easier sob
+    
+    
     for (auto& [type, config] : m_configs)
     {
         if (config.autoSizeFromSprite && !config.definitionsPath.empty())
@@ -73,7 +72,6 @@ void POIConfigRegistry::loadDefaultConfigs()
     }
 }
 
-// Read the def path for the POI size based on the file given
 sf::Vector2f POIConfigRegistry::parseSizeFromDefinition(const std::string& definitionPath) const
 {
     std::ifstream file(definitionPath);

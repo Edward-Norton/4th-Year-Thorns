@@ -12,7 +12,7 @@ ScreenSettings::ScreenSettings()
 
 void ScreenSettings::loadAvailableResolutions()
 {
-    // Common 16:9 resolutions
+    
     std::vector<Resolution> commonResolutions = {
         {1280, 720},
         {1600, 900},
@@ -21,10 +21,10 @@ void ScreenSettings::loadAvailableResolutions()
         {3840, 2160}
     };
 
-    // Get all fullscreen video modes supported by the system
+    
     std::vector<sf::VideoMode> modes = sf::VideoMode::getFullscreenModes();
 
-    // Add only supported resolutions
+    
     for (const auto& res : commonResolutions)
     {
         if (isResolutionSupported(res.width, res.height))
@@ -33,7 +33,7 @@ void ScreenSettings::loadAvailableResolutions()
         }
     }
 
-    // Ensure we have at least one resolution
+    
     if (m_availableResolutions.empty())
     {
         std::cerr << "Warning: No common resolutions supported, using desktop mode\n";
@@ -41,7 +41,7 @@ void ScreenSettings::loadAvailableResolutions()
         m_availableResolutions.emplace_back(desktop.size.x, desktop.size.y);
     }
 
-    // Find current resolution index
+    
     for (size_t i = 0; i < m_availableResolutions.size(); ++i)
     {
         if (m_availableResolutions[i] == m_currentResolution)
@@ -51,7 +51,7 @@ void ScreenSettings::loadAvailableResolutions()
         }
     }
 
-    // Default to first resolution if current not found
+    
     m_currentResolutionIndex = 0;
     m_currentResolution = m_availableResolutions[0];
 }
@@ -68,7 +68,7 @@ bool ScreenSettings::isResolutionSupported(unsigned int width, unsigned int heig
         }
     }
 
-    // Also check if it's smaller than desktop
+    
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     return (width <= desktop.size.x && height <= desktop.size.y);
 }
@@ -84,7 +84,7 @@ void ScreenSettings::setResolution(int index)
 
 void ScreenSettings::setResolution(unsigned int width, unsigned int height)
 {
-    // Find matching resolution in available list
+    
     for (int i = 0; i < static_cast<int>(m_availableResolutions.size()); ++i)
     {
         if (m_availableResolutions[i].width == width &&
@@ -105,16 +105,16 @@ void ScreenSettings::setFullscreen(bool fullscreen)
 
 void ScreenSettings::applySettings(sf::RenderWindow& window)
 {
-    // Close current window
+    
     window.close();
 
-    // Create video mode
+    
     sf::VideoMode videoMode = getCurrentVideoMode();
 
-    // Determine window style
+    
     sf::State windowState = m_isFullscreen ? sf::State::Fullscreen : sf::State::Windowed;
 
-    // Recreate window with new settings
+    
     window.create(videoMode, "THORNS", windowState);
 
     std::cout << "Applied settings: " << m_currentResolution.displayName
@@ -125,6 +125,6 @@ sf::VideoMode ScreenSettings::getCurrentVideoMode() const
 {
     return sf::VideoMode(
         sf::Vector2u(m_currentResolution.width, m_currentResolution.height),
-        32U  // 32-bit color depth
+        32U  
     );
 }

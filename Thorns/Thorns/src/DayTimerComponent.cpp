@@ -29,7 +29,7 @@ bool DayTimerComponent::initialize(float duration, const std::string& fontPath)
 
 void DayTimerComponent::update(sf::Time deltaTime)
 {
-    // Do nothing once expired; reset() is required to restart.
+    
     if (m_expired)
         return;
 
@@ -54,7 +54,7 @@ void DayTimerComponent::render(sf::RenderTarget& target) const
     const float panelX = screenW - PANEL_WIDTH - PANEL_RIGHT_MARGIN;
     const float panelY = PANEL_TOP_MARGIN;
 
-    // Panel background
+    
     sf::RectangleShape panel(sf::Vector2f(PANEL_WIDTH, PANEL_HEIGHT));
     panel.setPosition(sf::Vector2f(panelX, panelY));
     panel.setFillColor(sf::Color(30, 30, 30, 200));
@@ -62,7 +62,7 @@ void DayTimerComponent::render(sf::RenderTarget& target) const
     panel.setOutlineColor(sf::Color(180, 180, 180, 200));
     target.draw(panel);
 
-    // "DAY ENDS IN" label
+    
     sf::Text label(m_font);
     label.setString("DAY ENDS IN");
     label.setCharacterSize(FONT_SIZE_LABEL);

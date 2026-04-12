@@ -10,30 +10,13 @@
 #include "SpriteComponent.h"
 #include "POITemplate.h"
 
-/// <summary>
-/// Represents a fixed prefab location that blocks procedural generation
-/// Examples: Player hideout, key locations
-/// 
-/// The idea is that this is to block areas in the generation that isnt needed due to being a fixed 
-/// asset location
-/// 
-/// Also needed for the Voronoi diagram due to spacing out these POIs.
-/// Some tiles or areas will need to be unwalkable later for ideas down the road.
-/// 
-/// Main Flow:
-/// 1) Default POIs set up so the hideout as its always the same location
-/// 2) Map needed to know them before generation
-/// 3) Map marks the POIs to prevent generation
-/// 4) Algorithims later will prevent generation in the zones
-/// 
-/// </summary>
 class PointOfInterest : public IRenderable, public IPositionable, public ICollidable
 {
 public:
     enum class Type
     {
         PlayerHideout,
-        //Later use ideas
+        
         Village,
         Landmark,
         Farm,
@@ -43,63 +26,62 @@ public:
     PointOfInterest(const std::string& name, Type type, const sf::Vector2f& worldPos, const sf::Vector2f& size);
     ~PointOfInterest() = default;
 
-    // ========== Sprite ==========
+    
     bool loadSprite(const std::string& spritePath);
     void render(sf::RenderTarget& target) const override;
 
-    // ========== Collision ==========
+    
     sf::FloatRect getBounds() const override;
     bool checkEntityCollision(const sf::FloatRect& entityBounds) const;
 
-    // Shapes like polygons and not just rects
+    
     void addCollisionShape(const CollisionShape& shape);
     void clearCollisionShapes();
     const std::vector<CollisionShape>& getCollisionShapes() const { return m_collisionShapes; }
 
-
-    // Legacy rect collision just in case
-    void addCollisionRect(const sf::FloatRect& rect); // This is to add rect for walls and such
+    
+    void addCollisionRect(const sf::FloatRect& rect); 
     void clearCollisionRects();
-    std::vector<sf::FloatRect> getCollisionRects() const; // just for AABB rects
+    std::vector<sf::FloatRect> getCollisionRects() const; 
 
-    // ========== Position & Bounds ==========
+    
     sf::Vector2f getPosition() const override { return m_worldPosition; }
     void setPosition(const sf::Vector2f& pos) override;
 
     sf::FloatRect getVisualBounds() const;
 
-    // Get exclusion radius for Voronoi site placement
-    // This prevents Voronoi areas from being placed too close to POI
+    
+    
     float getExclusionRadius() const { return m_exclusionRadius; }
 
-    // Check if a world position is inside this POI
+    
     bool contains(const sf::Vector2f& worldPos) const;
 
-    // ========== Metadata ==========
+    
     std::string getName() const { return m_name; }
     Type getType() const { return m_type; }
-    bool isBlocking() const { return m_blocking; } // Needed for the algorithim to skip the tiles
+    bool isBlocking() const { return m_blocking; } 
 
     sf::Vector2f getSize() const { return m_size; }
 
-    // ========== Validation ==========
+    
     bool hasSprite() const;
 
 private:
     std::string m_name;
     Type m_type;
 
-    sf::Vector2f m_worldPosition;  // Center position in world space
-    sf::Vector2f m_size;            // Width and height in pixels
+    sf::Vector2f m_worldPosition;  
+    sf::Vector2f m_size;            
 
-    float m_exclusionRadius;        // Radius around POI where Voronoi sites can't spawn
-    bool m_blocking;                // If true, generation algorithms skip this area
+    float m_exclusionRadius;        
+    bool m_blocking;                
 
-    // Rendering
+    
     std::unique_ptr<SpriteComponent> m_sprite;
 
-    // Collision (multiple rectangles for complex shapes like buildings with walls)
-    // PN: All rectangles are in world space coordinates
+    
+    
     std::vector<CollisionShape> m_collisionShapes;
 };
 

@@ -17,7 +17,7 @@ void Map::initialize(int width, int height, float tileSize)
     m_height = height;
     m_tileSize = tileSize;
 
-    // Allocate 2D grid
+    
     m_tiles.clear();
     m_tiles.resize(m_width * m_height);
 
@@ -31,7 +31,7 @@ void Map::reset()
 {
     m_pois.clear();
 
-    // Reset all tiles
+    
     for (auto& tile : m_tiles)
     {
         tile.setTerrainType(MapTile::TerrainType::UNKNOWN);
@@ -42,10 +42,6 @@ void Map::reset()
     m_needsRebuild = true;
     std::cout << "Map reset: " << m_width << "x" << m_height << " tiles cleared\n";
 }
-
-// ========================================================================================================
-// QUERY DATA
-// ========================================================================================================
 
 MapTile* Map::getTile(int x, int y)
 {
@@ -97,9 +93,6 @@ sf::Vector2f Map::getWorldSize() const
     return sf::Vector2f(m_width * m_tileSize, m_height * m_tileSize);
 }
 
-// ========================================================================================================
-// POIS
-// ========================================================================================================
 void Map::addPOI(std::unique_ptr<PointOfInterest> poi)
 {
     if (poi)
@@ -111,7 +104,6 @@ void Map::addPOI(std::unique_ptr<PointOfInterest> poi)
     }
 }
 
-// For visual area of a POI, so the whole sprite
 bool Map::isInsidePOI(const sf::Vector2f& worldPos) const
 {
     for (const auto& poi : m_pois)
@@ -133,20 +125,20 @@ void Map::markPOITiles()
 
         for (const auto& rect : collisionRects)
         {
-            // Get tile range covered by this collision rect
+            
             sf::Vector2i topLeft = worldToTile(sf::Vector2f(rect.position));
             sf::Vector2i bottomRight = worldToTile(sf::Vector2f(
                 rect.position.x + rect.size.x,
                 rect.position.y + rect.size.y
             ));
 
-            // Clamp to valid tile range
+            
             topLeft.x = std::max(0, topLeft.x);
             topLeft.y = std::max(0, topLeft.y);
             bottomRight.x = std::min(m_width - 1, bottomRight.x);
             bottomRight.y = std::min(m_height - 1, bottomRight.y);
 
-            // Mark tiles covered by collision rects as POI
+            
             for (int y = topLeft.y; y <= bottomRight.y; ++y)
             {
                 for (int x = topLeft.x; x <= bottomRight.x; ++x)
@@ -162,27 +154,24 @@ void Map::markPOITiles()
     m_needsRebuild = true;
 }
 
-// ========================================================================================================
-// RENDERING
-// ========================================================================================================
 void Map::render(sf::RenderTarget& target) const
 {
     const sf::View& view = target.getView();
 
-    // Layer 1: Terrain
+    
     if (m_debugMode)
     {
         renderDebug(target);
     }
-    else // Change to sprites later
+    else 
     {
         renderTerrain(target, view);
     }
 
-    // Voronoi Borders
-    //renderVoronoiBoundaries(target);
+    
+    
 
-    // Layer 2 Pois
+    
     renderPOIs(target, view);
 
 }
@@ -195,7 +184,7 @@ void Map::renderTerrain(sf::RenderTarget& target, const sf::View& view) const
         return;
     }
 
-    // Get visible tile bounds
+    
     sf::Vector2f viewCenter = view.getCenter();
     sf::Vector2f viewSize = view.getSize();
     sf::FloatRect viewBounds(
@@ -209,13 +198,13 @@ void Map::renderTerrain(sf::RenderTarget& target, const sf::View& view) const
         viewBounds.position.y + viewBounds.size.y
     ));
 
-    // Clamp with padding
+    
     minTile.x = std::max(0, minTile.x - 1);
     minTile.y = std::max(0, minTile.y - 1);
     maxTile.x = std::min(m_width - 1, maxTile.x + 1);
     maxTile.y = std::min(m_height - 1, maxTile.y + 1);
 
-    // Render visible tiles by repositioning the shared sprite
+    
     for (int y = minTile.y; y <= maxTile.y; ++y)
     {
         for (int x = minTile.x; x <= maxTile.x; ++x)
@@ -241,7 +230,7 @@ void Map::renderTerrain(sf::RenderTarget& target, const sf::View& view) const
 
 void Map::renderPOIs(sf::RenderTarget& target, const sf::View& view) const
 {
-    // Get view frustum for culling
+    
     sf::Vector2f viewCenter = view.getCenter();
     sf::Vector2f viewSize = view.getSize();
     sf::FloatRect viewBounds(
@@ -249,19 +238,19 @@ void Map::renderPOIs(sf::RenderTarget& target, const sf::View& view) const
         viewSize
     );
 
-    // Add padding for POIs partially in view (use largest POI size as padding)
+    
     const float padding = 600.f;
     viewBounds.position.x -= padding;
     viewBounds.position.y -= padding;
     viewBounds.size.x += padding * 2.f;
     viewBounds.size.y += padding * 2.f;
 
-    // Render only visible POIs
+    
     for (const auto& poi : m_pois)
     {
         sf::FloatRect poiBounds = poi->getVisualBounds();
 
-        // Frustum culling
+        
         if (viewBounds.findIntersection(poiBounds).has_value())
         {
             poi->render(target);
@@ -271,12 +260,12 @@ void Map::renderPOIs(sf::RenderTarget& target, const sf::View& view) const
 
 void Map::renderDebug(sf::RenderTarget& target) const
 {
-    // Rebuild vertex array if needed
+    
     if (m_needsRebuild)
     {
         m_vertexArray.clear();
         m_vertexArray.setPrimitiveType(sf::PrimitiveType::Triangles);
-        m_vertexArray.resize(m_width * m_height * 6); // 2 triangles per tile
+        m_vertexArray.resize(m_width * m_height * 6); 
 
         for (int y = 0; y < m_height; ++y)
         {
@@ -288,28 +277,28 @@ void Map::renderDebug(sf::RenderTarget& target) const
 
                 sf::Color color = tile->getDebugColor();
 
-                // Calculate vertex positions
+                
                 float left = x * m_tileSize;
                 float top = y * m_tileSize;
                 float right = left + m_tileSize;
                 float bottom = top + m_tileSize;
 
-                // Add tile border by shrinking slightly
+                
                 float border = 1.f;
                 left += border;
                 top += border;
                 right -= border;
                 bottom -= border;
 
-                // Calculate base index for this tile's vertices
+                
                 size_t baseIndex = (y * m_width + x) * 6;
 
-                // First triangle (top-left, top-right, bottom-left)
+                
                 m_vertexArray[baseIndex + 0] = sf::Vertex({ sf::Vector2f(left, top), color });
                 m_vertexArray[baseIndex + 1] = sf::Vertex({sf::Vector2f(right, top), color});
                 m_vertexArray[baseIndex + 2] = sf::Vertex({sf::Vector2f(left, bottom), color});
 
-                // Second triangle (top-right, bottom-right, bottom-left)
+                
                 m_vertexArray[baseIndex + 3] = sf::Vertex({ sf::Vector2f(right, top), color });
                 m_vertexArray[baseIndex + 4] = sf::Vertex({ sf::Vector2f(right, bottom), color });
                 m_vertexArray[baseIndex + 5] = sf::Vertex({ sf::Vector2f(left, bottom), color });
@@ -319,15 +308,15 @@ void Map::renderDebug(sf::RenderTarget& target) const
         m_needsRebuild = false;
     }
 
-    // Draw all tiles in one call
+    
     target.draw(m_vertexArray);
 
-    //renderVoronoiBoundaries(target);
+    
 }
 
 void Map::renderVoronoiBoundaries(sf::RenderTarget& target) const
 {
-    // Draw lines between tiles that belong to different Voronoi regions
+    
     sf::VertexArray boundaryLines(sf::PrimitiveType::Lines);
 
     for (int y = 0; y < m_height; ++y)
@@ -340,14 +329,14 @@ void Map::renderVoronoiBoundaries(sf::RenderTarget& target) const
 
             int currentRegion = tile->getVoronoiRegion();
 
-            // Check right neighbor
+            
             if (x < m_width - 1)
             {
                 const MapTile* rightTile = getTile(x + 1, y);
                 if (rightTile && rightTile->getVoronoiRegion() != currentRegion &&
                     rightTile->getVoronoiRegion() != -1)
                 {
-                    // Draw vertical line on right edge
+                    
                     float lineX = (x + 1) * m_tileSize;
                     float lineY1 = y * m_tileSize;
                     float lineY2 = (y + 1) * m_tileSize;
@@ -357,14 +346,14 @@ void Map::renderVoronoiBoundaries(sf::RenderTarget& target) const
                 }
             }
 
-            // Check bottom neighbor
+            
             if (y < m_height - 1)
             {
                 const MapTile* bottomTile = getTile(x, y + 1);
                 if (bottomTile && bottomTile->getVoronoiRegion() != currentRegion &&
                     bottomTile->getVoronoiRegion() != -1)
                 {
-                    // Draw horizontal line on bottom edge
+                    
                     float lineX1 = x * m_tileSize;
                     float lineX2 = (x + 1) * m_tileSize;
                     float lineY = (y + 1) * m_tileSize;
@@ -379,17 +368,12 @@ void Map::renderVoronoiBoundaries(sf::RenderTarget& target) const
     target.draw(boundaryLines);
 }
 
-// ========================================================================================================
-// SPRITE SYSTEM 
-// - Was initally having tons of textures for each sprite, made the loading massive
-// - Now using ONE sprite for each one.
-// ========================================================================================================
 bool Map::loadTerrainAtlas(const std::string& atlasPath)
 {
-    // Create ONE shared sprite component
+    
     m_sharedSprite = std::make_unique<SpriteComponent>();
 
-    // Load the atlas texture into this sprite
+    
     if (!m_sharedSprite->loadTexture(atlasPath, m_tileSize, m_tileSize))
     {
         std::cerr << "Failed to load terrain atlas: " << atlasPath << "\n";
@@ -407,7 +391,7 @@ bool Map::loadTerrainAtlas(const std::string& atlasPath)
 sf::IntRect Map::getTerrainTextureRect(MapTile::TerrainType type) const
 {
     const int tilePixelSize = 64;
-    const int spacing = 1;  // Atlas has 1px spacing
+    const int spacing = 1;  
     const int cellSize = tilePixelSize + spacing;
 
     switch (type)

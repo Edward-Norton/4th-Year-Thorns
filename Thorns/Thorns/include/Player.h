@@ -13,15 +13,13 @@
 
 class InputController;
 
-// ========== PLAYER MOVEMENT STATES ==========
 enum class PlayerState
 {
-    Idle,   // Not moving
-    Walk,   // Normal movement
-    Sprint,  // Fast movement
-    InventoryOpen // Seperate state since I want player not move when its open
+    Idle,   
+    Walk,   
+    Sprint,  
+    InventoryOpen 
 };
-
 
 class Player : public IGameEntity
 {
@@ -29,47 +27,47 @@ public:
     Player();
     ~Player() = default;
 
-    // ========== Initialization ==========
+    
     bool initialize(const std::string& texturePath);
 
-    // ========== IUpdatable ==========
+    
     void update(sf::Time deltaTime) override;
 
-    // ========== Input Updates ==========
-    // Updates input state AND game logic in one call
+    
+    
     void updateWithInput(sf::Time deltaTime, const InputController& input, const sf::Vector2f& mousePosition);
 
-    // ========== IRenderable ==========
+    
     void render(sf::RenderTarget& target) const override;
     void renderHUD(sf::RenderTarget& target) const;
     void renderCursor(sf::RenderTarget& target) const;
     void renderInventory(sf::RenderTarget& target) const;
 
-    // ========== IPositionable ==========
+    
     void setPosition(const sf::Vector2f& pos) override;
     sf::Vector2f getPosition() const override;
 
-    // ========== ICollidable ==========
+    
     sf::FloatRect getBounds() const override;
 
-    // ========== IGameEntity ==========
+    
     bool isActive() const override { return m_active; }
     void setActive(bool active) override { m_active = active; }
 
-    // ========== State ==========
+    
     bool isValid() const { return m_sprite.isValid(); }
     PlayerState getCurrentState() const { return m_currentState; }
 
-    // ========== Cursor ==========
+    
     CursorComponent& getCursor() { return m_cursor; }
     const CursorComponent& getCursor() const { return m_cursor; }
 
-    // ========== Inventory ==========
+    
     Inventory& getInventory() { return m_inventory; }
     const Inventory& getInventory() const { return m_inventory; }
     bool collectItem(const ItemTypeData& data, const sf::Texture& atlas);
 
-    // ========== Stats ==========
+    
     HealthComponent& getHealth() { return m_health; }
     const HealthComponent& getHealth() const { return m_health; }
 
@@ -82,61 +80,61 @@ public:
     StatComponent& getWater() { return m_water; }
     const StatComponent& getWater() const { return m_water; }
 
-    // Weapons
+    
     void equipWeapon(ItemType type);
     ItemType getEquippedWeapon() const { return m_equippedWeapon; }
     float attack(const sf::Vector2f& targetWorldPos);
 
 private:
-    // ========== State Machine ==========
+    
     void updateState();
     void changeState(PlayerState newState);
 
-    // ========== Movement ==========
+    
     void updateMovement(sf::Time deltaTime);
     void updateRotation();
     void updateCursor();
     sf::Vector2f calculateMovementInput() const;
     float getCurrentSpeed() const;
 
-    // Applies stat restoration when an item is used from inventory
+    
     void onItemUsed(ItemType type);
 
-    // ========== Components ==========
+    
     SpriteComponent m_sprite;
     CursorComponent m_cursor;
     Inventory m_inventory;
-    // PN: THE STATS NEED TO BE COMPILED FIRST BEFORE HUD
+    
     HealthComponent m_health;
     StatComponent   m_stamina;
     StatComponent   m_hunger;
     StatComponent   m_water;
-    HUDComponent m_hud;   // KEEP BELOW THE STATS DUE TO CONSTRUCTION REF
+    HUDComponent m_hud;   
 
     ItemType m_equippedWeapon = ItemType::COUNT;
 
-    // ========== State ==========
+    
     PlayerState m_currentState;
     bool m_active;
 
-    // ========== Input References ==========
-    const InputController* m_inputController;  // Non-owning pointer
+    
+    const InputController* m_inputController;  
     sf::Vector2f m_mousePosition;
 
-    // ========== Physics ==========
+    
     sf::Vector2f m_velocity;
     sf::Angle m_targetRotation;
     sf::Angle m_currentRotation;
 
-    // ========== Movement Parameters ==========
+    
     static constexpr float WALK_SPEED = 150.0f;
     static constexpr float SPRINT_SPEED = 250.0f;
-    static constexpr float ROTATION_SPEED = 360.0f;  // Degrees per second
-    static constexpr float ACCELERATION = 1200.0f;   // How fast we reach target speed
-    static constexpr float DECELERATION = 1800.0f;   // How fast we stop (faster than acceleration)
-    static constexpr float FRICTION = 0.85f;         // Velocity dampening each frame (0-1)
+    static constexpr float ROTATION_SPEED = 360.0f;  
+    static constexpr float ACCELERATION = 1200.0f;   
+    static constexpr float DECELERATION = 1800.0f;   
+    static constexpr float FRICTION = 0.85f;         
 
-    // Stamina drain per second while sprinting, regen per second while walking/idle
+    
     static constexpr float STAMINA_SPRINT_DRAIN = 15.0f;
     static constexpr float STAMINA_REGEN = 5.0f;
 };

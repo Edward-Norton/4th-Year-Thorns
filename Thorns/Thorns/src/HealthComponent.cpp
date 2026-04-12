@@ -9,13 +9,13 @@ HealthComponent::HealthComponent()
 
 void HealthComponent::initialize(float maxHealth)
 {
-    m_maxHealth = std::max(1.f, maxHealth); // Just prevent 0 for instant death
+    m_maxHealth = std::max(1.f, maxHealth); 
     m_currentHealth = m_maxHealth;
 }
 
 void HealthComponent::update(sf::Time deltaTime)
 {
-    // Just set up need to figure out what to do next update
+    
 }
 
 void HealthComponent::takeDamage(float amount)

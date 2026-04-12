@@ -5,14 +5,10 @@
 #include <vector>
 #include <string>
 
-/// <summary>
-/// Manages screen resolution and fullscreen settings
-/// Handles video mode validation and window recreation
-/// </summary>
 class ScreenSettings
 {
 public:
-    // ========== Structure ==========
+    
     struct Resolution
     {
         unsigned int width;
@@ -32,19 +28,19 @@ public:
 
     ScreenSettings();
 
-    // ========== Getters ==========
+    
     const std::vector<Resolution>& getAvailableResolutions() const { return m_availableResolutions; }
     const Resolution& getCurrentResolution() const { return m_currentResolution; }
     bool isFullscreen() const { return m_isFullscreen; }
     int getCurrentResolutionIndex() const { return m_currentResolutionIndex; }
 
-    // ========== Setters ==========
+    
     void setResolution(int index);
     void setResolution(unsigned int width, unsigned int height);
     void setFullscreen(bool fullscreen);
     void toggleFullscreen() { setFullscreen(!m_isFullscreen); }
 
-    // ========== Window Management ==========
+    
     void applySettings(sf::RenderWindow& window);
     sf::VideoMode getCurrentVideoMode() const;
 

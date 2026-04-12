@@ -12,7 +12,7 @@ bool CursorComponent::initialize(float radius)
 {
     m_radius = radius;
     m_cursorShape.setRadius(m_radius);
-    m_cursorShape.setOrigin(sf::Vector2f(m_radius, m_radius)); // Center the cursor
+    m_cursorShape.setOrigin(sf::Vector2f(m_radius, m_radius)); 
     m_cursorShape.setFillColor(sf::Color::Transparent);
     m_cursorShape.setOutlineThickness(2.f);
     m_cursorShape.setOutlineColor(sf::Color::White);

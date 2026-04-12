@@ -11,12 +11,12 @@ PointOfInterest::PointOfInterest(const std::string& name, Type type,
     , m_blocking(true)
     , m_sprite(nullptr)
 {
-    // Exclusion radius is based on POI size
-    // Use diagonal length plus padding to ensure Voronoi sites don't spawn too close
+    
+    
     float diagonal = std::sqrt(size.x * size.x + size.y * size.y);
-    m_exclusionRadius = diagonal * 0.6f; // 60% of diagonal as buffer
+    m_exclusionRadius = diagonal * 0.6f; 
 
-    // By default, create one collision rect that matches the full sprite bounds
+    
     sf::FloatRect defaultCollision(
         sf::Vector2f(worldPos.x - size.x / 2.f,
             worldPos.y - size.y / 2.f),
@@ -36,7 +36,7 @@ bool PointOfInterest::loadSprite(const std::string& spritePath)
         return false;
     }
 
-    // Center the sprite's origin
+    
     m_sprite->centerOrigin();
     m_sprite->setPosition(m_worldPosition);
 
@@ -60,7 +60,7 @@ void PointOfInterest::setPosition(const sf::Vector2f& pos)
     if (m_sprite)
         m_sprite->setPosition(pos);
 
-    // Translate all shapes by the same offset
+    
     for (auto& shape : m_collisionShapes)
     {
         std::visit([&](auto& s)
@@ -81,19 +81,19 @@ void PointOfInterest::setPosition(const sf::Vector2f& pos)
 
 sf::FloatRect PointOfInterest::getBounds() const
 {
-    // Primary bounds for ICollidable interface
+    
     if (m_sprite && m_sprite->isValid())
     {
         return m_sprite->getBounds();
     }
 
-    // Fallback: calculate from size
+    
     return getVisualBounds();
 }
 
 sf::FloatRect PointOfInterest::getVisualBounds() const
 {
-    // Calculate AABB from center position and size
+    
     float left = m_worldPosition.x - (m_size.x / 2.f);
     float top = m_worldPosition.y - (m_size.y / 2.f);
 
@@ -102,7 +102,7 @@ sf::FloatRect PointOfInterest::getVisualBounds() const
 
 bool PointOfInterest::contains(const sf::Vector2f& worldPos) const
 {
-    // Check against all collision rectangles
+    
     for (const auto& rect : getCollisionRects())
     {
         if (rect.contains(worldPos))
@@ -166,7 +166,7 @@ std::vector<sf::FloatRect> PointOfInterest::getCollisionRects() const
                 }
                 else if constexpr (std::is_same_v<T, CollisionPolygon>)
                 {
-                    // AABB of polygon for tile marking
+                    
                     float minX = s.points[0].x, maxX = s.points[0].x;
                     float minY = s.points[0].y, maxY = s.points[0].y;
                     for (const auto& pt : s.points)

@@ -10,42 +10,42 @@ ItemTypeRegistry::ItemTypeRegistry()
 
 void ItemTypeRegistry::registerDefaults()
 {
-    // Gameplay data only
+    
 
-    // ========== FOOD ==========
+    
     ItemTypeData food;
     food.itemType = ItemType::Food;
     food.useCategory = ItemUseCategory::Consume;
     food.name = "Food";
     food.atlasKey = "food-tin";
-    food.spriteSize = sf::Vector2f(32.f, 32.f);  // World render size
-    food.statRestoreAmount = 30.f;               // Restores 30 hunger on use
+    food.spriteSize = sf::Vector2f(32.f, 32.f);  
+    food.statRestoreAmount = 30.f;               
     food.pickupRadius = 32.f;
     registerType(ItemType::Food, food);
 
-    // ========== WATER ==========
+    
     ItemTypeData water;
     water.itemType = ItemType::Water;
     water.useCategory = ItemUseCategory::Consume;
     water.name = "Water";
     water.atlasKey = "water-bottle";
     water.spriteSize = sf::Vector2f(32.f, 32.f);
-    water.statRestoreAmount = 40.f;               // Restores 40 water on use
+    water.statRestoreAmount = 40.f;               
     water.pickupRadius = 32.f;
     registerType(ItemType::Water, water);
 
-    // ========== FIRST AID ==========
+    
     ItemTypeData firstAid;
     firstAid.itemType = ItemType::FirstAid;
     firstAid.useCategory = ItemUseCategory::Consume;
     firstAid.name = "First Aid";
     firstAid.atlasKey = "medkit";
     firstAid.spriteSize = sf::Vector2f(32.f, 32.f);
-    firstAid.statRestoreAmount = 100.f;  // Full heal
+    firstAid.statRestoreAmount = 100.f;  
     firstAid.pickupRadius = 32.f;
     registerType(ItemType::FirstAid, firstAid);
 
-    // ========== BANDAGE ==========
+    
     ItemTypeData bandage;
     bandage.itemType = ItemType::Bandage;
     bandage.useCategory = ItemUseCategory::Consume;
@@ -56,7 +56,7 @@ void ItemTypeRegistry::registerDefaults()
     bandage.pickupRadius = 32.f;
     registerType(ItemType::Bandage, bandage);
 
-    // ========== KNIFE ==========
+    
     ItemTypeData knife;
     knife.itemType = ItemType::Knife;
     knife.useCategory = ItemUseCategory::Equip;
@@ -67,7 +67,7 @@ void ItemTypeRegistry::registerDefaults()
     knife.pickupRadius = 32.f;
     registerType(ItemType::Knife, knife);
 
-    // ========== AXE ==========
+    
     ItemTypeData axe;
     axe.itemType = ItemType::Axe;
     axe.useCategory = ItemUseCategory::Equip;
@@ -78,7 +78,7 @@ void ItemTypeRegistry::registerDefaults()
     axe.pickupRadius = 32.f;
     registerType(ItemType::Axe, axe);
 
-    // ========== GUN ==========
+    
     ItemTypeData gun;
     gun.itemType = ItemType::Gun;
     gun.useCategory = ItemUseCategory::Equip;
@@ -110,8 +110,8 @@ void ItemTypeRegistry::registerType(ItemType type, const ItemTypeData& data)
 
 bool ItemTypeRegistry::keyToType(const std::string& key, ItemType& outType)
 {
-    // Maps txt name column -> ItemType enum.
-    // PN: Need to add the rest when ready
+    
+    
     static const std::pair<const char*, ItemType> table[] =
     {
         { "food-tin",      ItemType::Food   },
@@ -151,7 +151,7 @@ bool ItemTypeRegistry::loadDefinitions(const std::string& definitionsPath)
     {
         if (line.empty()) continue;
 
-        // Format: name,x,y,width,height
+        
         std::stringstream ss(line);
         std::string name;
         int x = 0, y = 0, w = 0, h = 0;
@@ -165,10 +165,10 @@ bool ItemTypeRegistry::loadDefinitions(const std::string& definitionsPath)
             continue;
         }
 
-        // Check if this key maps to a registered ItemType
+        
         ItemType type;
         if (!keyToType(name, type))
-            continue;   // Not an item to care about (for now until testing it done)
+            continue;   
 
         auto it = m_data.find(type);
         if (it == m_data.end())

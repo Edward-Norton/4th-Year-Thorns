@@ -16,7 +16,7 @@ void StatComponent::initialize(float maxValue, float drainRate)
 
 void StatComponent::update(sf::Time deltaTime)
 {
-    // Auto draint he value
+    
     if (m_drainRate > 0.f)
         decrease(m_drainRate * deltaTime.asSeconds());
 }

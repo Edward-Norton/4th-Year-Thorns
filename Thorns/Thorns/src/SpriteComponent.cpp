@@ -10,9 +10,6 @@ SpriteComponent::SpriteComponent()
 {
 }
 
-/// <summary>
-/// This is for basic sprites with 1 rect, none is given just uses defaults
-/// </summary>
 bool SpriteComponent::loadTexture(const std::string& texturePath, float width, float height)
 {
     if (!m_texture.loadFromFile(texturePath))
@@ -33,9 +30,6 @@ bool SpriteComponent::loadTexture(const std::string& texturePath, float width, f
     return true;
 }
 
-/// <summary>
-/// Owns the texture, so used for POIs, Player and enemies later, so individual components
-/// </summary>
 bool SpriteComponent::loadTexture(const std::string& texturePath, float width, float height, const sf::IntRect& textureRect)
 {
     if (!m_texture.loadFromFile(texturePath))
@@ -47,7 +41,7 @@ bool SpriteComponent::loadTexture(const std::string& texturePath, float width, f
 
     m_sprite.setTexture(m_texture, true);
 
-    // Use specified region from atlas
+    
     m_textureRect = textureRect;
     m_sprite.setTextureRect(m_textureRect);
 
@@ -56,16 +50,12 @@ bool SpriteComponent::loadTexture(const std::string& texturePath, float width, f
     return true;
 }
 
-/// <summary>
-/// References external texture, so it doesn't own it.
-/// Had to be used for WorldObjects (as of writing), so all share 1 atlas for multiple different types of objects. 
-/// </summary>
 bool SpriteComponent::setSharedTexture(const sf::Texture& sharedTexture, float width, float height, const sf::IntRect& textureRect)
 {
-    // Set sprite to use external shared texture (no ownership)
+    
     m_sprite.setTexture(sharedTexture, true);
 
-    // Use specified region from atlas
+    
     m_textureRect = textureRect;
     m_sprite.setTextureRect(m_textureRect);
 
@@ -147,7 +137,7 @@ void SpriteComponent::setTextureRect(const sf::IntRect& rect)
     m_textureRect = rect;
     m_sprite.setTextureRect(m_textureRect);
 
-    // Reapply the target size with the new texture rect
+    
     if (m_targetSize.x > 0 && m_targetSize.y > 0) {
         setSize(m_targetSize.x, m_targetSize.y);
     }

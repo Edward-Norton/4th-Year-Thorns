@@ -15,39 +15,39 @@ MapGenerator::MapGenerator()
 
 std::unique_ptr<Map> MapGenerator::generate(const GenerationSettings& settings)
 {
-    // Step 2: Generate the base map (pn step 1 in game.cpp)
+    
     std::cout << "\n=== Starting Map Generation ===\n";
 
     auto startTotal = std::chrono::high_resolution_clock::now();
 
-    // Step 2.1: All tiles are UNKNOWN initally and use the default params while also alocating memory for map
+    
     auto map = std::make_unique<Map>();
     map->initialize(settings.mapWidth, settings.mapHeight, settings.tileSize);
 
-    // Step 2.2: Load the terrain atlas (to be updated with new types)
+    
     if (!map->loadTerrainAtlas(Assets::Textures::TERRAIN_ATLAS)) {
         std::cerr << "Failed to load the Map terrain atlas, defaulted to debug rendering\n";
         map->setDebugMode(true);
     }
 
-    // Setup static POIs (hideout at the center)
-    // Step 2.3: Where the hideout needs to be based on map size
+    
+    
     setupHideoutPOI(map.get());
     map->markPOITiles();
     
 
-    // Run generation phases
-    // ========== VORONOI DIAGRAMS ==========
-    //Step 3: Seeds Voronoi
+    
+    
+    
     std::cout << "\n--- Phase 1: Voronoi Diagram ---\n";
     phase1_Voronoi(map.get(), settings);
 
-    // Step 3.1: Spawn POIs at Voronoi sites
+    
     std::cout << "\n--- Spawning POIs at Voronoi sites ---\n";
     spawnPOIsAtSites(map.get(), settings);
     map->markPOITiles();
 
-    // ========== PERLIN NOISE ==========
+    
     std::cout << "\n--- Phase 2: Perlin Noise ---\n";
     if (settings.enableObjectPlacement)
     {
@@ -72,7 +72,6 @@ std::unique_ptr<Map> MapGenerator::generate(const GenerationSettings& settings)
     std::cout <<"\n====GENERATION TIME===\n" << "mapGeneration took " << elapsed.count() << " ms\n"
         << "With a map size of " << std::to_string(settings.mapHeight) << "x" << std::to_string(settings.mapWidth) << "\n";
 
-
     return map;
 }
 
@@ -86,24 +85,24 @@ void MapGenerator::regenerate(Map* map, const GenerationSettings& settings)
 
     std::cout << "\n=== Regenerating Existing Map ===\n";
 
-    // Reset map data (clears tiles and POIs, keeps memory allocated)
+    
     map->reset();
 
-    // Setup static POIs (hideout at the center)
+    
     setupHideoutPOI(map);
     map->markPOITiles();
 
-    // Run generation phases
-    // ========== VORONOI DIAGRAMS ==========
+    
+    
     std::cout << "\n--- Phase 1: Voronoi Diagram ---\n";
     phase1_Voronoi(map, settings);
 
-    // Spawn POIs at Voronoi sites
+    
     std::cout << "\n--- Spawning POIs at Voronoi sites ---\n";
     spawnPOIsAtSites(map, settings);
     map->markPOITiles();
 
-    // ========== PERLIN NOISE ==========
+    
     std::cout << "\n--- Phase 2: Perlin Noise ---\n";
     if (settings.enableObjectPlacement)
     {
@@ -117,7 +116,6 @@ void MapGenerator::regenerate(Map* map, const GenerationSettings& settings)
     std::cout << "\n=== Map Regeneration Complete ===\n\n";
 }
 
-
 std::vector<sf::Vector2f> MapGenerator::getEnemySpawnPoints(int countPerPOI, float spawnRadius) const
 {
     std::vector<sf::Vector2f> points;
@@ -125,8 +123,7 @@ std::vector<sf::Vector2f> MapGenerator::getEnemySpawnPoints(int countPerPOI, flo
     const auto& sites = m_voronoi->getSites();
     if (sites.empty()) return points;
 
-
-    // Offset insurance
+    
     const sf::Vector2f offsets[] = {
         { spawnRadius,  0.f },
         { -spawnRadius, 0.f },
@@ -136,7 +133,7 @@ std::vector<sf::Vector2f> MapGenerator::getEnemySpawnPoints(int countPerPOI, flo
 
     int offsetCount = std::min(countPerPOI, 4);
 
-    // PN: Skip 0 due to site being near hideout
+    
     for (size_t i = 1; i < sites.size(); ++i)
     {
         for (int j = 0; j < offsetCount; ++j)
@@ -161,40 +158,35 @@ std::vector<sf::Vector2f> MapGenerator::getItemSpawnPoints(float spawnRadius) co
     return points;
 }
 
-// ========================================================================================================
-// Voronoi + Terrain Assignment in ONE LOOP
-// - Was using multiple for loops, so one after another to accomplish result, using 1 for multi use instead. 
-// - From 3 for loops to 1
-// ========================================================================================================
 void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
 {
-    // Step 1: Resolve site count and effective spacing from whichever mode is active.
+    
     unsigned char siteCount = 0;
     float effectiveMinDist = 0.f;
 
-    // PN: visit is like get_if, it just calls whatever the lambda is needed based on sitemode for this
+    
     std::visit([&](auto&& mode)
     {
-            // Decays the pointer to a base time and just make it a T, i.e ManualSites& then becomes a ManualSite
+            
             using T = std::decay_t<decltype(mode)>;
 
             if constexpr (std::is_same_v<T, GenerationSettings::ManualSites>)
             {
-                // Manual mode: use explicit count, derive spacing from it
+                
                 siteCount = mode.count;
                 effectiveMinDist = settings.deriveMinSiteDistance(siteCount);
                 std::cout << "Site mode: Manual (" << static_cast<int>(siteCount) << " sites)\n";
             }
             else if constexpr (std::is_same_v<T, GenerationSettings::AutoDensity>)
             {
-                // Auto mode: count AND spacing both derived from density + map area
+                
                 siteCount = calSiteOptimalCount(mode.density, settings);
                 effectiveMinDist = settings.deriveMinSiteDistance(siteCount);
                 std::cout << "Site mode: Auto density (" << static_cast<int>(siteCount) << " sites)\n";
             }
     }, settings.siteMode);
 
-    // Manual distance override applies on top of either mode
+    
     if (settings.minSiteDistance > 0.f)
     {
         effectiveMinDist = settings.minSiteDistance;
@@ -207,28 +199,28 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
 
     std::cout << "Generating Voronoi diagram with " << static_cast<int>(siteCount) << " sites\n";
 
-    // Step 2: Generate Voronoi sites using Poisson disk sampling
+    
     std::mt19937 rng(settings.seed == 0 ? std::random_device{}() : settings.seed);
     sf::Vector2f worldSize = map->getWorldSize();
 
     m_voronoi->generateSitesPoisson(map, siteCount, m_hideoutPosition,
         effectiveMinDist, rng);
 
-    // Step 3: Build spatial grid for fast nearest-neighbor queries.
-    // Cell size must match effectiveMinDist so the 3x3 neighbourhood covers the full exclusion radius.
+    
+    
     const auto& sites = m_voronoi->getSites();
     std::cout << "Building spatial grid for " << sites.size() << " sites...\n";
 
     m_voronoi->buildSpatialGrid(worldSize.x, worldSize.y, effectiveMinDist);
 
-    // Add each site to the spatial grid for O(1) tile-to-region lookups
+    
     for (size_t i = 0; i < sites.size(); ++i)
     {
         m_voronoi->addSiteToGrid(static_cast<int>(i), sites[i].position);
     }
 
-    // Step 4: Single loop assign regions AND set terrain together
-    // ========== Single Loop: Do everything in one pass (try to reduce n-notation hopefully) ==========
+    
+    
     int width = map->getWidth();
     int height = map->getHeight();
     int tilesProcessed = 0;
@@ -241,19 +233,19 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
             if (!tile)
                 continue;
 
-            // Skip POI tiles (hideout area)
+            
             if (tile->getTerrainType() == MapTile::TerrainType::POI_Collision)
                 continue;
 
             sf::Vector2f tilePos = map->tileToWorld(x, y);
 
-            // Find nearest Voronoi site using spatial grid (O(k) instead of O(n))
+            
             std::vector<int> nearbySites = m_voronoi->getNearbySites(tilePos);
 
             int closestRegion = -1;
             float closestDistSq = std::numeric_limits<float>::max();
 
-            // Check only nearby sites (spatial optimization)
+            
             for (int siteIdx : nearbySites)
             {
                 const VoronoiSite& site = sites[siteIdx];
@@ -278,7 +270,7 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
 
     std::cout << "Voronoi assignment complete: " << tilesProcessed << " tiles processed\n";
 
-    // Debug: Count tiles per region
+    
     std::unordered_map<int, int> regionCounts;
     for (int y = 0; y < height; ++y)
     {
@@ -297,15 +289,11 @@ void MapGenerator::phase1_Voronoi(Map* map, const GenerationSettings& settings)
     }
 }
 
-// ========================================================================================================
-// PHASE 2: PERLIN NOISE OBJECT PLACEMENT
-// ========================================================================================================
-
 void MapGenerator::phase2_PerlinObjects(Map* map, const GenerationSettings& settings)
 {
     std::cout << "\n--- Phase 2: Perlin Noise Object Placement ---\n";
 
-    // Prevent assets being initalized again upon regeneration. 
+    
     if (!m_perlinAssetsInit)
     {
         if (!m_objectPlacer->initialize(
@@ -319,41 +307,36 @@ void MapGenerator::phase2_PerlinObjects(Map* map, const GenerationSettings& sett
         m_perlinAssetsInit = true;
     }
 
-    // Configure placement settings
+    
     ObjectPlacer::PlacementSettings placementSettings;
     placementSettings.frequency = settings.objectFrequency;
     placementSettings.octaves = settings.objectOctaves;
     placementSettings.persistence = 0.5;
     placementSettings.placementThreshold = settings.objectThreshold;
-    placementSettings.objectType = WorldObject::Type::SmallRoot;  // Testing with SmallRoot
-    placementSettings.respectPOIs = true;  // Don't place in POI areas
-    placementSettings.grassOnly = true;    // Only on grass terrain
+    placementSettings.objectType = WorldObject::Type::SmallRoot;  
+    placementSettings.respectPOIs = true;  
+    placementSettings.grassOnly = true;    
 
-    // Generate objects
+    
     m_objectPlacer->generateObjects(map, placementSettings, settings.seed);
 
     std::cout << "Phase 2 complete: " << m_objectPlacer->getObjectCount() << " objects placed\n";
 }
 
-// ========================================================================================================
-// Site auto count based on map size
-// ========================================================================================================
-
-// Determine the amount of sites auto
 unsigned char MapGenerator::calSiteOptimalCount(SiteDensity density, const GenerationSettings& settings) const
 {
-    // Area
+    
     float worldWidth = settings.mapWidth * settings.tileSize;
     float worldHeight = settings.mapHeight * settings.tileSize;
     float totalArea = worldWidth * worldHeight;
 
-    // For each site
+    
     float areaPerSite = getAreaPerSite(density);
 
-    // Need to round
+    
     float siteCountFloat = totalArea / areaPerSite;
     unsigned char siteCount = static_cast<unsigned char>(std::round(siteCountFloat));
-    // Min 3 max of 255
+    
     siteCount = std::max<unsigned char>(3, std::min<unsigned char>(255, siteCount));
 
     std::cout << "Auto-calculated site count:\n"
@@ -366,30 +349,27 @@ unsigned char MapGenerator::calSiteOptimalCount(SiteDensity density, const Gener
 
 float MapGenerator::getAreaPerSite(SiteDensity density) const
 {
-    // Area per site determines region size
-    // Larger values = fewer sites = larger regions
+    
+    
     switch (density)
     {
     case SiteDensity::Sparce:
-        return 2000000.0f;  // Very large regions
+        return 2000000.0f;  
     case SiteDensity::Medium:
-        return 1000000.0f;  // Balanced regions
+        return 1000000.0f;  
     case SiteDensity::Dense:
-        return 500000.0f;   // Smaller, more numerous regions
+        return 500000.0f;   
     default:
         return 1000000.0f;
     }
 }
 
-// ========================================================================================================
-// POI MANAGEMENT
-// ========================================================================================================
 void MapGenerator::setupHideoutPOI(Map* map)
 {
     sf::Vector2f worldSize = map->getWorldSize();
     m_hideoutPosition = sf::Vector2f(worldSize.x / 2.f, worldSize.y / 2.f);
 
-    // Player Hideout at center
+    
     auto hideout = std::make_unique<PointOfInterest>(
         "Player Hideout",
         PointOfInterest::Type::PlayerHideout,
@@ -397,7 +377,7 @@ void MapGenerator::setupHideoutPOI(Map* map)
         sf::Vector2f(481.0f, 419.0f)
     );
 
-    // Load hideout sprite
+    
     if (!hideout->loadSprite(Assets::Textures::HIDEOUT_SPRITE))
     {
         std::cerr << "Failed to load hideout sprite!\n";
@@ -430,12 +410,12 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
         totalPOIs = static_cast<int>(sites.size());
     }
 
-    // Trying to sort sites by distance from hideout to the furthest first.
-    // Issues with POIs being placed really close to the player spawn so it was redundant. 
-    std::vector<int> sitesByDistance(sites.size()); // Temp so sites are not modified
-    std::iota(sitesByDistance.begin(), sitesByDistance.end(), 0); // Pn: iota just uses iterators to fill values
+    
+    
+    std::vector<int> sitesByDistance(sites.size()); 
+    std::iota(sitesByDistance.begin(), sitesByDistance.end(), 0); 
 
-    // Order the sites in reverse order, the furthest is first
+    
     std::sort(sitesByDistance.begin(), sitesByDistance.end(), [&](int a, int b)
     {
             auto distSq = [&](const sf::Vector2f& pos)
@@ -444,7 +424,7 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
                     float dy = pos.y - m_hideoutPosition.y;
                     return dx * dx + dy * dy;
             };
-            // Descending order so index 0 is the furthest site
+            
             return distSq(sites[a].position) > distSq(sites[b].position);
     });
 
@@ -461,7 +441,7 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
     int attempts = 0;
     const int maxAttempts = totalPOIs * 20;
 
-    // Going now from furthest to nearst to place valid POI sites
+    
     for (int siteIndex : sitesByDistance)
     {
         if (poisSpawned >= totalPOIs)
@@ -482,7 +462,7 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
         float halfHeight = config->size.y / 2.f;
         float edgeMargin = std::max(config->size.x, config->size.y) / 2.f + 200.f;
 
-        // Skip sites too close to map edge, just prevent them clipping out
+        
         if (site.position.x - halfWidth < edgeMargin ||
             site.position.x + halfWidth > worldSize.x - edgeMargin ||
             site.position.y - halfHeight < edgeMargin ||
@@ -490,7 +470,7 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
         {
             std::cout << "Skipped site " << siteIndex << " - too close to map edge\n";
 
-            // POI type was already decremented inside getRandomPOIType, just need to restore it
+            
             if (poiType == PointOfInterest::Type::Village) ++villagesLeft;
             else if (poiType == PointOfInterest::Type::Farm) ++farmsLeft;
             continue;
@@ -520,7 +500,6 @@ void MapGenerator::spawnPOIsAtSites(Map* map, const GenerationSettings& settings
 
     std::cout << "POI spawning complete: " << poisSpawned << " POIs placed\n";
 }
-
 
 std::unique_ptr<PointOfInterest> MapGenerator::createPOI(
     PointOfInterest::Type type,
@@ -572,7 +551,7 @@ std::unique_ptr<PointOfInterest> MapGenerator::createPOI(
 
 PointOfInterest::Type MapGenerator::getRandomPOIType(int& villagesLeft, int& farmsLeft, std::mt19937& rng)
 {
-    // Count remaining POI types
+    
     std::vector<PointOfInterest::Type> availableTypes;
 
     if (villagesLeft > 0)
@@ -581,13 +560,13 @@ PointOfInterest::Type MapGenerator::getRandomPOIType(int& villagesLeft, int& far
         availableTypes.push_back(PointOfInterest::Type::Farm);
 
     if (availableTypes.empty())
-        return PointOfInterest::Type::Landmark; // Fallback
+        return PointOfInterest::Type::Landmark; 
 
-    // Pick random type from available
+    
     std::uniform_int_distribution<size_t> typeDist(0, availableTypes.size() - 1);
     PointOfInterest::Type selectedType = availableTypes[typeDist(rng)];
 
-    // Decrement counter
+    
     switch (selectedType)
     {
     case PointOfInterest::Type::Village:

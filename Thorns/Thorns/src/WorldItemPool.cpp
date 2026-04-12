@@ -33,7 +33,6 @@ WorldItem* WorldItemPool::spawn(ItemType type, const sf::Vector2f& worldPos,
         return nullptr;
     }
 
-
     for (auto& item : m_pool)
     {
         if (!item.isActive())

@@ -35,7 +35,7 @@ sf::FloatRect WorldObject::getBounds() const
         return m_sprite->getBounds();
     }
 
-    // Fallback: small bounds at position
+    
     return sf::FloatRect(sf::Vector2f(m_worldPosition.x - 16.f, m_worldPosition.y - 16.f),
         sf::Vector2f(32.f, 32.f));
 }
@@ -44,7 +44,7 @@ bool WorldObject::loadSpriteFromTexture(const sf::Texture& sharedTexture, const 
 {
     m_sprite = std::make_unique<SpriteComponent>();
 
-    // Use the shared texture instead of loading from file
+    
     if (!m_sprite->setSharedTexture(sharedTexture, size.x, size.y, textureRect))
     {
         std::cerr << "Failed to set shared texture for WorldObject\n";
@@ -52,7 +52,7 @@ bool WorldObject::loadSpriteFromTexture(const sf::Texture& sharedTexture, const 
         return false;
     }
 
-    // Center sprite origin for proper positioning
+    
     m_sprite->centerOrigin();
     m_sprite->setPosition(m_worldPosition);
 
@@ -75,7 +75,7 @@ std::vector<CollisionShape> WorldObject::getWorldSpaceShapes() const
 
     for (const auto& shape : *m_collisionShapes)
     {
-        // Translate each shape by m_shapeOffset into world space
+        
         std::visit([&](const auto& s)
         {
                 using T = std::decay_t<decltype(s)>;

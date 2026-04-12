@@ -25,7 +25,6 @@ bool WorldItem::activate(ItemType type, const sf::Vector2f& worldPos,
     m_worldPosition = worldPos;
     m_pickupRadius = data->pickupRadius;
 
-
     if (!m_sprite.setSharedTexture(sharedAtlas,
         data->spriteSize.x,
         data->spriteSize.y,
@@ -63,7 +62,7 @@ void WorldItem::setPosition(const sf::Vector2f& pos)
 
 sf::FloatRect WorldItem::getBounds() const
 {
-    // AABB centred on world position
+    
     return sf::FloatRect(
         sf::Vector2f(m_worldPosition.x - m_pickupRadius,
             m_worldPosition.y - m_pickupRadius),

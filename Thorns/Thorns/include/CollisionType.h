@@ -5,13 +5,11 @@
 #include <vector>
 #include <variant>
 
-// Convex polygon defined by a list of points in local or world space
 struct CollisionPolygon
 {
     std::vector<sf::Vector2f> points;
 };
 
-// Circle Collision
 struct CircleShape
 {
     std::vector<sf::Vector2f> points;

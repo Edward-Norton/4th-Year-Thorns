@@ -21,41 +21,41 @@ Player::Player()
 
 bool Player::initialize(const std::string& texturePath)
 {
-    // Initialize sprite from texture atlas
+    
     if (!m_sprite.loadTexture(texturePath, 34.f, 50.f,
         sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(34, 50))))
         return false;
 
     m_sprite.centerOrigin();
-    m_sprite.setPosition(sf::Vector2f{ 960.f, 540.f });  // Center of 1920x1080
+    m_sprite.setPosition(sf::Vector2f{ 960.f, 540.f });  
 
-    // Initialize cursor
+    
     if (!m_cursor.initialize(8.f))
         return false;
 
-    // ============ STATS ==========
-    // Init HUD elements
+    
+    
     m_health.initialize(100.0f);
 
-    // Drain stamina when springing
+    
     m_stamina.initialize(100.f, 0.f);
 
-    // Hunger drains slowly over time
+    
     m_hunger.initialize(100.f, 0.5f);
 
-    // Water drains slightly faster than hunger
+    
     m_water.initialize(100.f, 0.8f);
 
-    // Hud
+    
     if (!m_hud.initialize(Assets::Fonts::JERSEY_20))
     {
         std::cerr << "Player: HUD font failed to load, health bar will not render\n";
     }
 
-    // Inventory
+    
     m_inventory.initialize();
 
-    // Bind inventory use callback so stats are modifable
+    
     m_inventory.setOnItemUsed([this](ItemType type) { onItemUsed(type); });
 
     m_cursor.setColor(sf::Color::Yellow);
@@ -67,16 +67,16 @@ void Player::update(sf::Time deltaTime)
 {
     if (!m_active) return;
 
-    // Update state machine based on current input
+    
     updateState();
 
-    // Update cursor visuals
+    
     updateCursor();
 
-    // Update rotation to face mouse
+    
     updateRotation();
 
-    // ========= Update STATS =========
+    
     m_health.update(deltaTime);
     if (m_currentState != PlayerState::InventoryOpen)
     {
@@ -84,8 +84,7 @@ void Player::update(sf::Time deltaTime)
         m_water.update(deltaTime);
     }
 
-
-    // Update movement physics
+    
     updateMovement(deltaTime);
 }
 
@@ -93,7 +92,7 @@ void Player::updateWithInput(sf::Time deltaTime, const InputController& input, c
 {
     if (!m_active) return;
 
-    // Cache input references
+    
     m_inputController = &input;
     m_mousePosition = mousePosition;
 
@@ -101,25 +100,25 @@ void Player::updateWithInput(sf::Time deltaTime, const InputController& input, c
     {
         m_inventory.toggle();
 
-        // Immediately transition to/from InventoryOpen state
+        
         if (m_inventory.isVisible())
         {
             changeState(PlayerState::InventoryOpen);
         }
         else
         {
-            // Return to Idle when closing inventory
+            
             changeState(PlayerState::Idle);
         }
     }
 
-    // Update inventory slot interaction
+    
     if (m_inventory.isVisible())
     {
         m_inventory.updateSlotInteraction(input);
     }
 
-    // Delegate to standard update
+    
     update(deltaTime);
 }
 
@@ -159,7 +158,7 @@ float Player::attack(const sf::Vector2f& targetWorldPos)
     }
 
     static const float damageTable[] = { 0.f, 0.f, 0.f, 0.f, 0.f, 25.f, 50.f, 75.f };
-    // Index matches ItemType enum order: Food=0,Water=1,FirstAid=2,Bandage=3,Knife=4,Axe=5,Gun=6
+    
     int idx = static_cast<int>(m_equippedWeapon);
     float dmg = (idx >= 0 && idx < 8) ? damageTable[idx] : 0.f;
 
@@ -171,20 +170,20 @@ void Player::updateState()
 {
     if (!m_inputController) return;
 
-    // Since not moving Idle becomes default on next frame, need this safe guard
+    
     if (m_currentState == PlayerState::InventoryOpen)
     {
         return; 
     }
 
-    // Get raw movement input
+    
     sf::Vector2f moveInput = calculateMovementInput();
     bool isMoving = (moveInput.x != 0.f || moveInput.y != 0.f);
 
-    // Sprint requires the key held and stamina remaining
+    
     bool isSprinting = m_inputController->isPressed(InputAction::Sprint) && !m_stamina.isEmpty();
 
-    // Determine new state
+    
     PlayerState newState = m_currentState;
 
     if (!isMoving)
@@ -200,7 +199,7 @@ void Player::updateState()
         newState = PlayerState::Walk;
     }
 
-    // Change state if different
+    
     if (newState != m_currentState)
     {
         changeState(newState);
@@ -209,7 +208,7 @@ void Player::updateState()
 
 void Player::changeState(PlayerState newState)
 {
-    // Exit current state
+    
     switch (m_currentState)
     {
     case PlayerState::Idle:
@@ -222,10 +221,10 @@ void Player::changeState(PlayerState newState)
         break;
     }
 
-    // Enter new state
+    
     m_currentState = newState;
 
-    // Debug output
+    
     switch (m_currentState)
     {
     case PlayerState::Idle:
@@ -248,29 +247,29 @@ void Player::updateMovement(sf::Time deltaTime)
 
     if (m_currentState == PlayerState::InventoryOpen)
     {
-        // Zero out velocity immediately when inventory opens
+        
         m_velocity = sf::Vector2f(0.f, 0.f);
         return;
     }
 
     float dt = deltaTime.asSeconds();
 
-    // Get movement input direction
+    
     sf::Vector2f moveInput = calculateMovementInput();
     float inputMagnitude = MathUtils::magnitude(moveInput);
 
     if (inputMagnitude > 0.f)
     {
-        // Moving - set velocity based on state
+        
         sf::Vector2f direction = MathUtils::normalize(moveInput);
         float targetSpeed = getCurrentSpeed();
 
-        // Instant velocity change
+        
         m_velocity = direction * targetSpeed;
     }
     else
     {
-        // Not moving - apply deceleration
+        
         float currentSpeed = MathUtils::magnitude(m_velocity);
 
         if (currentSpeed > 0.f)
@@ -291,7 +290,7 @@ void Player::updateMovement(sf::Time deltaTime)
         m_stamina.increase(STAMINA_REGEN * dt);
     }
 
-    // Apply velocity to position
+    
     sf::Vector2f movement = m_velocity * dt;
     m_sprite.move(movement);
 }
@@ -300,18 +299,18 @@ void Player::updateRotation()
 {
     if (m_currentState == PlayerState::InventoryOpen)
     {
-        // Return early so player doesnt rotate when inventory is open
+        
         return;
     }
 
-    // Calculate direction from player to mouse
+    
     sf::Vector2f playerPos = m_sprite.getPosition();
     sf::Vector2f direction = m_mousePosition - playerPos;
 
-    // Calculate angle in degrees
+    
     float angleDeg = MathUtils::vectorToAngleDegrees(direction);
 
-    // Set target rotation
+    
     m_targetRotation = sf::degrees(angleDeg);
     m_currentRotation = m_targetRotation;
     m_sprite.setRotation(m_currentRotation);
@@ -403,6 +402,6 @@ sf::FloatRect Player::getBounds() const
 
 bool Player::collectItem(const ItemTypeData& data, const sf::Texture& atlas)
 {
-    // Delegate to the atlas overload of addItem.
+    
     return m_inventory.addItem(data.name, atlas, data.atlasRect, data.itemType);
 }

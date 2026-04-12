@@ -16,7 +16,7 @@ SavageEnemy::SavageEnemy()
 
 bool SavageEnemy::initialize(const std::string& atlasPath)
 {
-    // First frame of the savage sprite sheet: 64x64 at origin
+    
     if (!m_sprite.loadTexture(atlasPath, 64.f, 64.f,
         sf::IntRect(sf::Vector2i(0, 64), sf::Vector2i(64, 64))))
         return false;
@@ -54,7 +54,7 @@ void SavageEnemy::updateAI(const sf::Vector2f& playerPos, const Map* map)
             m_aiState = AIState::Chase;
             std::cout << "SavageEnemy: Chase\n";
         }
-        // Idle: no velocity
+        
         m_velocity = sf::Vector2f(0.f, 0.f);
         break;
 
@@ -63,7 +63,7 @@ void SavageEnemy::updateAI(const sf::Vector2f& playerPos, const Map* map)
 
         if (!canSee)
         {
-            // Player broke LOS, start lost timer
+            
             m_aiState = AIState::Lost;
             m_lostTimer = 0.f;
             std::cout << "SavageEnemy: Lost\n";
@@ -71,7 +71,7 @@ void SavageEnemy::updateAI(const sf::Vector2f& playerPos, const Map* map)
         }
 
         {
-            // Move directly toward player
+            
             sf::Vector2f dir = playerPos - m_sprite.getPosition();
             float dist = MathUtils::magnitude(dir);
 
@@ -92,7 +92,7 @@ void SavageEnemy::updateAI(const sf::Vector2f& playerPos, const Map* map)
 
         if (canSee)
         {
-            // Player came back into view
+            
             m_aiState = AIState::Chase;
             break;
         }
@@ -105,7 +105,7 @@ void SavageEnemy::updateAI(const sf::Vector2f& playerPos, const Map* map)
             break;
         }
 
-        // Walk toward last known position during lost period
+        
         {
             sf::Vector2f dir = m_lastKnownPlayerPos - m_sprite.getPosition();
             float dist = MathUtils::magnitude(dir);
@@ -159,7 +159,7 @@ void SavageEnemy::render(sf::RenderTarget& target) const
 
 void SavageEnemy::takeDamage(float amount)
 {
-    // Simple one-shot kill for now; expand with HealthComponent when ready
+    
     m_active = false;
     std::cout << "SavageEnemy killed\n";
 }

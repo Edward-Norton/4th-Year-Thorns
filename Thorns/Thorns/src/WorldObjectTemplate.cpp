@@ -38,7 +38,7 @@ bool WorldObjectTemplateManager::loadTemplates(const std::string& tmxPath)
             if (!buildShape(obj, shape))
                 continue;
 
-            // Append to the type's shape list (one TMX object = one shape)
+            
             m_shapes[type].push_back(std::move(shape));
         }
     }
@@ -67,15 +67,15 @@ bool WorldObjectTemplateManager::hasShapes(WorldObject::Type type) const
 
 bool WorldObjectTemplateManager::nameToType(const std::string& name, WorldObject::Type& outType)
 {
-    // TMX object name -> WorldObject::Type mapping table.
-    // Add rows here when the TMX gains new named objects.
+    
+    
     static const std::pair<const char*, WorldObject::Type> table[] =
     {
         { "Tree_Stump_Large", WorldObject::Type::LargeRoot     },
         { "Tree_Stump_Small", WorldObject::Type::SmallRoot     },
         { "Tree_1",           WorldObject::Type::TreeTop1      },
         { "Tree_2",           WorldObject::Type::TreeTop2      },
-        // SmallRootBasic shares the same shape as SmallRoot
+        
         { "Tree_Stump_Small", WorldObject::Type::SmallRootBasic },
     };
 
@@ -130,6 +130,4 @@ bool WorldObjectTemplateManager::buildShape(const tmx::Object& obj, CollisionSha
         return false;
     }
 }
-
-
 

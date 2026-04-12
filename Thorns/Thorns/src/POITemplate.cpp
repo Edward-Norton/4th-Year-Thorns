@@ -8,14 +8,9 @@ POITemplateManager::POITemplateManager()
 {
 }
 
-/// <summary>
-// TMX (Tiled Map XML) is an XML-based format from Tiled Map Editor
-// Library used: tmxlite (https://github.com/fallahn/tmxlite)
-// Also to Note gotten from one of my peers if needed for documentation
-/// </summary>
 bool POITemplateManager::loadTemplate(const std::string& name, const std::string& tmxPath)
 {
-    // Creat the tmx map object
+    
     tmx::Map mapData;
     if (!mapData.load(tmxPath))
     {
@@ -23,11 +18,11 @@ bool POITemplateManager::loadTemplate(const std::string& name, const std::string
         return false;
     }
 
-    // Parse and given to template
+    
     POITemplate tmpl = parseTemplate(mapData);
     tmpl.name = name;
 
-    // Store
+    
     m_templates[name] = std::move(tmpl);
 
     std::cout << "Loaded POI template '" << name << "' with "
@@ -38,7 +33,7 @@ bool POITemplateManager::loadTemplate(const std::string& name, const std::string
 
 const POITemplate* POITemplateManager::getTemplate(const std::string& name) const
 {
-    // Basic it search pointer
+    
     auto it = m_templates.find(name);
     if (it != m_templates.end())
         return &it->second;
@@ -50,7 +45,6 @@ bool POITemplateManager::hasTemplate(const std::string& name) const
     return m_templates.find(name) != m_templates.end();
 }
 
-// Apply the collision to the POI
 void POITemplateManager::applyTemplateCollision(PointOfInterest* poi, const std::string& templateName)
 {
     const POITemplate* tmpl = getTemplate(templateName);
@@ -60,23 +54,23 @@ void POITemplateManager::applyTemplateCollision(PointOfInterest* poi, const std:
         return;
     }
 
-    // Clear the defaults from constuctor
+    
     poi->clearCollisionRects();
 
-    // Note: Pos is center
+    
     sf::Vector2f poiCenter = poi->getPosition();
     sf::Vector2f poiSize = poi->getSize();
 
-    // Top-left origin of POI in world space — all template coords offset from here
+    
     sf::Vector2f origin(
         poiCenter.x - (poiSize.x / 2.f),
         poiCenter.y - (poiSize.y / 2.f)
     );
 
-    // Transform collision rects from template space to world space
+    
     for (const auto& shape : tmpl->shapes)
     {
-        // std::visit selects the correct lambda branch at runtime based on active variant type
+        
         std::visit([&](const auto& s)
         {
                 using T = std::decay_t<decltype(s)>;
@@ -107,7 +101,7 @@ POITemplate POITemplateManager::parseTemplate(const tmx::Map& mapData)
 {
     POITemplate tmpl;
 
-    // Get template size from map
+    
     auto tileSize = mapData.getTileSize();
     auto mapSize = mapData.getTileCount();
     tmpl.size = sf::Vector2f(
@@ -156,7 +150,7 @@ std::vector<CollisionShape> POITemplateManager::extractCollisionShapes(const tmx
                 CollisionPolygon poly;
                 for (const auto& pt : obj.getPoints())
                 {
-                    // tmxlite polygon points are relative to the object's own position
+                    
                     poly.points.emplace_back(ox + pt.x, oy + pt.y);
                 }
                 if (poly.points.size() >= 3)
@@ -172,8 +166,3 @@ std::vector<CollisionShape> POITemplateManager::extractCollisionShapes(const tmx
     return shapes;
 }
 
-
-// Example
-/*
-To be done
-*/

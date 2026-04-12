@@ -7,11 +7,6 @@
 #include "IRenderable.h"
 #include "IPositionable.h"
 
-
-/// <summary>
-/// Simple button Component class to handle composition of buttons needed for other classes.
-/// </summary>
-
 enum class ButtonState
 {
     Normal,
@@ -27,17 +22,17 @@ public:
     ButtonComponent();
     ~ButtonComponent() = default;
 
-    // ========== Initialize button ==========
+    
     bool initialize(const sf::Font& font, const std::string& text);
 
-    // ========== Update ==========
+    
     void update(const sf::Vector2f& mousePos, bool mousePressed);
 
-    // ========== IRenderable ==========
+    
     void render(sf::RenderTarget& target) const override;
 
-    // ========== Configuration ==========
-    // IPositionable
+    
+    
     void setPosition(const sf::Vector2f& pos) override;
     sf::Vector2f getPosition() const override;
     void setSize(const sf::Vector2f& size);
@@ -48,7 +43,7 @@ public:
     void setSelected(bool selected);
     bool isSelected() const { return m_selected; }
 
-    // ========== Colors ==========
+    
     void setNormalColor(const sf::Color& color) { m_normalColor = color; }
     void setHoverColor(const sf::Color& color) { m_hoverColor = color; }
     void setPressedColor(const sf::Color& color) { m_pressedColor = color; }
@@ -58,7 +53,7 @@ public:
     void setOutlineColor(const sf::Color& color);
     void setOutlineThickness(float thickness);
 
-    // ========== States ==========
+    
     bool isHovered() const { return m_state == ButtonState::Hovered; }
     bool isPressed() const { return m_wasClicked; }
     bool isEnabled() const { return m_enabled; }
@@ -78,7 +73,7 @@ private:
     bool m_previousMousePressed;
     bool m_selected;
 
-    // Colors for different states
+    
     sf::Color m_normalColor;
     sf::Color m_hoverColor;
     sf::Color m_pressedColor;
