@@ -1,4 +1,4 @@
-C:/tmxlite-master/tmxlite/build32/CMakeFiles/tmxlite.dir
-C:/tmxlite-master/tmxlite/build32/CMakeFiles/INSTALL.dir
-C:/tmxlite-master/tmxlite/build32/CMakeFiles/ALL_BUILD.dir
-C:/tmxlite-master/tmxlite/build32/CMakeFiles/ZERO_CHECK.dir
+C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/build32/CMakeFiles/tmxlite.dir
+C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/build32/CMakeFiles/INSTALL.dir
+C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/build32/CMakeFiles/ALL_BUILD.dir
+C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/build32/CMakeFiles/ZERO_CHECK.dir

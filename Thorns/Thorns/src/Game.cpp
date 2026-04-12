@@ -76,6 +76,12 @@ bool Game::initializeGame()
         std::cerr << "Game: Item pool failed to initialize\n";
     }
 
+    if (!m_dayTimer.initialize(60.f, Assets::Fonts::JERSEY_20))
+    {
+        std::cerr << "Game: DayTimer failed to initialize\n";
+    }
+    m_dayTimer.setOnExpired([this]() { regenerateMap(); });
+
     // Now that resources are loaded, configure the menus
     setupMenus();
 
@@ -233,6 +239,8 @@ void Game::regenerateMap()
 
     std::cout << "Map regenerated with seed " << m_currentSeed << "!\n";
     std::cout << "======================================\n\n";
+
+    m_dayTimer.reset();
 }
 
 void Game::run()
@@ -438,10 +446,12 @@ void Game::updatePlaying(sf::Time deltaTime)
 
     //==============================================================================================<<<<< REMOVE THE BELOW WHEN DONT HAVE TO DEBUG
     // Check for map regeneration (R key)
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R))
-    {
-        regenerateMap();
-    }
+    //if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R))
+    //{
+    //    regenerateMap();
+    //}
+
+    m_dayTimer.update(deltaTime);
 
     // Enemy update: AI, movement, and world collision
     m_enemyManager.updateAll(deltaTime, m_player.getPosition(),
@@ -524,6 +534,7 @@ void Game::render()
 
         // For UI spacing
         m_window.setView(m_uiView);
+        m_dayTimer.render(m_window);
         m_player.renderHUD(m_window);
         m_player.renderInventory(m_window);
         m_player.renderCursor(m_window);
@@ -548,6 +559,7 @@ void Game::render()
         }
 
         m_window.setView(m_uiView);
+        m_dayTimer.render(m_window);
         m_pauseMenu.render(m_window);
         break;
 

@@ -1,4 +1,4 @@
-# Install script for directory: C:/tmxlite-master/tmxlite
+# Install script for directory: C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -33,44 +33,56 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "C:/tmxlite-master/tmxlite/include/tmxlite")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/include/tmxlite")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   if(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "C:/tmxlite-master/tmxlite/build32/Debug/tmxlite-d.lib")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/build32/Debug/tmxlite-d.lib")
   elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "C:/tmxlite-master/tmxlite/build32/Release/tmxlite.lib")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/build32/Release/tmxlite.lib")
   elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Mm][Ii][Nn][Ss][Ii][Zz][Ee][Rr][Ee][Ll])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "C:/tmxlite-master/tmxlite/build32/MinSizeRel/tmxlite.lib")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/build32/MinSizeRel/tmxlite.lib")
   elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ww][Ii][Tt][Hh][Dd][Ee][Bb][Ii][Nn][Ff][Oo])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "C:/tmxlite-master/tmxlite/build32/RelWithDebInfo/tmxlite.lib")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/build32/RelWithDebInfo/tmxlite.lib")
   endif()
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   if(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE SHARED_LIBRARY FILES "C:/tmxlite-master/tmxlite/build32/Debug/tmxlite-d.dll")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE SHARED_LIBRARY FILES "C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/build32/Debug/tmxlite-d.dll")
   elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE SHARED_LIBRARY FILES "C:/tmxlite-master/tmxlite/build32/Release/tmxlite.dll")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE SHARED_LIBRARY FILES "C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/build32/Release/tmxlite.dll")
   elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Mm][Ii][Nn][Ss][Ii][Zz][Ee][Rr][Ee][Ll])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE SHARED_LIBRARY FILES "C:/tmxlite-master/tmxlite/build32/MinSizeRel/tmxlite.dll")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE SHARED_LIBRARY FILES "C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/build32/MinSizeRel/tmxlite.dll")
   elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ww][Ii][Tt][Hh][Dd][Ee][Bb][Ii][Nn][Ff][Oo])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE SHARED_LIBRARY FILES "C:/tmxlite-master/tmxlite/build32/RelWithDebInfo/tmxlite.dll")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE SHARED_LIBRARY FILES "C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/build32/RelWithDebInfo/tmxlite.dll")
   endif()
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "libraries" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "C:/tmxlite-master/tmxlite/build32/tmxlite.pc")
-endif()
-
-if(CMAKE_INSTALL_COMPONENT)
-  set(CMAKE_INSTALL_MANIFEST "install_manifest_${CMAKE_INSTALL_COMPONENT}.txt")
-else()
-  set(CMAKE_INSTALL_MANIFEST "install_manifest.txt")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/build32/tmxlite.pc")
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/tmxlite-master/tmxlite/build32/${CMAKE_INSTALL_MANIFEST}"
+if(CMAKE_INSTALL_LOCAL_ONLY)
+  file(WRITE "C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/build32/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
+endif()
+if(CMAKE_INSTALL_COMPONENT)
+  if(CMAKE_INSTALL_COMPONENT MATCHES "^[a-zA-Z0-9_.+-]+$")
+    set(CMAKE_INSTALL_MANIFEST "install_manifest_${CMAKE_INSTALL_COMPONENT}.txt")
+  else()
+    string(MD5 CMAKE_INST_COMP_HASH "${CMAKE_INSTALL_COMPONENT}")
+    set(CMAKE_INSTALL_MANIFEST "install_manifest_${CMAKE_INST_COMP_HASH}.txt")
+    unset(CMAKE_INST_COMP_HASH)
+  endif()
+else()
+  set(CMAKE_INSTALL_MANIFEST "install_manifest.txt")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  file(WRITE "C:/Users/edwar/OneDrive/Desktop/Thorns/4th-Year-Thorns/Thorns/Thorns/lib/tmxlite/tmxbackup/build32/${CMAKE_INSTALL_MANIFEST}"
+     "${CMAKE_INSTALL_MANIFEST_CONTENT}")
+endif()

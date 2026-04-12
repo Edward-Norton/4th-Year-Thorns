@@ -270,6 +270,9 @@
     <ClCompile Include="src\ChomperEnemy.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="src\DayTimerComponent.cpp">
+      <Filter>Source Files\Components\HUD</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Enemy.h">
@@ -400,6 +403,9 @@
     </ClInclude>
     <ClInclude Include="include\ChomperEnemy.h">
       <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DayTimerComponent.h">
+      <Filter>Header Files\Components\HUD</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

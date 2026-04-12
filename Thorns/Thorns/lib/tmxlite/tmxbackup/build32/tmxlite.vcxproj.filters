@@ -1,49 +1,49 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\tmxlite-master\tmxlite\src\FreeFuncs.cpp">
+    <ClCompile Include="C:\Users\edwar\OneDrive\Desktop\Thorns\4th-Year-Thorns\Thorns\Thorns\lib\tmxlite\tmxbackup\src\FreeFuncs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\tmxlite-master\tmxlite\src\ImageLayer.cpp">
+    <ClCompile Include="C:\Users\edwar\OneDrive\Desktop\Thorns\4th-Year-Thorns\Thorns\Thorns\lib\tmxlite\tmxbackup\src\ImageLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\tmxlite-master\tmxlite\src\Map.cpp">
+    <ClCompile Include="C:\Users\edwar\OneDrive\Desktop\Thorns\4th-Year-Thorns\Thorns\Thorns\lib\tmxlite\tmxbackup\src\Map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\tmxlite-master\tmxlite\src\Object.cpp">
+    <ClCompile Include="C:\Users\edwar\OneDrive\Desktop\Thorns\4th-Year-Thorns\Thorns\Thorns\lib\tmxlite\tmxbackup\src\Object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\tmxlite-master\tmxlite\src\ObjectGroup.cpp">
+    <ClCompile Include="C:\Users\edwar\OneDrive\Desktop\Thorns\4th-Year-Thorns\Thorns\Thorns\lib\tmxlite\tmxbackup\src\ObjectGroup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\tmxlite-master\tmxlite\src\Property.cpp">
+    <ClCompile Include="C:\Users\edwar\OneDrive\Desktop\Thorns\4th-Year-Thorns\Thorns\Thorns\lib\tmxlite\tmxbackup\src\Property.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\tmxlite-master\tmxlite\src\TileLayer.cpp">
+    <ClCompile Include="C:\Users\edwar\OneDrive\Desktop\Thorns\4th-Year-Thorns\Thorns\Thorns\lib\tmxlite\tmxbackup\src\TileLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\tmxlite-master\tmxlite\src\LayerGroup.cpp">
+    <ClCompile Include="C:\Users\edwar\OneDrive\Desktop\Thorns\4th-Year-Thorns\Thorns\Thorns\lib\tmxlite\tmxbackup\src\LayerGroup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\tmxlite-master\tmxlite\src\Tileset.cpp">
+    <ClCompile Include="C:\Users\edwar\OneDrive\Desktop\Thorns\4th-Year-Thorns\Thorns\Thorns\lib\tmxlite\tmxbackup\src\Tileset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\tmxlite-master\tmxlite\src\ObjectTypes.cpp">
+    <ClCompile Include="C:\Users\edwar\OneDrive\Desktop\Thorns\4th-Year-Thorns\Thorns\Thorns\lib\tmxlite\tmxbackup\src\ObjectTypes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\tmxlite-master\tmxlite\src\miniz.c">
+    <ClCompile Include="C:\Users\edwar\OneDrive\Desktop\Thorns\4th-Year-Thorns\Thorns\Thorns\lib\tmxlite\tmxbackup\src\miniz.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\tmxlite-master\tmxlite\src\detail\pugixml.cpp">
+    <ClCompile Include="C:\Users\edwar\OneDrive\Desktop\Thorns\4th-Year-Thorns\Thorns\Thorns\lib\tmxlite\tmxbackup\src\detail\pugixml.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\tmxlite-master\tmxlite\CMakeLists.txt" />
+    <CustomBuild Include="C:\Users\edwar\OneDrive\Desktop\Thorns\4th-Year-Thorns\Thorns\Thorns\lib\tmxlite\tmxbackup\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{6777B474-745F-38A7-93B9-3D13D11A46A3}</UniqueIdentifier>
+      <UniqueIdentifier>{C1C69B3C-A15D-3CE7-AEF4-83A4D31147E8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -15,6 +15,7 @@
 #include "CollisionManager.h"
 #include "WorldItemPool.h"
 #include "ItemType.h"
+#include "DayTimerComponent.h"
 
 class Game : IUpdatable
 {
@@ -90,6 +91,7 @@ private:
     Menu m_mainMenu;
     Menu m_pauseMenu;
     SettingsMenu m_settingsMenu;
+    DayTimerComponent m_dayTimer;
 
     // ========== Game Objects ==========
     Player m_player;
