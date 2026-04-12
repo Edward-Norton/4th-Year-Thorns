@@ -534,7 +534,7 @@ void Game::render()
         m_itemPool.render(m_window, m_gameView);
 
         // To be removed, Layer 3 Voronoi
-        m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
+        //m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
 
         //Entities
         m_player.render(m_window);
@@ -561,7 +561,7 @@ void Game::render()
                 m_mapGenerator.getObjectPlacer()->render(m_window, m_gameView);
             }
 
-            m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
+            //m_mapGenerator.getVoronoiDiagram()->renderDebug(m_window);
             m_player.render(m_window);
             m_enemyManager.renderAll(m_window);
         }

@@ -180,7 +180,7 @@ void Map::render(sf::RenderTarget& target) const
     }
 
     // Voronoi Borders
-    renderVoronoiBoundaries(target);
+    //renderVoronoiBoundaries(target);
 
     // Layer 2 Pois
     renderPOIs(target, view);
